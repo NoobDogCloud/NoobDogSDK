@@ -26,6 +26,6 @@ public class rpcLocal {
         var ctx = HttpContext.current();
         String serviceName = ctx.serviceName();
         String baseUrl = "http://127.0.0.1:" + Config.port + "/" + serviceName + "/" + className + "/" + actionName;
-        return rpc.call(baseUrl, ctx, false, serviceName.toLowerCase(Locale.ROOT).equals("system"), args);
+        return RpcHttp.call(baseUrl, ctx, false, serviceName.toLowerCase(Locale.ROOT).equals("system"), args);
     }
 }

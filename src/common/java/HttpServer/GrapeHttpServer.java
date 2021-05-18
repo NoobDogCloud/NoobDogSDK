@@ -28,7 +28,6 @@ import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class GrapeHttpServer {
-    // private final static ThreadLocal<HttpContext> requestData;
 
     private final static int bufferLen = 20480;
     // private final static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2 + 1);
@@ -91,7 +90,7 @@ public class GrapeHttpServer {
         GrapeHttpServer.writeHttpResponse(ctx.channelContext(), rlt);
     }
 
-    private static Object EventLoop(HttpContext ctx) {
+    public static Object EventLoop(HttpContext ctx) {
         RequestSession.setValue(HttpContext.SessionKey, ctx);
         return systemCall(ctx);
     }

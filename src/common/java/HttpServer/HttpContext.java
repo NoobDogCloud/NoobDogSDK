@@ -40,7 +40,6 @@ public class HttpContext {
     private ChannelHandlerContext ctx;
     private JSONObject values = new JSONObject();
     private HttpContextDb db_ctx;
-    private String public_key;      // 访问中央服务器需要的公钥
 
     private HttpContext() {
     }
@@ -467,6 +466,20 @@ public class HttpContext {
             HttpContext.showMessage(this.channelContext(), msg);
             throw new RuntimeException(msg);
         }
+    }
+
+    /**
+     * 转化 http header 为 json
+     */
+    public JSONObject toJson() {
+        return JSONObject.build()
+                .put(GrapeHttpHeader.WebSocket.url, this.absPath)
+                .put(GrapeHttpHeader.WebSocket.header, this.values)
+                .put(GrapeHttpHeader.WebSocket.param, this.parameter);
+    }
+
+    public String toString() {
+        return toJson().toString();
     }
 
     private HttpContext setValueSafe(String key, JSONObject nHeader) {

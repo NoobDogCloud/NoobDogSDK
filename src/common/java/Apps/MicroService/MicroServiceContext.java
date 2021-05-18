@@ -59,6 +59,13 @@ public class MicroServiceContext {
     }
 
     /**
+     * 获得服务通讯协议
+     */
+    public String transfer() {
+        return this.servInfo.getString("transfer");
+    }
+
+    /**
      * 获得微服务的配置
      */
     public ModelServiceConfig config() {

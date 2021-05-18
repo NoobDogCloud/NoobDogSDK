@@ -21,7 +21,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ExecRequest {//框架内请求类
 
     private static final HashMap<Class<?>, String> class2string;
-    private static final String appsURL;
     private static final ConcurrentHashMap<String, List<Object>> BeforeFilterObjectCache = new ConcurrentHashMap<>();
     private static final ConcurrentHashMap<String, List<Object>> AfterFilterObjectCache = new ConcurrentHashMap<>();
 
@@ -47,7 +46,6 @@ public class ExecRequest {//框架内请求类
 
         class2string.put(JSONObject.class, "j,json");
         class2string.put(JSONArray.class, "ja,jsonArray");
-        appsURL = null;
     }
 
     private static Object ModelDesc(HttpContext ctx) {
