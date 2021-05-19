@@ -17,7 +17,15 @@ public class GscBooster {
         start(Config.serviceName);
     }
 
+    public static void start(Runnable func) {
+        start(Config.serviceName, func);
+    }
+
     public static void start(String serverName) {
+        start(serverName, null);
+    }
+
+    public static void start(String serverName, Runnable func) {
         try {
             // 此时订阅全部用到的数据
             if (!Config.serviceName.toLowerCase(Locale.ROOT).equals("system")) {
@@ -29,6 +37,9 @@ public class GscBooster {
             JSONArray<JSONObject> serviceArr = MasterActor.getInstance("services").getData();
             if (JSONArray.isInvalided(serviceArr)) {
                 return;
+            }
+            if (func != null) {
+                func.run();
             }
             switch (serviceArr.get(0).getString("transfer")) {
                 case "pulsar":
