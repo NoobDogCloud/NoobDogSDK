@@ -83,19 +83,18 @@ public class RpcPulsar {
             }
         }
         // 构造http协议rpc完整地址
-        String url = path;
-        // 构造http协议rpc完整地址
         if (!path.toLowerCase().startsWith("http://")) {
-            String[] strArr = path.split("/");
-            url = rpc.service(strArr[1]).setPath(strArr[2], strArr[3]).toString();
-        } else {
-            path = path.split("//")[1];
+            path = "http://" + path;
         }
-        String[] rArr = path.split("/");
-        var pathAndArgs = args != null ? ExecRequest.objects2string(args) : "";
+        path = path.split("//")[1];
 
-        ctx.host(url.split("http://")[1].split("/")[0]);
-        ctx.serviceName(rArr[0]);
+        String[] rArr = path.split("/");
+        String host = rArr[0];
+        path = StringHelper.join(rArr, "/", 1, -1);
+        var pathAndArgs = path + (args != null ? ExecRequest.objects2string(args) : "");
+
+        ctx.host(host);
+        ctx.serviceName(rArr[1]);
         ctx.path(pathAndArgs);
 
         if (api_auth) {

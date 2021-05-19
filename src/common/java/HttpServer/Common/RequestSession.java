@@ -1,6 +1,7 @@
 package common.java.HttpServer.Common;
 
 import common.java.Reflect._reflect;
+import common.java.String.StringHelper;
 import io.netty.channel.ChannelId;
 
 import java.util.HashMap;
@@ -34,7 +35,12 @@ public class RequestSession {
     public static <T> void setValue(String key, T val) {
         ChannelId cid = channelID.get();
         if (cid == null) {
-            setChannelID(null);
+            cid = buildChannelId();
+            setChannelID(cid);
+        }
+        var hash = requestCache.get(cid);
+        if (hash == null) {
+            create(cid);
         }
         requestCache.get(cid).put(key, val);
     }
@@ -49,5 +55,27 @@ public class RequestSession {
 
     public static void setChannelID(ChannelId cid) {
         channelID.set(cid);
+    }
+
+    public static ChannelId buildChannelId() {
+        return new ChannelId() {
+            private final String shortText = StringHelper.createRandomCode(6);
+            private final String longText = shortText + "_" + StringHelper.createRandomCode(6);
+
+            @Override
+            public String asShortText() {
+                return "v_" + shortText;
+            }
+
+            @Override
+            public String asLongText() {
+                return "vl_" + longText;
+            }
+
+            @Override
+            public int compareTo(ChannelId o) {
+                return o.asLongText().equalsIgnoreCase(this.asLongText()) ? 0 : 1;
+            }
+        };
     }
 }

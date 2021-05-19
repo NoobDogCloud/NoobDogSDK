@@ -5,7 +5,6 @@ import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Apps.Roles.AppRoles;
 import common.java.HttpServer.Common.RequestSession;
 import common.java.HttpServer.HttpContext;
-import common.java.String.StringHelper;
 import io.netty.channel.ChannelId;
 import org.json.gsc.JSONObject;
 
@@ -82,25 +81,7 @@ public class AppContext {
      * 根据指定的appId创建虚拟上下文
      */
     public static AppContext virtualAppContext(int appId, String serviceName) {
-        ChannelId cid = new ChannelId() {
-            private final String shortText = StringHelper.createRandomCode(6);
-            private final String longText = shortText + "_" + StringHelper.createRandomCode(6);
-
-            @Override
-            public String asShortText() {
-                return "v_" + shortText;
-            }
-
-            @Override
-            public String asLongText() {
-                return "vl_" + longText;
-            }
-
-            @Override
-            public int compareTo(ChannelId o) {
-                return o.asLongText().equalsIgnoreCase(this.asLongText()) ? 0 : 1;
-            }
-        };
+        ChannelId cid = RequestSession.buildChannelId();
         RequestSession.setChannelID(cid);
         RequestSession.create(cid);
         AppContext r = new AppContext(appId);
