@@ -86,6 +86,10 @@ public class HttpContext {
         return httpCtx;
     }
 
+    public static void Break() {
+        throw new RuntimeException("break request");
+    }
+
     public static void showMessage(ChannelHandlerContext ctx, String msg) {
         if (ctx != null) {
             GrapeHttpServer.writeHttpResponse(ctx, rMsg.netMSG(false, msg));
