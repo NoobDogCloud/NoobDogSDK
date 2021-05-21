@@ -92,6 +92,7 @@ public class GrapeHttpServer {
 
     public static Object EventLoop(HttpContext ctx) {
         RequestSession.setValue(HttpContext.SessionKey, ctx);
+        RequestSession.setValue(HttpContext.ResponseSessionKey, new DefaultFullHttpResponse(HTTP_1_1, OK));
         return systemCall(ctx);
     }
 
@@ -211,7 +212,8 @@ public class GrapeHttpServer {
     }
 
     public static void writeHttpResponse(ChannelHandlerContext ctx, byte[] responseData, JSONObject exHeader) {
-        FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
+        // FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
+        FullHttpResponse response = HttpContext.response();
         addHeader(response, false);
         if (exHeader != null) {
             for (String key : exHeader.keySet()) {

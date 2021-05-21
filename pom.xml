@@ -189,7 +189,7 @@
         <repository>
             <id>GrapeSoft</id>
             <name>GrapeSoft</name>
-            <url>http://mvn.putao282.com:8081/repository/GrapeSoft/</url>
+            <url>http://maven.putao520.team:8081/repository/GrapeSoft/</url>
         </repository>
     </distributionManagement>
 </project>

@@ -10,9 +10,7 @@ import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.HttpHeaders;
-import io.netty.handler.codec.http.HttpRequest;
-import io.netty.handler.codec.http.HttpUtil;
+import io.netty.handler.codec.http.*;
 import io.netty.util.AsciiString;
 import org.json.gsc.JSONObject;
 
@@ -20,9 +18,13 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
+import static io.netty.handler.codec.http.HttpResponseStatus.OK;
+import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
+
 public class HttpContext {
     public static final JSONObject methodStore;
     public static final String SessionKey = "HttpContext";
+    public static final String ResponseSessionKey = "HttpResponse";
 
     static {
         methodStore = new JSONObject();
@@ -69,6 +71,10 @@ public class HttpContext {
         return RequestSession.getValue(HttpContext.SessionKey);
     }
 
+    public static FullHttpResponse response() {
+        return RequestSession.getValue(HttpContext.ResponseSessionKey);
+    }
+
     public static HttpContext newHttpContext() {
         return new HttpContext();
     }
@@ -76,6 +82,7 @@ public class HttpContext {
     public static HttpContext setNewHttpContext() {
         HttpContext httpCtx = new HttpContext();
         RequestSession.setValue(HttpContext.SessionKey, httpCtx);
+        RequestSession.setValue(HttpContext.ResponseSessionKey, new DefaultFullHttpResponse(HTTP_1_1, OK));
         return httpCtx;
     }
 
@@ -87,6 +94,14 @@ public class HttpContext {
         }
         if (Config.debug) {
             nLogger.errorInfo(msg);
+        }
+    }
+
+    public static void showResult(ChannelHandlerContext ctx, Object result) {
+        if (ctx != null) {
+            GrapeHttpServer.writeHttpResponse(ctx, result);
+            ctx.close();
+            ctx.deregister();
         }
     }
 
@@ -466,6 +481,13 @@ public class HttpContext {
             HttpContext.showMessage(this.channelContext(), msg);
             throw new RuntimeException(msg);
         }
+    }
+
+    /**
+     * 调试模式时,抛出异常
+     */
+    public void out(Object msg) {
+        HttpContext.showResult(this.channelContext(), msg);
     }
 
     /**
