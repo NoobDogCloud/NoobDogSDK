@@ -30,4 +30,8 @@ public class rMsg {
     public static rMsgJson asJson() {
         return rMsgJson.build();
     }
+
+    public static rMsgResponse asResponse() {
+        return rMsgResponse.build();
+    }
 }
