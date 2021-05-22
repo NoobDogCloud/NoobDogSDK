@@ -506,6 +506,10 @@ public class HttpContext {
         HttpContext.showResult(this.channelContext(), msg);
     }
 
+    public Object payload() {
+        return parameter != null ? parameter.get(payload) : null;
+    }
+
     /**
      * 转化 http header 为 json
      */
@@ -518,10 +522,6 @@ public class HttpContext {
 
     public String toString() {
         return toJson().toString();
-    }
-
-    public Object getPayload() {
-        return parameter != null ? parameter.get(payload) : null;
     }
 
     private HttpContext setValueSafe(String key, JSONObject nHeader) {
