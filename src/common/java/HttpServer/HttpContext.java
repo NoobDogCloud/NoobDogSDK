@@ -25,6 +25,7 @@ public class HttpContext {
     public static final JSONObject methodStore;
     public static final String SessionKey = "HttpContext";
     public static final String ResponseSessionKey = "HttpResponse";
+    public static final String RequestSessionKey = "HttpRequest";
 
     static {
         methodStore = new JSONObject();
@@ -34,6 +35,11 @@ public class HttpContext {
     }
 
     private Method method;
+
+    public static HttpRequest request() {
+        return RequestSession.getValue(HttpContext.RequestSessionKey);
+    }
+
     private HttpRequest request;
     private String absPath;
     private String svrName;
@@ -75,15 +81,20 @@ public class HttpContext {
         return RequestSession.getValue(HttpContext.ResponseSessionKey);
     }
 
-    public static HttpContext newHttpContext() {
-        return new HttpContext();
-    }
-
     public static HttpContext setNewHttpContext() {
         HttpContext httpCtx = new HttpContext();
         RequestSession.setValue(HttpContext.SessionKey, httpCtx);
         RequestSession.setValue(HttpContext.ResponseSessionKey, new DefaultFullHttpResponse(HTTP_1_1, OK));
+        RequestSession.setValue(HttpContext.RequestSessionKey, null);
         return httpCtx;
+    }
+
+    public static HttpContext newHttpContext() {
+        return new HttpContext();
+    }
+
+    public HttpRequest getRequest() {
+        return request;
     }
 
     public static void Break() {

@@ -93,6 +93,7 @@ public class GrapeHttpServer {
     public static Object EventLoop(HttpContext ctx) {
         RequestSession.setValue(HttpContext.SessionKey, ctx);
         RequestSession.setValue(HttpContext.ResponseSessionKey, new DefaultFullHttpResponse(HTTP_1_1, OK));
+        RequestSession.setValue(HttpContext.RequestSessionKey, ctx.getRequest());
         return systemCall(ctx);
     }
 
