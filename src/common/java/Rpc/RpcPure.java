@@ -9,7 +9,7 @@ public class RpcPure {
         this.payload = payload;
     }
 
-    public static RpcPure Instant(String payload) {
+    public static RpcPure Instant(Object payload) {
         return new RpcPure(payload);
     }
 
