@@ -42,12 +42,15 @@ class NetEvents extends ChannelInboundHandlerAdapter {
                     rString = JSONObject.toJSON(httpContent);//json风格转换
                     if (null == rString) {
                         rString = XmlHelper.toJson(httpContent);//xml 风格转换,同时附加原始数据
+                        /*
                         if (rString != null) {
                             rString.put("xmldata", httpContent);//保留原始数据
                         }
+                        */
                     }
                 }
             }
+            rString.put(HttpContext.payload, httpContent);
         } catch (Exception e) {
             rString = null;
         }

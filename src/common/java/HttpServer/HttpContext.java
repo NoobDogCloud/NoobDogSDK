@@ -26,6 +26,7 @@ public class HttpContext {
     public static final String SessionKey = "HttpContext";
     public static final String ResponseSessionKey = "HttpResponse";
     public static final String RequestSessionKey = "HttpRequest";
+    public static final String payload = "payload";
 
     static {
         methodStore = new JSONObject();
@@ -519,6 +520,10 @@ public class HttpContext {
         return toJson().toString();
     }
 
+    public Object getPayload() {
+        return parameter != null ? parameter.get(payload) : null;
+    }
+
     private HttpContext setValueSafe(String key, JSONObject nHeader) {
         if (nHeader.containsKey(key)) {
             values.put(key, nHeader.get(key));
@@ -532,6 +537,7 @@ public class HttpContext {
         }
         return this;
     }
+
 
     public enum Method {
         get, post, websocket
@@ -580,7 +586,7 @@ public class HttpContext {
             websocket.add(WebSocket.wsId);
 
             //Xml
-            xmls.add(xml.xmlPayload);
+            xmls.add(payload);
         }
 
         public static class WebSocket {
@@ -588,10 +594,6 @@ public class HttpContext {
             public final static String header = "header";
             public final static String param = "param";
             public final static String wsId = "wsID";
-        }
-
-        public static class xml {
-            public final static String xmlPayload = "xmldata";
         }
 
         public static class App {
