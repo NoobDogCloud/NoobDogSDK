@@ -31,7 +31,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         return StringHelper.join(StringHelper.path2list(content), "/");
     }
 
-    public static JSONObject postContent2JSON(String _httpContent) {
+    public static JSONObject PostContent2JSON(String _httpContent) {
         JSONObject rString = null;
         try {
             String httpContent = _httpContent;
@@ -151,8 +151,12 @@ class NetEvents extends ChannelInboundHandlerAdapter {
                 }
                 nLogger.debugInfo("gsc-post:" + _url);
             } else {
-                //分析正常post请求参数
-                postParam = postParamter(msg);
+                // 分析正常post请求参数
+                postParam = PostParameter(msg);
+                // 不是表单
+                if (postParam == null) {
+                    postParam = PostContent2JSON(tempBody);
+                }
                 nLogger.debugInfo("post:" + _url);
             }
             vaild = true;
@@ -215,7 +219,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         }
     }
 
-    private JSONObject postParamter(Object req) {
+    private JSONObject PostParameter(Object req) {
         JSONObject parmMap = new JSONObject();
         HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(_req);
         decoder.offer((HttpContent) req);
