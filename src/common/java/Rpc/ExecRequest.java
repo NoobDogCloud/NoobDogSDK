@@ -206,6 +206,10 @@ public class ExecRequest {//框架内请求类
         if (o == null) {
             return rMsg.netState(false);
         }
+        if (o instanceof RpcPure) {
+            RpcPure v = (RpcPure) o;
+            return v.payload();
+        }
         if (o instanceof String ||
                 o instanceof Integer ||
                 o instanceof List<?> ||
