@@ -215,6 +215,9 @@ public class GrapeHttpServer {
     public static void writeHttpResponse(ChannelHandlerContext ctx, byte[] responseData, JSONObject exHeader) {
         // FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
         FullHttpResponse response = HttpContext.response();
+        if (response == null) {
+            response = new DefaultFullHttpResponse(HTTP_1_1, OK);
+        }
         addHeader(response, false);
         if (exHeader != null) {
             for (String key : exHeader.keySet()) {
