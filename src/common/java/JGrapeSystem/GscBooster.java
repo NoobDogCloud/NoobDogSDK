@@ -27,21 +27,24 @@ public class GscBooster {
 
     public static void start(String serverName, Runnable func) {
         try {
+            JSONArray<JSONObject> serviceArr = null;
             // 此时订阅全部用到的数据
             if (!Config.serviceName.toLowerCase(Locale.ROOT).equals("system")) {
                 MasterActor.getClient().setConnected(v -> v.subscribe()).subscribe();
+                // 获得当前服务类型启动方式
+                serviceArr = MasterActor.getInstance("services").getData();
+                if (JSONArray.isInvalided(serviceArr)) {
+                    return;
+                }
             }
             // 设置日志过滤器
             GscBooterBefore._before(serverName);
-            // 获得当前服务类型启动方式
-            JSONArray<JSONObject> serviceArr = MasterActor.getInstance("services").getData();
-            if (JSONArray.isInvalided(serviceArr)) {
-                return;
-            }
+
             if (func != null) {
                 func.run();
             }
-            switch (serviceArr.get(0).getString("transfer")) {
+            String transfer = JSONArray.isInvalided(serviceArr) ? "default" : serviceArr.get(0).getString("transfer");
+            switch (transfer) {
                 case "pulsar":
                     GscPulsarServer.start(serviceArr);
                     break;
