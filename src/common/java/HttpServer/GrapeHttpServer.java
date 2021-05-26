@@ -30,8 +30,8 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 public class GrapeHttpServer {
 
     private final static int bufferLen = 20480;
-    // private final static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2 + 1);
-    private final static ExecutorService es = Executors.newCachedThreadPool();
+    private final static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+    // private final static ExecutorService es = Executors.newCachedThreadPool();
 
     private static void fixHttpContext(HttpContext ctx) {
         String path = ctx.path();
@@ -67,16 +67,25 @@ public class GrapeHttpServer {
                 fixHttpContext(ctx);
             }
             HttpContext ctxFinal = ctx;
-
+            // 正常线程池
             es.submit(() -> {
-                RequestSession.setChannelID(_ctx.channel().id());
-                try {
-                    stubLoop(ctxFinal);
-                } catch (Exception e) {
-                    if (Config.debug) {
-                        writeHttpResponse(_ctx, rMsg.netMSG(false, e.getMessage()));
-                    }
+                // 为正常线程创建协程
+                ThreadLocal<ExecutorService> child_thread_es = new ThreadLocal();
+                ExecutorService child_es = child_thread_es.get();
+                if (child_es == null) {
+                    child_es = Executors.newVirtualThreadExecutor();
+                    child_thread_es.set(child_es);
                 }
+                child_es.submit(() -> {
+                    RequestSession.setChannelID(_ctx.channel().id());
+                    try {
+                        stubLoop(ctxFinal);
+                    } catch (Exception e) {
+                        if (Config.debug) {
+                            writeHttpResponse(_ctx, rMsg.netMSG(false, e.getMessage()));
+                        }
+                    }
+                });
             });
         }
     }

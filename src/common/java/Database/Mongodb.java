@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.logging.Level;
 
@@ -911,11 +910,10 @@ public class Mongodb {
         int pageNO = maxCount % max > 0 ? (maxCount / max) + 1 : maxCount / max;
         ConcurrentHashMap<Integer, JSONArray<JSONObject>> tempResult;
         tempResult = new ConcurrentHashMap<>();
-        // ExecutorService es = Executors.newVirtualThreadExecutor();
-        ExecutorService es = Executors.newCachedThreadPool();
+
         List<List<Object>> condJSON = getCond();
         String _formName = getfullform();
-        try {
+        try (ExecutorService es = Executors.newVirtualThreadExecutor()) {
             for (int index = 1; index <= pageNO; index++) {
                 final int _index = index;
                 final int _max = max;
@@ -927,17 +925,12 @@ public class Mongodb {
                         var jsonArr = db.page(_index, _max);
                         tempResult.put(_index, Objects.requireNonNull(func).apply(jsonArr));
                     } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 });
             }
-        } finally {
-            es.shutdown();
-            try {
-                es.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-            } catch (InterruptedException e) {
-            }
         }
-        JSONArray<JSONObject> rArray = new JSONArray<JSONObject>();
+        JSONArray<JSONObject> rArray = new JSONArray<>();
         for (int key : tempResult.keySet()) {
             rArray.addAll(tempResult.get(key));
         }

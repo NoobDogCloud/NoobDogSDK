@@ -8,13 +8,10 @@ import common.java.HttpServer.HttpContext;
 import io.netty.channel.ChannelId;
 import org.json.gsc.JSONObject;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 // 应用上下文
 public class AppContext {
     public static final String SessionKey = "AppContext";
-    private static final ExecutorService globalService = Executors.newCachedThreadPool();
+    // private static final ExecutorService globalService = Executors.newCachedThreadPool();
     private int appId;
     private String domain;
     private JSONObject appInfo;
@@ -173,13 +170,8 @@ public class AppContext {
      * 当前上下文启动新线程
      */
     public AppContext thread(Runnable task) {
-        return this.thread(task, null);
-    }
-
-    public AppContext thread(Runnable task, ExecutorService service) {
-        ExecutorService serv = service == null ? globalService : service;
         AppThreadContext atc = AppContext.virtualAppContext();
-        serv.submit(() -> {
+        Thread.ofVirtual().start(() -> {
             AppContext.virtualAppContext(atc);
             task.run();
         });
