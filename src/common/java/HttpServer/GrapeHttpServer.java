@@ -30,7 +30,7 @@ import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 public class GrapeHttpServer {
 
     private final static int bufferLen = 20480;
-    private final static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 1);
+    private final static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2 + 1);
     // private final static ExecutorService es = Executors.newCachedThreadPool();
 
     private static void fixHttpContext(HttpContext ctx) {
