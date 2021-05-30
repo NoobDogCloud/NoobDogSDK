@@ -427,7 +427,7 @@ public class CheckHelper {
      * @return
      */
     public static boolean IsPassword(String str) {
-        String regex = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$";
+        String regex = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,128}$";
         return match(regex, str);
     }
 
@@ -484,6 +484,11 @@ public class CheckHelper {
      */
     public static boolean IsBankCard(String str) {
         return BankCard.checkBankCard(str);
+    }
+
+    public static boolean IsObject(String str) {
+        String regex = "^[0-9a-fA-F]{24}$";
+        return match(regex, str);
     }
 
     private static boolean match(String regex, String str) {

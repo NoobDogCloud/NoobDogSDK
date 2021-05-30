@@ -332,7 +332,7 @@ public class FormHelper {
             case formdef.Chinese:
                 return CheckHelper.IsChinese(str);
             case formdef.id:
-                return CheckHelper.IsID(str, 15);
+                return CheckHelper.IsID(str, 64);
             case formdef.noSpace:
                 return CheckHelper.notContainSpace(str);
             case formdef.name:
@@ -364,6 +364,10 @@ public class FormHelper {
                 } catch (Exception e) {
                 }
                 break;
+            case formdef.BankCard:
+                return CheckHelper.IsBankCard(str);
+            case formdef.ObjectId:
+                return CheckHelper.IsObject(str);
             default:
                 // rule不在有效范围,效验失败
                 return false;
@@ -491,5 +495,9 @@ public class FormHelper {
          * 银行卡号
          */
         public final static int BankCard = 28;
+        /**
+         * objectId
+         */
+        public final static int ObjectId = 29;
     }
 }

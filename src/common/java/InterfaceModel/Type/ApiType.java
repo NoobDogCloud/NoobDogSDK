@@ -10,5 +10,5 @@ import java.lang.annotation.RetentionPolicy;
 public @interface ApiType {
     type value() default type.PublicApi;
 
-    enum type {PublicApi, SessionApi, OauthApi, CloseApi, PrivateApi}
+    enum type {PublicApi, SessionApi, OauthApi, PrivateApi, CloseApi}
 }
