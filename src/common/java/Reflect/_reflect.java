@@ -219,15 +219,16 @@ public class _reflect {
 
     private Method _getMethod(String functionName, Class<?>[] parameterlist) {
         int i = parameterlist == null ? 0 : parameterlist.length;
+        Class<?>[] c = parameterlist == null ? new Class<?>[]{} : parameterlist;
         Method comMethod = null;
         while (true) {
             try {
-                comMethod = _Class.getMethod(functionName, parameterlist);
+                comMethod = _Class.getMethod(functionName, c);
             } catch (NoSuchMethodException e) {
             }
             if (comMethod == null && i > 0) {
                 i--;
-                parameterlist[i] = Object.class;
+                c[i] = Object.class;
             } else {
                 break;
             }
