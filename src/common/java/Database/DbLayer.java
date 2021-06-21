@@ -163,6 +163,11 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
                     _dbName = dbType.oracle;
                     break;
                 }
+                case "h2": {
+                    _db = (new _reflect(H2.class)).newInstance(_configString);
+                    _dbName = dbType.h2;
+                    break;
+                }
                 default: {
                     _db = (new _reflect(Sql.class)).newInstance(_configString);
                     _dbName = dbType.mysql;
@@ -685,6 +690,7 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         public final static int mongodb = 1;
         public final static int mysql = 2;
         public final static int oracle = 3;
+        public final static int h2 = 4;
     }
 
 }

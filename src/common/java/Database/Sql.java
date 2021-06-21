@@ -1407,6 +1407,7 @@ public class Sql {
         return formName;
     }
 
+    /*
     protected String sqlvalue(Object _value) {//未考虑json字符串
         String rValue;
         String value;
@@ -1424,6 +1425,28 @@ public class Sql {
             }
         } catch (Exception e) {
             rValue = StringHelper.typeString(_value);
+        }
+        return rValue;
+    }
+    */
+
+    protected String sqlvalue(Object _value) {//未考虑json字符串
+        String rValue;
+        String value;
+        try {
+            value = _value.toString();
+            String[] _values = value.split(":");
+            if (_values[0].equalsIgnoreCase("func")) {
+                rValue = StringHelper.join(_values, ":", 1, -1);
+            } else {
+                rValue = StringHelper.typeString(_value, "'");
+            }
+            JSONObject jsontest = JSONObject.toJSON(rValue);
+            if (jsontest != null) {
+                rValue = "'" + rValue + "'";
+            }
+        } catch (Exception e) {
+            rValue = StringHelper.typeString(_value, "'");
         }
         return rValue;
     }
