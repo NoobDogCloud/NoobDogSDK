@@ -109,6 +109,13 @@ public class Sql {
         }
     }
 
+    private char propSpilt = '?';
+
+    public Sql updateSpilt(char c) {
+        propSpilt = c;
+        return this;
+    }
+
     protected void initsql() {
         JSONObject obj;
         String user;
