@@ -1,5 +1,6 @@
 package common.java.JGrapeSystem;
 
+import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Config.Config;
 import common.java.HttpServer.GscServer;
 import common.java.MasterProxy.MasterActor;
@@ -45,7 +46,7 @@ public class GscBooster {
             }
             String transfer = JSONArray.isInvalided(serviceArr) ? "default" : serviceArr.get(0).getString("transfer");
             switch (transfer) {
-                case "pulsar":
+                case MicroServiceContext.TransferKeyName.Pulsar:
                     GscPulsarServer.start(serviceArr);
                     break;
                 default:

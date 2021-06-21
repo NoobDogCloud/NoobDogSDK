@@ -8,8 +8,17 @@ import common.java.HttpServer.HttpContext;
 import org.json.gsc.JSONObject;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MicroServiceContext {
+    private static final Set<String> TransferKey = new HashSet<>();
+
+    static {
+        TransferKey.add(TransferKeyName.Pulsar);
+        TransferKey.add(TransferKeyName.Http);
+    }
+
     private static int currentNo = 0;
     private JSONObject servInfo;
     private ModelServiceConfig servConfig;
@@ -40,6 +49,10 @@ public class MicroServiceContext {
             this.servModelInfo = new MicroModelArray(this.servInfo.getJson("dataModel"));
             this.servConfig = new ModelServiceConfig(this.servInfo.getJson("config"));
         }
+    }
+
+    public static Set<String> TransferKey() {
+        return TransferKey;
     }
 
     /**
@@ -102,4 +115,8 @@ public class MicroServiceContext {
         return this.servInfo.getBoolean("debug");
     }
 
+    public static class TransferKeyName {
+        public static final String Pulsar = "pulsar";
+        public static final String Http = "http";
+    }
 }

@@ -70,7 +70,7 @@ public class rpc {
      */
     public RpcResponse call(Object... args) {
         switch (msc.transfer()) {
-            case "pulsar":
+            case MicroServiceContext.TransferKeyName.Pulsar:
                 return RpcPulsar.call(this.toString(), this.ctx, this.needApiAuth, this.needPublicKey, args);
             default:
                 return RpcHttp.call(this.toString(), this.ctx, this.needApiAuth, this.needPublicKey, args);
