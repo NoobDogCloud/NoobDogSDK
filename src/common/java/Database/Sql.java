@@ -156,6 +156,12 @@ public class Sql {
             if (obj.containsKey("database_to_upper")) {
                 extern += (splitChar + "DATABASE_TO_UPPER=" + obj.getBoolean("database_to_upper"));
             }
+            if (obj.containsKey("database_to_lower")) {
+                extern += (splitChar + "DATABASE_TO_LOWER=" + obj.getBoolean("database_to_lower"));
+            }
+            if (obj.containsKey("case_insensitive_identifiers")) {
+                extern += (splitChar + "CASE_INSENSITIVE_IDENTIFIERS=" + obj.getBoolean("case_insensitive_identifiers"));
+            }
             if (obj.containsKey("ignore_case")) {
                 extern += (splitChar + "IGNORECASE=" + obj.getBoolean("ignore_case"));
             }
