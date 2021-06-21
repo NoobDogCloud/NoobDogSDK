@@ -654,9 +654,38 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         return (boolean) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), cmd);
     }
 
+
+    public String func(String str) {
+        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), str);
+    }
+
+    /**
+     * 10位unixtime
+     */
+    public String now() {
+        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+    }
+
+    /**
+     * 10位unixtime
+     */
+    public String formUnixtime(long unixTime) {
+        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), unixTime);
+    }
+
+    public String curDate() {
+        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+    }
+
+    public String curTime() {
+        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+    }
+
+
     public static class dbType {
         public final static int mongodb = 1;
         public final static int mysql = 2;
         public final static int oracle = 3;
     }
+
 }

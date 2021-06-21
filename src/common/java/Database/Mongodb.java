@@ -6,6 +6,7 @@ import com.mongodb.client.*;
 import com.mongodb.client.model.*;
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import common.java.Time.TimeHelper;
 import common.java.nLogger.nLogger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -1247,5 +1248,29 @@ public class Mongodb {
             return rs;
         }
     }
+
+    public String func(String str) {
+        return "";
+    }
+
+    public String now() {
+        return TimeHelper.build().nowDatetime();
+    }
+
+    /**
+     * 10位unixtime
+     */
+    public String formUnixtime(long unixTime) {
+        return TimeHelper.build().timestampToDatetime(unixTime);
+    }
+
+    public String curDate() {
+        return TimeHelper.build().nowDate();
+    }
+
+    public String curTime() {
+        return TimeHelper.build().nowTime();
+    }
+
 
 }

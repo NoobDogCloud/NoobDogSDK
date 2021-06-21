@@ -1456,4 +1456,30 @@ public class Sql {
         public final static int update = 2;
         public final static int delete = 3;
     }
+
+    public String func(String str) {
+        return "func:" + str + " ";
+    }
+
+    /**
+     * 10位unixtime
+     */
+    public String now() {
+        return func("now()");
+    }
+
+    /**
+     * 10位unixtime
+     */
+    public String formUnixtime(long unixTime) {
+        return func("from_unixtime(" + unixTime + ")");
+    }
+
+    public String curDate() {
+        return func("CURDATE()");
+    }
+
+    public String curTime() {
+        return func("CURTIME()");
+    }
 }
