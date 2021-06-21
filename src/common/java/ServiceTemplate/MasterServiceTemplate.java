@@ -28,7 +28,7 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
 
     @ApiType(ApiType.type.CloseApi)
     public void init(String tableName) {
-        fdb = new DbLayer();
+        fdb = DbLayer.build();
         fdb.form(tableName);
     }
 

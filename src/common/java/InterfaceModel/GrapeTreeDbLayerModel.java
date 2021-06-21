@@ -182,7 +182,7 @@ public class GrapeTreeDbLayerModel implements InterfaceDatabase<GrapeTreeDbLayer
         pipeJSONArray_Out = new ArrayList<>();
         pipeRead = new ArrayList<>();
         aggregationJSONArray_Out = null;
-        db = new DbLayer();
+        db = DbLayer.build();
     }
 
     /**

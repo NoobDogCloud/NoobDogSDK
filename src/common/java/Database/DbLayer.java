@@ -27,12 +27,28 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
     private String ownId;
     private boolean out_piper_flag = true;
 
-    public DbLayer() {
+    private DbLayer() {
         init(null);
     }
 
-    public DbLayer(String configName) {
+    private DbLayer(String configName) {
         init(configName);
+    }
+
+    private DbLayer(boolean notLoad) {
+        formName = "";
+    }
+
+    public static DbLayer buildPure() {
+        return new DbLayer(true);
+    }
+
+    public static DbLayer build() {
+        return new DbLayer();
+    }
+
+    public static DbLayer build(String configName) {
+        return new DbLayer(configName);
     }
 
     public DbLayer setPiperEnable(boolean flag) {
@@ -114,34 +130,11 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
     }
 
 
-    private _reflect getDBObject(String cN) {
-        String dbName;
-        JSONObject obj;
+    public _reflect getDBObject(String cN) {
         String _configString = Config.netConfig(cN);
         try {
             if (_configString != null) {
-                obj = JSONObject.toJSON(_configString);
-                if (obj != null) {
-                    dbName = obj.getString("dbName").toLowerCase();
-                    switch (dbName) {
-                        case "mongodb": {
-                            _db = (new _reflect(Mongodb.class)).newInstance(_configString);
-                            _dbName = dbType.mongodb;
-                            break;
-                        }
-                        case "oracle": {
-                            _db = (new _reflect(Oracle.class)).newInstance(_configString);
-                            _dbName = dbType.oracle;
-                            break;
-                        }
-                        default: {
-                            _db = (new _reflect(Sql.class)).newInstance(_configString);
-                            _dbName = dbType.mysql;
-                        }
-                    }
-                } else {
-                    nLogger.logInfo("DB配置信息格式错误 ：" + _configString);
-                }
+                _db = getDbByConfigContext(_configString);
             } else {
                 nLogger.logInfo("DB配置信息[" + cN + "]为空:=>" + null);
             }
@@ -149,6 +142,32 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         } catch (Exception e) {
             nLogger.logInfo(e, "连接关系型数据系统失败! 配置名:[" + cN + "]");
             _db = null;
+        }
+        return _db;
+    }
+
+    public _reflect getDbByConfigContext(String _configString) {
+        JSONObject obj = JSONObject.toJSON(_configString);
+        if (obj != null) {
+            String dbName = obj.getString("dbName").toLowerCase();
+            switch (dbName) {
+                case "mongodb": {
+                    _db = (new _reflect(Mongodb.class)).newInstance(_configString);
+                    _dbName = dbType.mongodb;
+                    break;
+                }
+                case "oracle": {
+                    _db = (new _reflect(Oracle.class)).newInstance(_configString);
+                    _dbName = dbType.oracle;
+                    break;
+                }
+                default: {
+                    _db = (new _reflect(Sql.class)).newInstance(_configString);
+                    _dbName = dbType.mysql;
+                }
+            }
+        } else {
+            nLogger.logInfo("DB配置信息格式错误 ：" + _configString);
         }
         return _db;
     }
