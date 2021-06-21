@@ -122,6 +122,7 @@ public class Sql {
         int maxActive;
         String className;
         String splitChar;
+        String startChar;
         try {
             obj = JSONObject.toJSON(_configString);
             // 查看连接池驱动名
@@ -133,33 +134,34 @@ public class Sql {
             charName = obj.containsKey("characterEncoding") ? obj.getString("characterEncoding") : null;
             useUnicode = obj.containsKey("useUnicode") && obj.getBoolean("useUnicode");
             useSSL = obj.containsKey("useSSL") && obj.getBoolean("useSSL");
-            splitChar = obj.containsKey("spilt") ? obj.getString("spilt") : "?";
+            splitChar = obj.containsKey("spilt") ? obj.getString("spilt") : "&";
+            startChar = obj.containsKey("start") ? obj.getString("spilt") : "?";
             // 注意url串中间不要有空格，因为mysql源码对多个地址split时没有trim.(replication mode)
             // " jdbc:mysql:replication://127.0.0.1:3309,127.0.0.1:3306/core " ,
 
             String url = obj.getString("host") + "/" + databaseName;
             String extern = "";
             if (useSSL) {
-                extern += "&useSSL=true";
+                extern += (splitChar + "useSSL=true");
             }
             if (useUnicode) {
-                extern += "&useUnicode=true";
+                extern += (splitChar + "useUnicode=true");
             }
             if (charName != null) {
-                extern += ("&characterEncoding=" + charName);
+                extern += (splitChar + "characterEncoding=" + charName);
             }
             if (obj.containsKey("timezone")) {
-                extern += ("&serverTimezone=" + obj.getString("timezone"));
+                extern += (splitChar + "serverTimezone=" + obj.getString("timezone"));
             }
             if (obj.containsKey("database_to_upper")) {
-                extern += ("&database_to_upper=" + obj.getBoolean("database_to_upper"));
+                extern += (splitChar + "database_to_upper=" + obj.getBoolean("database_to_upper"));
             }
             if (obj.containsKey("IGNORECASE")) {
-                extern += ("&database_to_upper=" + obj.getBoolean("IGNORECASE"));
+                extern += (splitChar + "database_to_upper=" + obj.getBoolean("IGNORECASE"));
             }
 
             if (extern.length() > 0) {
-                extern = (splitChar + extern.substring(1));
+                extern = (startChar + extern.substring(1));
                 url += extern;
             }
 
