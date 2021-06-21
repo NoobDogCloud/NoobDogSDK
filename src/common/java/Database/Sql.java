@@ -156,8 +156,8 @@ public class Sql {
             if (obj.containsKey("database_to_upper")) {
                 extern += (splitChar + "database_to_upper=" + obj.getBoolean("database_to_upper"));
             }
-            if (obj.containsKey("IGNORECASE")) {
-                extern += (splitChar + "database_to_upper=" + obj.getBoolean("IGNORECASE"));
+            if (obj.containsKey("ignore_case")) {
+                extern += (splitChar + "IGNORECASE=" + obj.getBoolean("ignore_case"));
             }
             if (obj.containsKey("mode")) {
                 extern += (splitChar + "MODE=" + obj.getString("mode"));
