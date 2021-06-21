@@ -162,6 +162,9 @@ public class Sql {
             if (obj.containsKey("mode")) {
                 extern += (splitChar + "MODE=" + obj.getString("mode"));
             }
+            if (obj.containsKey("auto_reconnect")) {
+                extern += (splitChar + "AUTO_RECONNECT=" + obj.getBoolean("auto_reconnect"));
+            }
 
             if (extern.length() > 0) {
                 extern = (startChar + extern.substring(1));
