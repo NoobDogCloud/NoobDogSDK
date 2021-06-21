@@ -154,7 +154,9 @@ public class Sql {
             }
 
             if (extern.length() > 0) {
-                extern.toCharArray()[0] = '?';
+                char[] charArr = extern.toCharArray();
+                charArr[0] = '?';
+                extern = new String(charArr);
                 url += extern;
             }
 
