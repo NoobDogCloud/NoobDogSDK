@@ -107,13 +107,6 @@ public class Mongodb {
         return _bson != null ? JSONObject.toJSON(_bson.toJson(build)) : new JSONObject();
     }
 
-    private char propSpilt = '?';
-
-    public Mongodb updateSpilt(char c) {
-        propSpilt = c;
-        return this;
-    }
-
     private void initMongodb() {
         try {
             //DebugPerformance dp = new DebugPerformance();

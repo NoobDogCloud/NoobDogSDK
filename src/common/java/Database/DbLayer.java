@@ -650,11 +650,6 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         return (List<String>) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
     }
 
-    public DbLayer updateSpilt(char c) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), c);
-        return this;
-    }
-
     public boolean run(String cmd) {
         return (boolean) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), cmd);
     }

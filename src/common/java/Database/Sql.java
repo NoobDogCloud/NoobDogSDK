@@ -109,13 +109,6 @@ public class Sql {
         }
     }
 
-    private char propSpilt = '?';
-
-    public Sql updateSpilt(char c) {
-        propSpilt = c;
-        return this;
-    }
-
     protected void initsql() {
         JSONObject obj;
         String user;
@@ -128,6 +121,7 @@ public class Sql {
         int maxWait;
         int maxActive;
         String className;
+        String splitChar;
         try {
             obj = JSONObject.toJSON(_configString);
             // 查看连接池驱动名
@@ -139,6 +133,7 @@ public class Sql {
             charName = obj.containsKey("characterEncoding") ? obj.getString("characterEncoding") : null;
             useUnicode = obj.containsKey("useUnicode") && obj.getBoolean("useUnicode");
             useSSL = obj.containsKey("useSSL") && obj.getBoolean("useSSL");
+            splitChar = obj.containsKey("spilt") ? obj.getString("spilt") : "?";
             // 注意url串中间不要有空格，因为mysql源码对多个地址split时没有trim.(replication mode)
             // " jdbc:mysql:replication://127.0.0.1:3309,127.0.0.1:3306/core " ,
 
@@ -161,9 +156,7 @@ public class Sql {
             }
 
             if (extern.length() > 0) {
-                char[] charArr = extern.toCharArray();
-                charArr[0] = propSpilt;
-                extern = new String(charArr);
+                extern = (splitChar + extern.substring(1));
                 url += extern;
             }
 
