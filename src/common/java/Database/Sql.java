@@ -149,6 +149,9 @@ public class Sql {
             if (obj.containsKey("timezone")) {
                 extern += ("&serverTimezone=" + obj.getString("timezone"));
             }
+            if (obj.containsKey("database_to_upper")) {
+                extern += ("&database_to_upper=false");
+            }
 
             if (extern.length() > 0) {
                 extern.toCharArray()[0] = '?';
