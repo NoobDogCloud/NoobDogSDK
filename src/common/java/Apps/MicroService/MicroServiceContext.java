@@ -66,6 +66,15 @@ public class MicroServiceContext {
     }
 
     /**
+     * 获得订阅服务通讯协议
+     */
+    public String bestSubscribe() {
+        String[] servers = this.servInfo.getString("subAddr").split(",");
+        currentNo++;
+        return servers[currentNo % servers.length];
+    }
+
+    /**
      * 获得微服务的配置
      */
     public ModelServiceConfig config() {
