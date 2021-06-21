@@ -154,7 +154,7 @@ public class Sql {
                 extern += (splitChar + "serverTimezone=" + obj.getString("timezone"));
             }
             if (obj.containsKey("database_to_upper")) {
-                extern += (splitChar + "database_to_upper=" + obj.getBoolean("database_to_upper"));
+                extern += (splitChar + "DATABASE_TO_UPPER=" + obj.getBoolean("database_to_upper"));
             }
             if (obj.containsKey("ignore_case")) {
                 extern += (splitChar + "IGNORECASE=" + obj.getBoolean("ignore_case"));
