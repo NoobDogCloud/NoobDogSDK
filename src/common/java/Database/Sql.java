@@ -162,7 +162,7 @@ public class Sql {
 
             if (extern.length() > 0) {
                 char[] charArr = extern.toCharArray();
-                charArr[0] = '?';
+                charArr[0] = propSpilt;
                 extern = new String(charArr);
                 url += extern;
             }
