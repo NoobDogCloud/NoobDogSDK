@@ -859,11 +859,11 @@ public class GrapeTreeDbLayerModel implements InterfaceDatabase<GrapeTreeDbLayer
         return this;
     }
 
-    public JSONArray scan(Function<JSONArray, JSONArray> func, int max) {
+    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max) {
         return this.db.scan(func, max);
     }
 
-    public JSONArray scan(Function<JSONArray, JSONArray> func, int max, int synNo) {
+    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo) {
         return this.db.scan(func, max, synNo);
     }
 

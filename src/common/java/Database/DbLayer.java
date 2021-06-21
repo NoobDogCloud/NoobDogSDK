@@ -634,11 +634,11 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
     }
 
-    public JSONArray scan(Function<JSONArray, JSONArray> func, int max) {
+    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max) {
         return (JSONArray) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), func, max);
     }
 
-    public JSONArray scan(Function<JSONArray, JSONArray> func, int max, int synNo) {
+    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo) {
         return (JSONArray) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), func, max, synNo);
     }
 

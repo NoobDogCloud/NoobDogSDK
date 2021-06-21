@@ -211,7 +211,7 @@ public class Sql {
     }
 
     @SuppressWarnings("unchecked")
-    public JSONArray scan(Function<JSONArray, JSONArray> func, int max) {
+    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max) {
         if (func == null) {
             nLogger.logInfo("scan 过滤函数不存在");
         }
@@ -243,7 +243,7 @@ public class Sql {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public JSONArray scan(Function<JSONArray, JSONArray> func, int max, int synNo) {
+    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo) {
         if (func == null) {
             nLogger.logInfo("scan 过滤函数不存在");
         }

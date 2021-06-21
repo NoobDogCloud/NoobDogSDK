@@ -153,9 +153,9 @@ public interface InterfaceDatabase<T> {
 
     void clear();
 
-    JSONArray scan(Function<JSONArray, JSONArray> func, int max);
+    JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max);
 
-    JSONArray scan(Function<JSONArray, JSONArray> func, int max, int synNo);
+    JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo);
 
     JSONObject getCond();
 
