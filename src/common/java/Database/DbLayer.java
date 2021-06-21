@@ -39,8 +39,10 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         formName = "";
     }
 
-    public static DbLayer buildPure() {
-        return new DbLayer(true);
+    public static DbLayer buildWithConfig(String configContent) {
+        DbLayer db = new DbLayer(true);
+        db.getDbByConfigContent(configContent);
+        return db;
     }
 
     public static DbLayer build() {
@@ -134,7 +136,7 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         String _configString = Config.netConfig(cN);
         try {
             if (_configString != null) {
-                _db = getDbByConfigContext(_configString);
+                _db = getDbByConfigContent(_configString);
             } else {
                 nLogger.logInfo("DB配置信息[" + cN + "]为空:=>" + null);
             }
@@ -146,7 +148,7 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         return _db;
     }
 
-    public _reflect getDbByConfigContext(String _configString) {
+    public _reflect getDbByConfigContent(String _configString) {
         JSONObject obj = JSONObject.toJSON(_configString);
         if (obj != null) {
             String dbName = obj.getString("dbName").toLowerCase();
