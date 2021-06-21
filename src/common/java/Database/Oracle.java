@@ -49,7 +49,7 @@ public class Oracle extends Sql {
             HikariDataSource ds = DataSource.getOrDefault(_configString, null);
             if (ds == null || ds.isClosed() || !ds.isRunning()) {
                 ds = new HikariDataSource();
-                if (!user.equals("") && !password.equals("")) {
+                if (!user.equals("")) {
                     ds.setUsername(user);
                     ds.setPassword(password);
                     ds.setConnectionTestQuery("select 1");
