@@ -152,7 +152,10 @@ public class Sql {
                 extern += ("&serverTimezone=" + obj.getString("timezone"));
             }
             if (obj.containsKey("database_to_upper")) {
-                extern += ("&database_to_upper=false");
+                extern += ("&database_to_upper=" + obj.getBoolean("database_to_upper"));
+            }
+            if (obj.containsKey("IGNORECASE")) {
+                extern += ("&database_to_upper=" + obj.getBoolean("IGNORECASE"));
             }
 
             if (extern.length() > 0) {
