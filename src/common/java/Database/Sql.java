@@ -129,15 +129,30 @@ public class Sql {
             user = obj.getString("user");
             password = obj.getString("password");
             databaseName = obj.getString("database");
-            charName = obj.getString("characterEncoding");
-            useUnicode = obj.getBoolean("useUnicode");
-            useSSL = obj.getBoolean("useSSL");
+            charName = obj.containsKey("characterEncoding") ? obj.getString("characterEncoding") : null;
+            useUnicode = obj.containsKey("useUnicode") && obj.getBoolean("useUnicode");
+            useSSL = obj.containsKey("useSSL") && obj.getBoolean("useSSL");
             // 注意url串中间不要有空格，因为mysql源码对多个地址split时没有trim.(replication mode)
             // " jdbc:mysql:replication://127.0.0.1:3309,127.0.0.1:3306/core " ,
-            String url = obj.getString("host") + "/" + databaseName + "?useUnicode=" + useUnicode + "&characterEncoding=" + charName + "&useSSL=" + useSSL;
 
+            String url = obj.getString("host") + "/" + databaseName;
+            String extern = "";
+            if (useSSL) {
+                extern += "&useSSL=true";
+            }
+            if (useUnicode) {
+                extern += "&useUnicode=true";
+            }
+            if (charName != null) {
+                extern += ("&characterEncoding=" + charName);
+            }
             if (obj.containsKey("timezone")) {
-                url += ("&serverTimezone=" + obj.getString("timezone"));
+                extern += ("&serverTimezone=" + obj.getString("timezone"));
+            }
+
+            if (extern.length() > 0) {
+                extern.toCharArray()[0] = '?';
+                url += extern;
             }
 
             minIdle = obj.getInt("minidle");
