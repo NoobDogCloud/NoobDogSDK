@@ -159,6 +159,9 @@ public class Sql {
             if (obj.containsKey("IGNORECASE")) {
                 extern += (splitChar + "database_to_upper=" + obj.getBoolean("IGNORECASE"));
             }
+            if (obj.containsKey("mode")) {
+                extern += (splitChar + "MODE=" + obj.getString("mode"));
+            }
 
             if (extern.length() > 0) {
                 extern = (startChar + extern.substring(1));
