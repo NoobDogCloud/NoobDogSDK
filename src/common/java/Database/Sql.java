@@ -1434,6 +1434,23 @@ public class Sql {
         return rs;
     }
 
+    public boolean run(String cmd) {
+        Connection conn = getNewConnection();
+        try {
+            Statement smt = conn.createStatement();
+            String sql = cmd;
+            TransactSQLInjection(sql);
+            return smt.execute(cmd);
+        } catch (Exception e) {
+            nLogger.logInfo(e);
+            return false;
+        }
+        //这里关闭连接，结果集就没有了
+        finally {
+            _Close(conn);
+        }
+    }
+
     public static class sqlmethod {
         public final static int insert = 1;
         public final static int update = 2;

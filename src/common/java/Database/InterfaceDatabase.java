@@ -164,4 +164,6 @@ public interface InterfaceDatabase<T> {
     List<String> getAllTables();
 
     String getConditionString();
+
+    // boolean run(String cmd);
 }

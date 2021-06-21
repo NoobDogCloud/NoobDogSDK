@@ -1189,6 +1189,11 @@ public class Mongodb {
         return rArray;
     }
 
+    public boolean run(String cmd) {
+        System.out.println("不支持:" + cmd);
+        return false;
+    }
+
     /**
      *
      */

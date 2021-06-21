@@ -650,6 +650,10 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         return (List<String>) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
     }
 
+    public boolean run(String cmd) {
+        return (boolean) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), cmd);
+    }
+
     public static class dbType {
         public final static int mongodb = 1;
         public final static int mysql = 2;
