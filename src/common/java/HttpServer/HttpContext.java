@@ -603,6 +603,8 @@ public class HttpContext {
             public final static String wsId = "wsID";
             // WS请求额外定义
             public static final String wsMode = "mode";
+            // WS topic定义
+            public static final String wsTopic = "topic";
         }
 
         public static class App {

@@ -22,9 +22,17 @@ public class SubscribeGsc {
     // 主题数据改变后50ms内不更新->更新主题更新时间
     // 主题数据发生改变500ms内->更新主题更新时间
     // 主题数据500ms内一直更新,最多2s->更新主题更新时间
-    private static Consumer<String> onChanged;
+    private static Consumer<String> onChanged;          // 推送当前主题更新时间
     // 获得主题当前数据刷新时间（新鲜值）
-    private static Function<String, Long> getFlesh;
+    private static Function<String, Long> getFlesh;     // 拉取当前主题更新时间
+
+    public static void setOnChanged(Consumer<String> onChanged) {
+        SubscribeGsc.onChanged = onChanged;
+    }
+
+    public static void setGetFlesh(Function<String, Long> getFlesh) {
+        SubscribeGsc.getFlesh = getFlesh;
+    }
 
     // 定时检测任务
     // 负责 数据新鲜度 同步监测
@@ -60,18 +68,27 @@ public class SubscribeGsc {
         }, 0, 50, TimeUnit.MILLISECONDS);
     }
 
-    // 根据gsc-websocket请求体计算topic字符串
-    private static String getTopic(HttpContext ctx) {
+    private static String getAutoTopic(HttpContext ctx) {
+        // 正常情况
         String[] arr = ctx.path().split("/");
         if (arr.length < 3) {
             HttpContext.current().throwOut("请求参数异常!");
         }
-        return arr[1] + "#" + arr[2] + "_" + ctx.appId();
+        return arr[1] + "#" + arr[2];
     }
 
-    // 获得房间对象
-    private static Room updateOrCreate(String topic) {
-        return Room.getInstance(topic);
+    // 根据gsc-websocket请求体计算topic字符串
+    private static String getTopic(HttpContext ctx) {
+        String topic = "";
+        JSONObject header = ctx.header();
+        if (header != null) {
+            if (header.containsKey(HttpContext.GrapeHttpHeader.WebSocket.wsTopic)) {
+                topic = header.getString(HttpContext.GrapeHttpHeader.WebSocket.wsTopic);
+            }
+        }
+        //  +topic 定义 or topic 定义 并 appId
+        return (topic.length() == 0 ? getAutoTopic(ctx) :
+                (topic.startsWith("+")) ? getAutoTopic(ctx) + topic : topic) + "_" + ctx.appId();
     }
 
     // 订阅参数过滤
@@ -94,14 +111,20 @@ public class SubscribeGsc {
         return topic;
     }
 
+    // -----------------------------------------------------------
+    // 获得房间对象
+    private static Room updateOrCreate(String topic) {
+        return Room.getInstance(topic);
+    }
+
     // 处理主题更新
-    public static void update(String topic) {
+    private static void update(String topic) {
         // 刷新主题数据更新时间戳
         updateOrCreate(topic).fleshUpdateTime();
     }
 
     // 处理断开连接或者取消订阅
-    public static void cancel(ChannelHandlerContext ch) {
+    private static void cancel(ChannelHandlerContext ch) {
         Room.removeMember(ch.channel().id());
     }
 
