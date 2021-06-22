@@ -463,7 +463,7 @@ public class HttpContext {
      */
     public JSONObject header() {
         if (header != null) {
-            return header;
+            return header.getJson("header");
         } else {
             JSONObject nHeader = new JSONObject();
             getValueSafe(GrapeHttpHeader.sid, nHeader);

@@ -8,6 +8,7 @@ import common.java.HttpServer.SpecHeader.Db.HttpContextDb;
 import common.java.Number.NumberHelper;
 import common.java.Rpc.ExecRequest;
 import common.java.Rpc.RpcLocation;
+import common.java.Rpc.RpcWebsocket;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
@@ -98,10 +99,10 @@ public class GrapeHttpServer {
     public static void stubLoop(HttpContext ctx) {
         Object rlt = GrapeHttpServer.EventLoop(ctx);
         if (ctx.method() == HttpContext.Method.websocket) {
-            // 返回结果转换成 string
-            rlt = new TextWebSocketFrame(rlt.toString());
             // 响应自动订阅参数(能运行到这里说明请求代码层执行完毕)
-            SubscribeGsc.filterSubscribe(ctx);
+            String topic = SubscribeGsc.filterSubscribe(ctx);
+            // 补充Websocket结果外衣 返回结果转换成 string
+            rlt = new TextWebSocketFrame(RpcWebsocket.build(topic, rlt.toString()).toString());
         }
         GrapeHttpServer.writeHttpResponse(ctx.channelContext(), rlt);
     }

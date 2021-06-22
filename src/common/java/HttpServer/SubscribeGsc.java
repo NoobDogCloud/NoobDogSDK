@@ -70,33 +70,34 @@ public class SubscribeGsc {
     }
 
     // 获得房间对象
-    private static Room updateOrCreate(HttpContext ctx) {
-        String topic = getTopic(ctx);
+    private static Room updateOrCreate(String topic) {
         return Room.getInstance(topic);
     }
 
     // 订阅参数过滤
-    public static void filterSubscribe(HttpContext ctx) {
+    public static String filterSubscribe(HttpContext ctx) {
         JSONObject h = ctx.header();
+        String topic = getTopic(ctx);
         if (h.containsKey("mode")) {
             String mode = h.getString("mode");
             switch (mode) {
                 case "subscribe":
-                    updateOrCreate(ctx);
+                    updateOrCreate(topic);
                     break;
                 case "update":
-                    update(ctx);
+                    update(topic);
                     break;
                 default:
                     cancel(ctx.channelContext());
             }
         }
+        return topic;
     }
 
     // 处理主题更新
-    public static void update(HttpContext ctx) {
+    public static void update(String topic) {
         // 刷新主题数据更新时间戳
-        updateOrCreate(ctx).fleshUpdateTime();
+        updateOrCreate(topic).fleshUpdateTime();
     }
 
     // 处理断开连接或者取消订阅
