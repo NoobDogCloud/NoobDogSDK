@@ -102,7 +102,7 @@ public class GrapeHttpServer {
             // 响应自动订阅参数(能运行到这里说明请求代码层执行完毕)
             String topic = SubscribeGsc.filterSubscribe(ctx);
             // 补充Websocket结果外衣 返回结果转换成 string
-            rlt = new TextWebSocketFrame(RpcWebsocket.build(topic, rlt.toString()).toString());
+            rlt = new TextWebSocketFrame(RpcWebsocket.build(topic, rlt).toString());
         }
         GrapeHttpServer.writeHttpResponse(ctx.channelContext(), rlt);
     }

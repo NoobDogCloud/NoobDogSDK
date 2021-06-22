@@ -5,14 +5,14 @@ import org.json.gsc.JSONObject;
 
 public class RpcWebsocket {
     private final String token;
-    private final String val;
+    private final Object val;
 
-    private RpcWebsocket(String token, String val) {
+    private RpcWebsocket(String token, Object val) {
         this.token = token;
         this.val = val;
     }
 
-    public static RpcWebsocket build(String token, String val) {
+    public static RpcWebsocket build(String token, Object val) {
         return new RpcWebsocket(token, val);
     }
 
