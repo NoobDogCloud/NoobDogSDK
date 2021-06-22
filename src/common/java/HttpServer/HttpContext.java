@@ -49,6 +49,7 @@ public class HttpContext {
     private ChannelHandlerContext ctx;
     private JSONObject values = new JSONObject();
     private HttpContextDb db_ctx;
+    private JSONObject header;
 
     private HttpContext() {
     }
@@ -71,6 +72,7 @@ public class HttpContext {
         parameter(_header.getJson(GrapeHttpHeader.WebSocket.param));
         absPath = _header.getString(GrapeHttpHeader.WebSocket.url);
         method = Method.websocket;
+        header = _header;
         init_grape_dbCtx();
     }
 
@@ -460,11 +462,15 @@ public class HttpContext {
      * 获得jsonobject header对象
      */
     public JSONObject header() {
-        JSONObject nHeader = new JSONObject();
-        getValueSafe(GrapeHttpHeader.sid, nHeader);
-        getValueSafe(GrapeHttpHeader.token, nHeader);
-        getValueSafe(GrapeHttpHeader.appId, nHeader);
-        return nHeader;
+        if (header != null) {
+            return header;
+        } else {
+            JSONObject nHeader = new JSONObject();
+            getValueSafe(GrapeHttpHeader.sid, nHeader);
+            getValueSafe(GrapeHttpHeader.token, nHeader);
+            getValueSafe(GrapeHttpHeader.appId, nHeader);
+            return nHeader;
+        }
     }
 
     /**
@@ -584,6 +590,7 @@ public class HttpContext {
             websocket.add(WebSocket.header);
             websocket.add(WebSocket.param);
             websocket.add(WebSocket.wsId);
+            websocket.add(WebSocket.wsMode);
 
             //Xml
             xmls.add(payload);
@@ -594,6 +601,8 @@ public class HttpContext {
             public final static String header = "header";
             public final static String param = "param";
             public final static String wsId = "wsID";
+            // WS请求额外定义
+            public static final String wsMode = "mode";
         }
 
         public static class App {
