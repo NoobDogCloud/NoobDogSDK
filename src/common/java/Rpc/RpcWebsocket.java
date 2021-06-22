@@ -3,14 +3,7 @@ package common.java.Rpc;
 import common.java.HttpServer.HttpContext;
 import org.json.gsc.JSONObject;
 
-public class RpcWebsocket {
-    private final String token;
-    private final Object val;
-
-    private RpcWebsocket(String token, Object val) {
-        this.token = token;
-        this.val = val;
-    }
+public record RpcWebsocket(String token, Object val) {
 
     public static RpcWebsocket build(String token, Object val) {
         return new RpcWebsocket(token, val);
