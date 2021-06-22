@@ -66,43 +66,53 @@ public class GrapeHttpServer {
                 // 自动修正appId和path
                 fixHttpContext(ctx);
             }
-            HttpContext ctxFinal = ctx;
-            // 正常线程池
-            es.submit(() -> {
-                // 为正常线程创建协程
-                ThreadLocal<ExecutorService> child_thread_es = new ThreadLocal();
-                ExecutorService child_es = child_thread_es.get();
-                if (child_es == null) {
-                    child_es = Executors.newVirtualThreadExecutor();
-                    child_thread_es.set(child_es);
-                }
-                child_es.submit(() -> {
-                    RequestSession.setChannelID(_ctx.channel().id());
-                    try {
-                        stubLoop(ctxFinal);
-                    } catch (Exception e) {
-                        if (Config.debug) {
-                            writeHttpResponse(_ctx, rMsg.netMSG(false, e.getMessage()));
-                        }
-                    }
-                });
-            });
+            // 正常请求
+            _startService(_ctx, ctx);
         }
+    }
+
+    public static void _startService(ChannelHandlerContext _ctx, HttpContext ctx) {
+        HttpContext ctxFinal = ctx;
+        // 正常线程池
+        es.submit(() -> {
+            // 为正常线程创建协程
+            ThreadLocal<ExecutorService> child_thread_es = new ThreadLocal();
+            ExecutorService child_es = child_thread_es.get();
+            if (child_es == null) {
+                child_es = Executors.newVirtualThreadExecutor();
+                child_thread_es.set(child_es);
+            }
+            child_es.submit(() -> {
+                RequestSession.setChannelID(_ctx.channel().id());
+                try {
+                    stubLoop(ctxFinal);
+                } catch (Exception e) {
+                    if (Config.debug) {
+                        writeHttpResponse(_ctx, rMsg.netMSG(false, e.getMessage()));
+                    }
+                }
+            });
+        });
     }
 
     public static void stubLoop(HttpContext ctx) {
         Object rlt = GrapeHttpServer.EventLoop(ctx);
         if (ctx.method() == HttpContext.Method.websocket) {
+            // 返回结果转换成 string
             rlt = new TextWebSocketFrame(rlt.toString());
+            // 响应自动订阅参数(能运行到这里说明请求代码层执行完毕)
+            SubscribeGsc.filterSubscribe(ctx);
         }
-
         GrapeHttpServer.writeHttpResponse(ctx.channelContext(), rlt);
     }
 
     public static Object EventLoop(HttpContext ctx) {
         RequestSession.setValue(HttpContext.SessionKey, ctx);
         RequestSession.setValue(HttpContext.ResponseSessionKey, new DefaultFullHttpResponse(HTTP_1_1, OK));
-        RequestSession.setValue(HttpContext.RequestSessionKey, ctx.getRequest());
+        HttpRequest req = ctx.getRequest();
+        if (req != null) {
+            RequestSession.setValue(HttpContext.RequestSessionKey, ctx.getRequest());
+        }
         return systemCall(ctx);
     }
 

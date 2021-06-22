@@ -4,6 +4,7 @@ import common.java.Encrypt.UrlCode;
 import common.java.File.FileHelper;
 import common.java.HttpServer.Common.RequestSession;
 import common.java.HttpServer.Upload.UploadFileInfo;
+import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
 import common.java.Xml.XmlHelper;
 import common.java.nLogger.nLogger;
@@ -85,11 +86,11 @@ class NetEvents extends ChannelInboundHandlerAdapter {
          * */
         ByteBuf buf = msg.content();  //真正的数据是放在buf里面的
         String wsData = buf.toString(StandardCharsets.UTF_8);  //将数据按照utf-8的方式转化为字符串
-        String[] wsCmd = wsData.split(":");
-        JSONObject json;
-        if (wsCmd.length > 1) {//不仅仅包含方法
-            wsData = StringHelper.join(wsCmd, ":", 1, -1);
-            json = JSONObject.toJSON(wsData);
+        JSONObject json = JSONObject.toJSON(wsData);
+        if (JSONObject.isInvalided(json) || !json.containsKey("path") || !json.containsKey("header")) {
+            GrapeHttpServer.writeHttpResponse(_ctx, rMsg.netMSG(false, "请求错误!"));
+        } else {
+            // 开始服务
             GrapeHttpServer.startService(json, _ctx, null);
         }
     }
