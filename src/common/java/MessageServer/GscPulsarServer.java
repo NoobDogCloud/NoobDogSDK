@@ -1,8 +1,8 @@
 package common.java.MessageServer;
 
 import common.java.Config.Config;
-import common.java.HttpServer.GrapeHttpServer;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.GrapeHttpServer;
+import common.java.Http.Server.HttpContext;
 import common.java.nLogger.nLogger;
 import org.apache.pulsar.client.api.*;
 import org.json.gsc.JSONArray;

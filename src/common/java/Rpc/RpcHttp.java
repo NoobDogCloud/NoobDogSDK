@@ -1,8 +1,8 @@
 package common.java.Rpc;
 
 import common.java.Config.Config;
-import common.java.HttpServer.HttpContext;
-import common.java.HttpServer.SpecHeader.Db.HttpContextDb;
+import common.java.Http.Server.Db.HttpContextDb;
+import common.java.Http.Server.HttpContext;
 import common.java.OAuth.oauthApi;
 import common.java.String.StringHelper;
 import common.java.Thread.ThreadHelper;

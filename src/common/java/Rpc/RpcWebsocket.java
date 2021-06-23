@@ -1,6 +1,6 @@
 package common.java.Rpc;
 
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import org.json.gsc.JSONObject;
 
 public record RpcWebsocket(String token, Object val) {

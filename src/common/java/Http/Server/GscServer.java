@@ -1,4 +1,4 @@
-package common.java.HttpServer;
+package common.java.Http.Server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

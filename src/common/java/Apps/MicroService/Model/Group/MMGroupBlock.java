@@ -1,6 +1,6 @@
 package common.java.Apps.MicroService.Model.Group;
 
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import org.json.gsc.JSONObject;
 
 public class MMGroupBlock {

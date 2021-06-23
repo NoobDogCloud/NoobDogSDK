@@ -1,7 +1,7 @@
 package common.java.CheckCode;
 
 import common.java.Encrypt.Base64;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import common.java.Time.TimeHelper;
 import common.java.nLogger.nLogger;
 

@@ -1,7 +1,7 @@
 package common.java.OAuth;
 
 import common.java.Cache.Cache;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
 
 public class oauthApi {

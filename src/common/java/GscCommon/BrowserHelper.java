@@ -1,6 +1,6 @@
 package common.java.GscCommon;
 
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 
 import java.util.Locale;
 

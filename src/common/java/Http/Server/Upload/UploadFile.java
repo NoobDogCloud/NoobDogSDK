@@ -1,6 +1,6 @@
-package common.java.HttpServer.Upload;
+package common.java.Http.Server.Upload;
 
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import common.java.nLogger.nLogger;
 import io.netty.buffer.ByteBuf;
 import org.json.gsc.JSONObject;

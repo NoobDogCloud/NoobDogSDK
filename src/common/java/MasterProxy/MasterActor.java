@@ -2,7 +2,7 @@ package common.java.MasterProxy;
 
 import common.java.Config.Config;
 import common.java.Coordination.Client.GscCenterClient;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import common.java.Rpc.ExecRequest;
 import common.java.Rpc.RpcResponse;
 import kong.unirest.Unirest;

@@ -1,4 +1,4 @@
-package common.java.HttpServer.Common;
+package common.java.Http.Common;
 
 import common.java.Reflect._reflect;
 import common.java.String.StringHelper;

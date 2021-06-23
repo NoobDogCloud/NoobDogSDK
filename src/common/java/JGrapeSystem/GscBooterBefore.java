@@ -1,7 +1,7 @@
 package common.java.JGrapeSystem;
 
 import common.java.Config.Config;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import common.java.Time.TimeHelper;
 import common.java.nLogger.nLogger;
 

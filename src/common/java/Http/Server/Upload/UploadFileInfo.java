@@ -1,4 +1,4 @@
-package common.java.HttpServer.Upload;
+package common.java.Http.Server.Upload;
 
 import io.netty.buffer.ByteBuf;
 

@@ -1,6 +1,6 @@
 package common.java.Apps;
 
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import common.java.MasterProxy.MasterActor;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;

@@ -1,6 +1,6 @@
-package common.java.HttpServer;
+package common.java.Http.Server;
 
-import common.java.HttpServer.Subscribe.Room;
+import common.java.Http.Server.Subscribe.Room;
 import common.java.Time.TimeHelper;
 import io.netty.channel.ChannelHandlerContext;
 import org.json.gsc.JSONObject;

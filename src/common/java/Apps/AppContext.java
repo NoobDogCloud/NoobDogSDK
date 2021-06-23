@@ -3,8 +3,8 @@ package common.java.Apps;
 import common.java.Apps.MicroService.Config.ModelServiceConfig;
 import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Apps.Roles.AppRoles;
-import common.java.HttpServer.Common.RequestSession;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Common.RequestSession;
+import common.java.Http.Server.HttpContext;
 import io.netty.channel.ChannelId;
 import org.json.gsc.JSONObject;
 

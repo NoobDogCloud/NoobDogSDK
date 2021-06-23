@@ -1,7 +1,7 @@
 package common.java.ServiceTemplate;
 
 import common.java.Database.DbLayer;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import common.java.InterfaceModel.Type.ApiType;
 import common.java.Rpc.RpcPageInfo;
 import common.java.String.StringHelper;

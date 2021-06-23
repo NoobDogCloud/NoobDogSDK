@@ -1,9 +1,9 @@
-package common.java.HttpServer;
+package common.java.Http.Server;
 
 import common.java.Encrypt.UrlCode;
 import common.java.File.FileHelper;
-import common.java.HttpServer.Common.RequestSession;
-import common.java.HttpServer.Upload.UploadFileInfo;
+import common.java.Http.Common.RequestSession;
+import common.java.Http.Server.Upload.UploadFileInfo;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
 import common.java.Xml.XmlHelper;

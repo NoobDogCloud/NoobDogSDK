@@ -1,7 +1,7 @@
 package common.java.Cache;
 
 import common.java.Cache.Common.InterfaceCache;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import common.java.Number.NumberHelper;
 import common.java.String.StringHelper;
 import org.json.gsc.JSONArray;

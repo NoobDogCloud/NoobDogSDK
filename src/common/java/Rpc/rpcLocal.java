@@ -1,7 +1,7 @@
 package common.java.Rpc;
 
 import common.java.Config.Config;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 
 import java.util.Locale;
 

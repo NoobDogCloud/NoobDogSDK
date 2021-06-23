@@ -2,7 +2,7 @@ package common.java.JGrapeSystem;
 
 import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Config.Config;
-import common.java.HttpServer.GscServer;
+import common.java.Http.Server.GscServer;
 import common.java.MasterProxy.MasterActor;
 import common.java.MessageServer.GscPulsarServer;
 import common.java.nLogger.nLogger;

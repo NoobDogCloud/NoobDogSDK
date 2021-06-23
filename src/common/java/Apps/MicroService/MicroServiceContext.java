@@ -4,7 +4,7 @@ import common.java.Apps.AppsProxy;
 import common.java.Apps.MicroService.Config.ModelServiceConfig;
 import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.Apps.MicroService.Model.MicroModelArray;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.HttpContext;
 import org.json.gsc.JSONObject;
 
 import java.util.HashMap;

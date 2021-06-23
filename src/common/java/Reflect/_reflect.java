@@ -1,7 +1,7 @@
 package common.java.Reflect;
 
 import common.java.Encrypt.GscJson;
-import common.java.HttpServer.Upload.UploadFile;
+import common.java.Http.Server.Upload.UploadFile;
 import common.java.InterfaceModel.Type.ApiType;
 import common.java.InterfaceModel.Type.ApiTypes;
 import common.java.JGrapeSystem.SystemDefined;

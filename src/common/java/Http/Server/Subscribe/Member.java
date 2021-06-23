@@ -1,7 +1,7 @@
-package common.java.HttpServer.Subscribe;
+package common.java.Http.Server.Subscribe;
 
-import common.java.HttpServer.GrapeHttpServer;
-import common.java.HttpServer.HttpContext;
+import common.java.Http.Server.GrapeHttpServer;
+import common.java.Http.Server.HttpContext;
 import io.netty.channel.ChannelHandlerContext;
 import org.json.gsc.JSONObject;
 
