@@ -66,8 +66,17 @@ public class SubscribeGsc {
     }
 
     public static String computerTopic(String path) {
-        String[] arr = path.split("/");
-        return arr.length < 3 ? null : arr[1] + "#" + arr[2];
+        String _path = path;
+        int offset = 0;
+        // 包含Host
+        if (path.indexOf("://") > 0) {
+            _path = path.split("://")[1];
+            offset = 1;
+        }
+        String[] arr = _path.split("/");
+        HttpContext ctx = HttpContext.current();
+        int appId = ctx == null ? 0 : ctx.appId();
+        return (arr.length < (3 + offset) ? null : arr[(1 + offset)] + "#" + arr[(2 + offset)]) + "_" + appId;
     }
 
     private static String getAutoTopic(HttpContext ctx) {
@@ -84,13 +93,13 @@ public class SubscribeGsc {
         String topic = "";
         JSONObject header = ctx.header();
         if (header != null) {
-            if (header.containsKey(HttpContext.GrapeHttpHeader.WebSocket.wsTopic)) {
-                topic = header.getString(HttpContext.GrapeHttpHeader.WebSocket.wsTopic);
+            if (header.containsKey(HttpContext.GrapeHttpHeader.WebSocketHeader.wsTopic)) {
+                topic = header.getString(HttpContext.GrapeHttpHeader.WebSocketHeader.wsTopic);
             }
         }
         //  +topic 定义 or topic 定义 并 appId
         return (topic.length() == 0 ? getAutoTopic(ctx) :
-                (topic.startsWith("+")) ? getAutoTopic(ctx) + topic : topic) + "_" + ctx.appId();
+                (topic.startsWith("+")) ? getAutoTopic(ctx) + topic : topic);
     }
 
     // 订阅参数过滤

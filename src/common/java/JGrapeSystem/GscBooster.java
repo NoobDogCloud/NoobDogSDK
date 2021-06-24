@@ -35,10 +35,13 @@ public class GscBooster {
             JSONArray<JSONObject> serviceArr = null;
             // 此时订阅全部用到的数据
             if (!Config.serviceName.toLowerCase(Locale.ROOT).equals("system")) {
-                // MasterActor.getClient().setConnected(v -> v.subscribe()).subscribe();
                 AtomicBoolean waiting = new AtomicBoolean(true);
                 MasterActor.getClient().subscribe(
-                        rpc.service("system").setPath("context", "sub").getWebSocketQueryHeader(Config.serviceName),
+                        rpc.service("system")
+                                .setApiPublicKey()
+                                .setEndpoint(Config.masterHost + ":" + Config.masterPort)
+                                .setPath("context", "sub")
+                                .getWebSocketQueryHeader(Config.serviceName),
                         resp -> {
                             // 初始化订阅数据到全局配置对象
                             Coordination.build(resp.asJson());

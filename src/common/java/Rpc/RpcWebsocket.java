@@ -28,17 +28,19 @@ public class RpcWebsocket {
     }
 
     public static RpcWebSocketQuery query(String path, HttpContext ctx, boolean api_auth, boolean public_key, Object... args) {
-        String url = path;
+        String url;
         // 构造http协议rpc完整地址
         if (!path.toLowerCase().startsWith("ws://")) {
             String[] strArr = path.split("/");
             url = rpc.service(strArr[1]).setPath(strArr[2], strArr[3]).toString();
         } else {
-            path = path.split("//")[1];
+            url = path;
         }
-        String[] rArr = path.split("/");
+        // 是完整协议
+        String[] rArr = url.split("//")[1].split("/");
+        path = "/" + StringHelper.join(rArr, "/", 1, -1);
 
-        String _path = url + ExecRequest.objects2string(args);
+        String _path = path + ExecRequest.objects2string(args);
 
         // 构造httpContent
         if (ctx == null) {

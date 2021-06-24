@@ -258,7 +258,12 @@ public class GrapeHttpServer {
         }
         response.headers().set(CONTENT_LENGTH, response.content().readableBytes());
         response.headers().set(CONNECTION, HttpHeaderValues.CLOSE);
-        // ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+        ChannelFuture ch = ctx.writeAndFlush(response);
+        /*
+        if ( HttpContext.current() != null && HttpContext.current().method() != HttpContext.Method.websocket ){
+            ch.addListener(ChannelFutureListener.CLOSE);
+        }
+        */
     }
 
     public static void writeHttpResponse(ChannelHandlerContext ctx, TextWebSocketFrame responseData) {

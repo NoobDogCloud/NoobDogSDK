@@ -20,7 +20,6 @@ public class Config {
     private static final String configNodePath = "configs";
     public static String masterHost;
     public static int masterPort;
-    public static int masterManagerPort;
     public static String bindIP;
     public static int port;
     public static String nodeID;
@@ -28,10 +27,7 @@ public class Config {
     public static String publicKey;
     public static String masterId;
     public static String masterPass;
-    public static String masterEmail;
-    public static String masterAvatar;
-    public static String masterName;
-    // public static int centerPort;
+
     public static String serviceName;
     private static String configPath = "gfw.cfg";
     private static MasterActor configs;
@@ -87,10 +83,6 @@ public class Config {
         // 可选项
         masterHost = prop.getProperty("MasterHost", "http://127.0.0.1");//read master host url
         masterPort = Integer.parseInt(prop.getProperty("MasterPort", "80"));
-        masterName = prop.getProperty("MasterName", "root");
-        masterEmail = prop.getProperty("MasterEmail", "putao520@putao282.com");
-        masterAvatar = prop.getProperty("MasterAvatar", "./assets/tmp/img/avatar.jpg");
-        masterManagerPort = Integer.parseInt(prop.getProperty("MasterManagerPort", String.valueOf(masterPort + 1)));
         bindIP = prop.getProperty("bindIP", "0.0.0.0");//本地服务节点通信Ip
         debug = Boolean.parseBoolean(prop.getProperty("Debug", "true"));
         publicKey = prop.getProperty("publicKey", "grapeSoft@");

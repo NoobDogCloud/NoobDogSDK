@@ -15,9 +15,11 @@ public class RpcSubClient {
     private String topic;
     private String dry_topic;
     private RpcWebSocketQuery query;
+    private boolean isSubscribed;       // 是否订阅过了
 
     private RpcSubClient(String ws_url) {
-        wsc = WebSocketClient.build(ws_url);
+        wsc = WebSocketClient.build(ws_url).syncConnect();
+        // 收到返回数据后分发
         wsc.onReceive(v -> {
             JSONObject ws_result = JSONObject.build(v);
             // 包含 wsId
@@ -26,6 +28,15 @@ public class RpcSubClient {
                 topic_receive.get(topic).accept(RpcResponse.build(ws_result));
             }
         });
+        // 断线重连后重新订阅
+        wsc.onReconnect(ch -> {
+            if (isSubscribed) { // 已经订阅过了,需要重新订阅
+                if (topic_receive.containsKey(topic)) {
+                    subscribe(query, topic_receive.get(topic));
+                }
+            }
+        });
+        isSubscribed = false;
     }
 
     public static RpcSubClient build(String ws_url) {
@@ -58,6 +69,8 @@ public class RpcSubClient {
         this.query = query;
         // 记录回调
         topic_receive.put(topic, receive_fn);
+        // 记录订阅状态
+        isSubscribed = true;
         return this;
     }
 

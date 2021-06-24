@@ -38,6 +38,10 @@ public class MicroServiceContext {
         init(HttpContext.current().appId(), servName);
     }
 
+    public static MicroServiceContext getInstance(String servName) {
+        return HttpContext.current() != null ? new MicroServiceContext(servName) : null;
+    }
+
     public static MicroServiceContext current() {
         return new MicroServiceContext();
     }
@@ -46,7 +50,7 @@ public class MicroServiceContext {
         // 获得对应微服务信息
         this.servInfo = AppsProxy.getServiceInfo(appId, servName);
         if (this.servInfo != null) {
-            this.servModelInfo = new MicroModelArray(this.servInfo.getJson("dataModel"));
+            this.servModelInfo = new MicroModelArray(this.servInfo.getJson("datamodel"));
             this.servConfig = new ModelServiceConfig(this.servInfo.getJson("config"));
         }
     }

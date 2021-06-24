@@ -3,6 +3,7 @@ package common.java.MasterProxy;
 import common.java.Config.Config;
 import common.java.Coordination.Coordination;
 import common.java.Rpc.RpcSubClient;
+import common.java.String.StringHelper;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
@@ -42,7 +43,14 @@ public class MasterActor {
 
     // 获得当前分类 key的值 = val 的全部数据
     public JSONArray<JSONObject> getDataByIndex(String key, Object value) {
-        return coordination.getData(actionName).filter(key, v -> v == value);
+        JSONArray<JSONObject> result = JSONArray.build();
+        JSONArray<JSONObject> arr = coordination.getData(actionName);
+        for (JSONObject v : arr) {
+            if (v.getString(key).equals(StringHelper.toString(value))) {
+                result.add(v);
+            }
+        }
+        return result;
     }
 
 }

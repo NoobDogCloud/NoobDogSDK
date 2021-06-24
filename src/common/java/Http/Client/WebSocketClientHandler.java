@@ -1,5 +1,6 @@
 package common.java.Http.Client;
 
+import common.java.Thread.ThreadHelper;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
@@ -14,6 +15,8 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     private ChannelPromise handshakeFuture;
     // 收到数据回调
     private Consumer<String> onReceive;
+    // 连接成功
+    private Consumer<ChannelHandlerContext> onAccept;
     // 断线回调
     private Consumer<ChannelHandlerContext> onDisconnected;
     // 关闭回调
@@ -52,12 +55,28 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         handshaker.handshake(ctx.channel());
     }
 
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        // System.out.println("WebSocket Client 连接断开!");
+    private void channelReconnect(ChannelHandlerContext ctx) {
         if (onDisconnected != null) {   // 断开时调用上层断开回调，如果是意外断开，执行重新连接
             onDisconnected.accept(ctx);
         }
+    }
+
+    @Override
+    public void channelInactive(ChannelHandlerContext ctx) {
+        // System.out.println("WebSocket Client 连接正常断开!");
+        channelReconnect(ctx);
+        ctx.fireChannelInactive();
+    }
+
+    public Channel waitAccept() throws Exception {
+        while (handshakeFuture == null) {
+            ThreadHelper.sleep(100);
+        }
+        return handshakeFuture.sync().channel();
+    }
+
+    public void setOnAccept(Consumer<ChannelHandlerContext> onAccept) {
+        this.onAccept = onAccept;
     }
 
     @Override
@@ -69,6 +88,10 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                 handshaker.finishHandshake(ch, (FullHttpResponse) msg);
                 // System.out.println("WebSocket Client connected!");
                 handshakeFuture.setSuccess();
+                // 自己唤起阻塞
+                if (onAccept != null) {
+                    onAccept.accept(ctx);
+                }
             } catch (WebSocketHandshakeException e) {
                 // System.out.println("WebSocket Client failed to connect");
                 handshakeFuture.setFailure(e);
@@ -103,13 +126,17 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        if (onDisconnected != null) {
-            onDisconnected.accept(ctx);
-        }
-        cause.printStackTrace();
+        // cause.printStackTrace();
         if (!handshakeFuture.isDone()) {
             handshakeFuture.setFailure(cause);
         }
+        if (onClosed != null) {
+            onClosed.accept(ctx);
+        }
         ctx.close();
+        ctx.disconnect();
+
+        // ctx.fireChannelInactive();
+        // System.out.println("WebSocket Client 连接异常断开!");
     }
 }

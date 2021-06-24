@@ -36,14 +36,15 @@ public class RpcHttp {
     }
 
     public static RpcResponse call(String path, HttpContext ctx, boolean api_auth, boolean public_key, Object... args) {
-        String url = path;
+        String url;
         // 构造http协议rpc完整地址
         if (!path.toLowerCase().startsWith("http://")) {
             String[] strArr = path.split("/");
             url = rpc.service(strArr[1]).setPath(strArr[2], strArr[3]).toString();
         } else {
-            path = path.split("//")[1];
+            url = path;
         }
+        path = path.split("//")[1];
         String[] rArr = path.split("/");
         // 设置请求参数[get]
         // url += (( args != null ) ? ExecRequest.objects2string(args) : "");

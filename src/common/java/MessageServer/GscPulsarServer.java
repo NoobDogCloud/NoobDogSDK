@@ -63,7 +63,7 @@ public class GscPulsarServer {
         try {
             // 此时订阅全部用到的数据
             for (JSONObject v : arr) {
-                int appId = v.getInt("appId");
+                int appId = v.getInt("appid");
                 String serviceName = v.getString("name");
                 String topicName = "persistent://public/default/" + serviceName + "_" + appId;
                 int mode = v.getInt("mode");

@@ -131,12 +131,42 @@ public class HttpContext {
 
     public void initHttpRequest(HttpRequest _header) {
         request = _header;
+        // 载入普通header头
         for (String key : GrapeHttpHeader.keys) {
-            updateValue(_header, key);
+            updateValue(key);
         }
         absPath = _header.uri().trim();
         method = (Method) methodStore.get(_header.method().name().toLowerCase());
+        // 是websocket
+        if (method == Method.websocket) {
+            for (String key : GrapeHttpHeader.websocketKeys) {
+                updateValue(key);
+            }
+        }
         init_grape_dbCtx();
+    }
+
+    /**
+     * 获得 订阅主题
+     */
+    public String topic() {
+        return values.has(GrapeHttpHeader.WebSocketHeader.wsTopic) ? values.getString(GrapeHttpHeader.WebSocketHeader.wsTopic) : SubscribeGsc.computerTopic(this.path());
+    }
+
+    /**
+     * 获得当前 订阅模式
+     */
+    public int subscribeMode() {
+        // 不包含模式
+        if (!values.has(GrapeHttpHeader.WebSocketHeader.wsMode)) {
+            return 0;
+        }
+        return switch (values.getString(GrapeHttpHeader.WebSocketHeader.wsMode)) {
+            case "subscribe" -> 1;
+            case "cancel" -> 2;
+            case "update" -> 3;
+            default -> 0;
+        };
     }
 
     public final HttpContext cloneTo() {
@@ -171,7 +201,7 @@ public class HttpContext {
         return this;
     }
 
-    private HttpContext updateValue(HttpRequest header, String key) {
+    private HttpContext updateValue(String key) {
         HttpHeaders headers = request.headers();
         if (headers.contains(key)) {
             values.put(key, headers.get(key));
@@ -257,6 +287,10 @@ public class HttpContext {
         ctx = _ctx;
         return this;
     }
+    /**
+     * 获得当前请求对应的订阅主题
+     * */
+
 
     /**
      * 获得请求方法
@@ -577,6 +611,7 @@ public class HttpContext {
         public final static List<String> apps = new ArrayList<>();
         public final static List<String> xmls = new ArrayList<>();
         public final static List<String> websocket = new ArrayList<>();
+        public final static List<String> websocketKeys = new ArrayList<>();
 
         static {
             keys.add(GrapeHttpHeader.ip);
@@ -602,7 +637,10 @@ public class HttpContext {
             websocket.add(WebSocket.header);
             websocket.add(WebSocket.param);
             websocket.add(WebSocket.wsId);
-            websocket.add(WebSocket.wsMode);
+
+            // WebSocketHeader
+            websocketKeys.add(WebSocketHeader.wsMode);
+            websocketKeys.add(WebSocketHeader.wsTopic);
 
             //Xml
             xmls.add(payload);
@@ -613,6 +651,9 @@ public class HttpContext {
             public final static String header = "header";
             public final static String param = "param";
             public final static String wsId = "wsID";
+        }
+
+        public static class WebSocketHeader {
             // WS请求额外定义
             public static final String wsMode = "mode";
             // WS topic定义

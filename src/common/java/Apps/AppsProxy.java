@@ -31,7 +31,7 @@ public class AppsProxy {
     // 根据AppId 和 微服务名 获得微服务信息
     public static JSONObject getServiceInfo(int appId, String serviceName) {
         // 获得 appId 对应所有微服务信息
-        JSONArray<JSONObject> info = serviceMapped.getDataByIndex("appId", appId);
+        JSONArray<JSONObject> info = serviceMapped.getDataByIndex("appid", appId);
         if (JSONArray.isInvalided(info)) {
             HttpContext.current().throwOut("当前应用[" + appId + "]未部署任何服务!");
         }

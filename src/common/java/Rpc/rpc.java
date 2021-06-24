@@ -6,7 +6,8 @@ import common.java.String.StringHelper;
 
 public class rpc {
     private final String servName;
-    private final MicroServiceContext msc;
+    private final String transferMode;
+    private String endpoint;
     private String servPath;
     private HttpContext ctx;
     private boolean needApiAuth;
@@ -14,15 +15,27 @@ public class rpc {
 
     private rpc(String servName) {
         this.servName = servName;
-        // boolean nullContext = false;
         this.needApiAuth = false;
-        msc = new MicroServiceContext(this.servName);
         this.needPublicKey = false;
+
+        MicroServiceContext msc = MicroServiceContext.getInstance(this.servName);
+        if (msc != null) {
+            this.endpoint = msc.bestServer();
+            this.transferMode = msc.transfer();
+        } else {
+            this.transferMode = "http";
+            this.endpoint = "";
+        }
     }
 
     // 静态起步方法
     public static rpc service(String servName) {
         return new rpc(servName);
+    }
+
+    public rpc setEndpoint(String endpoint) {
+        this.endpoint = endpoint;
+        return this;
     }
 
     /**
@@ -69,7 +82,7 @@ public class rpc {
      * 调用RPC
      */
     public RpcResponse call(Object... args) {
-        switch (msc.transfer()) {
+        switch (transferMode) {
             case MicroServiceContext.TransferKeyName.Pulsar:
                 return RpcPulsar.call(this.toString(), this.ctx, this.needApiAuth, this.needPublicKey, args);
             default:
@@ -77,11 +90,15 @@ public class rpc {
         }
     }
 
+    public String toPath() {
+        return "/" + this.servName + this.servPath;
+    }
+
     /**
      * 获得 WebSocket Rpc请求体
      */
     public RpcWebSocketQuery getWebSocketQueryHeader(Object... args) {
-        return RpcWebsocket.query(this.toString(), this.ctx, this.needApiAuth, this.needPublicKey, args);
+        return RpcWebsocket.query(this.toString("ws"), this.ctx, this.needApiAuth, this.needPublicKey, args);
     }
 
     /**
@@ -89,6 +106,10 @@ public class rpc {
      */
     @Override
     public String toString() {
-        return "http://" + msc.bestServer() + "/" + this.servName + this.servPath;
+        return "http://" + endpoint + toPath();
+    }
+
+    public String toString(String protocol) {
+        return protocol + "://" + endpoint + toPath();
     }
 }

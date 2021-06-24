@@ -42,7 +42,7 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
     @ApiType(ApiType.type.SessionApi)
     @ApiType(ApiType.type.OauthApi)
     public JSONArray select(String appID) {
-        return fdb.eq("appId", appID).select();
+        return fdb.eq("appid", appID).select();
     }
 
     @ApiType(ApiType.type.SessionApi)
@@ -99,7 +99,7 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
             return 0;
         }
         if (HttpContext.current().appId() > 0) {//非管理员情况下
-            info.remove("appId");
+            info.remove("appid");
         }
         if (fdb.where(cond).nullCondition()) {
             return 0;
@@ -129,7 +129,7 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
     public String insert(JSONObject nObj) {
         String rString = null;
         if (nObj != null) {
-            nObj.put("appId", HttpContext.current().appId());
+            nObj.put("appid", HttpContext.current().appId());
             rString = StringHelper.toString(fdb.data(nObj).insertOnce());
         }
         return rString;
