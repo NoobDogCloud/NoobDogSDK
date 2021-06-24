@@ -111,8 +111,6 @@ public class AppContext {
     // 获得
     private AppContext loadMircServiceInfo(String serviceName) {
         // 单服务只管自己的微服务信息
-        // String serviceName = Config.serviceName;
-        // String serviceName = Config.serviceName;
         MicroServiceContext msc = new MicroServiceContext(this.appId, serviceName);
         if (msc.hasData()) {
             this.microServiceInfo = msc;

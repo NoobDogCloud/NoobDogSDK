@@ -8,7 +8,6 @@ import common.java.Http.Server.Db.HttpContextDb;
 import common.java.Number.NumberHelper;
 import common.java.Rpc.ExecRequest;
 import common.java.Rpc.RpcLocation;
-import common.java.Rpc.RpcWebsocket;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
@@ -97,12 +96,13 @@ public class GrapeHttpServer {
     }
 
     public static void stubLoop(HttpContext ctx) {
+        boolean isWS = (ctx.method() == HttpContext.Method.websocket);
         Object rlt = GrapeHttpServer.EventLoop(ctx);
-        if (ctx.method() == HttpContext.Method.websocket) {
+        if (isWS) {
             // 响应自动订阅参数(能运行到这里说明请求代码层执行完毕)
             String topic = SubscribeGsc.filterSubscribe(ctx);
             // 补充Websocket结果外衣 返回结果转换成 string
-            rlt = new TextWebSocketFrame(RpcWebsocket.build(topic, rlt).toString());
+            rlt = new TextWebSocketFrame(JSONObject.build(rlt.toString()).put(HttpContext.GrapeHttpHeader.WebSocket.wsId, topic).toString());
         }
         GrapeHttpServer.writeHttpResponse(ctx.channelContext(), rlt);
     }
@@ -258,7 +258,7 @@ public class GrapeHttpServer {
         }
         response.headers().set(CONTENT_LENGTH, response.content().readableBytes());
         response.headers().set(CONNECTION, HttpHeaderValues.CLOSE);
-        ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+        // ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
     public static void writeHttpResponse(ChannelHandlerContext ctx, TextWebSocketFrame responseData) {

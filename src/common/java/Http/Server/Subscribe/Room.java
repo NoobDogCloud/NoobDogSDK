@@ -6,6 +6,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 
@@ -17,7 +18,9 @@ public class Room {
     private final ConcurrentHashMap<ChannelId, Member> memberArr;
     // 房间主题
     private final String topic;
-    // 主题最后更新时间
+    // 主题包含新数据
+    private final AtomicBoolean updateStatus = new AtomicBoolean(false);
+    // 主题数据刷新时间
     private final AtomicLong updateTime = new AtomicLong(0);
     // 主题最后同步更新时间
     private final AtomicLong syncUpdateTime = new AtomicLong(0);
@@ -27,7 +30,6 @@ public class Room {
     private Room(String Topic) {
         topic = Topic;
         memberArr = new ConcurrentHashMap<>();
-        this.fleshUpdateTime();
     }
 
     public static void removeMember(ChannelId cid) {
@@ -56,28 +58,41 @@ public class Room {
         return topic;
     }
 
+    public boolean getUpdateStatus() {
+        return updateStatus.get();
+    }
+
     public long getUpdateTime() {
         return updateTime.get();
+    }
+
+    public Room fleshUpdateTime() {
+        this.updateTime.set(TimeHelper.getNowTimestampByZero());
+        return this;
     }
 
     public long getBroadcastTime() {
         return broadcastTime.get();
     }
 
-    public void fleshUpdateTime() {
-        this.updateTime.set(TimeHelper.getNowTimestampByZero());
+    public Room fleshUpdateStatus() {
+        this.updateStatus.set(true);
+        return this;
     }
 
-    private void fleshBroadcastTime() {
+    private Room fleshBroadcastTime() {
         this.broadcastTime.set(TimeHelper.getNowTimestampByZero());
+        this.updateStatus.set(false);
+        return this;
     }
 
     public long getSyncUpdateTime() {
         return syncUpdateTime.get();
     }
 
-    public void fleshSyncUpdateTime() {
+    public Room fleshSyncUpdateTime() {
         this.syncUpdateTime.set(TimeHelper.getNowTimestampByZero());
+        return this;
     }
 
     // 获得成员

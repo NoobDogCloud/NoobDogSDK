@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 import org.junit.Test;
 
 
-public class testDbAndCache extends TestCase {
+public class NoTest_testDbAndCache extends TestCase {
     // 测试不带配置名本地缓存
     @Test
     public void testCacheLocal() {

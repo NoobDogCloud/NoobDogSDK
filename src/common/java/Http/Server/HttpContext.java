@@ -12,6 +12,7 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.*;
 import io.netty.util.AsciiString;
+import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
 import java.net.InetSocketAddress;
@@ -381,51 +382,62 @@ public class HttpContext {
                             arglist[idx] = svalue.substring(2);
                             break;
 //int
+                        case "i":
+                            arglist[idx] = Integer.parseInt(svalue.substring(2));
+                            break;
                         case "int":
                             arglist[idx] = Integer.parseInt(svalue.substring(4));
-                            break;
-//long
-                        case "long":
-                            arglist[idx] = Long.parseLong(svalue.substring(5));
                             break;
 //char
                         case "char":
                             arglist[idx] = svalue.charAt(5);
                             break;
-//float
-                        case "float":
-                            arglist[idx] = Float.parseFloat(svalue.substring(6));
-                            break;
-//double
-                        case "double":
-                            arglist[idx] = Double.parseDouble(svalue.substring(7));
-                            break;
 //short
                         case "short":
                             arglist[idx] = Short.parseShort(svalue.substring(6));
                             break;
-//Integer
-                        case "i":
-                            arglist[idx] = Integer.parseInt(svalue.substring(2));
-                            break;
 //boolean
                         case "b":
-                        case "bool":
                             arglist[idx] = Boolean.parseBoolean(svalue.substring(2));
+                            break;
+                        case "bool":
+                            arglist[idx] = Boolean.parseBoolean(svalue.substring(5));
                             break;
 //float
                         case "f":
                             arglist[idx] = Float.parseFloat(svalue.substring(2));
                             break;
+                        case "float":
+                            arglist[idx] = Float.parseFloat(svalue.substring(6));
+                            break;
 //long
                         case "l":
                             arglist[idx] = Long.parseLong(svalue.substring(2));
+                            break;
+                        case "long":
+                            arglist[idx] = Long.parseLong(svalue.substring(5));
                             break;
 //double
                         case "d":
                             arglist[idx] = Double.parseDouble(svalue.substring(2));
                             break;
-//boolean
+                        case "double":
+                            arglist[idx] = Double.parseDouble(svalue.substring(7));
+                            break;
+//json
+                        case "j":
+                            arglist[idx] = JSONObject.build(svalue.substring(2));
+                            break;
+                        case "json":
+                            arglist[idx] = JSONObject.build(svalue.substring(5));
+                            break;
+//jsonArray
+                        case "ja":
+                            arglist[idx] = JSONArray.build(svalue.substring(2));
+                            break;
+                        case "jsonArray":
+                            arglist[idx] = JSONArray.build(svalue.substring(10));
+                            break;
                         default:
                             arglist[idx] = svalue;
                     }

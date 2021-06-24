@@ -78,16 +78,17 @@ public class rpc {
     }
 
     /**
+     * 获得 WebSocket Rpc请求体
+     */
+    public RpcWebSocketQuery getWebSocketQueryHeader(Object... args) {
+        return RpcWebsocket.query(this.toString(), this.ctx, this.needApiAuth, this.needPublicKey, args);
+    }
+
+    /**
      * 获得RPC调用URL
      */
     @Override
     public String toString() {
         return "http://" + msc.bestServer() + "/" + this.servName + this.servPath;
     }
-
-    /*
-    public void broadCast(Object... args) {
-        broadCast(this.servPath, this.ctx, args);
-    }
-    */
 }

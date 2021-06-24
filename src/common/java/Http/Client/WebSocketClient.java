@@ -1,5 +1,6 @@
 package common.java.Http.Client;
 
+import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
@@ -12,26 +13,42 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.HttpClientCodec;
 import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketClientHandshakerFactory;
+import io.netty.handler.codec.http.websocketx.WebSocketFrame;
 import io.netty.handler.codec.http.websocketx.WebSocketVersion;
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 
 import java.net.URI;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
 public class WebSocketClient {
+    private static final ConcurrentHashMap<String, WebSocketClient> wsClientCache = new ConcurrentHashMap<>();
+
     private static final EventLoopGroup group = new NioEventLoopGroup();
     private final String ws_url;
-    private final Bootstrap b = new Bootstrap();
     private Channel ch; // 连接管道
     private WebSocketClientHandler handler;
     // 重连回调
     private Consumer<Channel> onReconnected;
+    private boolean canQuit = false;
 
     private WebSocketClient(String ws_url) {
         this.ws_url = ws_url;
+    }
+
+    public static WebSocketClient build(String ws_url) {
+        WebSocketClient wsc;
+        if (wsClientCache.containsKey(ws_url)) {
+            wsc = wsClientCache.get(ws_url);
+        } else {
+            wsc = new WebSocketClient(ws_url);
+            wsClientCache.put(ws_url, wsc);
+        }
+        return wsc;
     }
 
     private int getPort(URI uri) {
@@ -58,7 +75,13 @@ public class WebSocketClient {
             handler = new WebSocketClientHandler(WebSocketClientHandshakerFactory.newHandshaker(uri, WebSocketVersion.V13, null, false, new DefaultHttpHeaders()));
             // 网络中断回调
             handler.setOnDisconnected(ctx -> {
-                this.connect();
+                // 不能退出，断开重连
+                if (!canQuit) {
+                    this.connect();
+                } else {
+                    // 确定断开连接
+                    wsClientCache.remove(ws_url);
+                }
             });
             // 连接服务器
             _connect(uri, handler);
@@ -84,6 +107,8 @@ public class WebSocketClient {
             } else {
                 sslCtx = null;
             }
+
+            Bootstrap b = new Bootstrap();
             b.group(group).channel(NioSocketChannel.class).handler(new ChannelInitializer<SocketChannel>() {
                 @Override
                 protected void initChannel(SocketChannel ch) {
@@ -95,11 +120,16 @@ public class WebSocketClient {
                 }
             });
             // 设置连接socket通道
-            ch = b.connect(uri.getHost(), port).sync().channel();
+            b.connect(uri.getHost(), port).sync().channel();
+            ch = handler.handshakeFuture().sync().channel();
+
             // 连接成功，执行连接成功回调
             if (onReconnected != null) {
                 onReconnected.accept(ch);
             }
+
+            // 设置不可推出
+            canQuit = false;
             return true;
         } catch (Exception e) {
             nLogger.logInfo(e);
@@ -109,7 +139,8 @@ public class WebSocketClient {
 
     // 发送数据
     public WebSocketClient send(Object msg) {
-        ch.writeAndFlush(msg);
+        WebSocketFrame frame = new TextWebSocketFrame(StringHelper.toString(msg));
+        ch.writeAndFlush(frame);
         return this;
     }
 
@@ -127,6 +158,7 @@ public class WebSocketClient {
 
     // 关闭客户端
     public void close() {
+        canQuit = true;
         if (ch != null) {
             ch.close();
             ch = null;

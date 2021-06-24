@@ -9,7 +9,6 @@ import org.json.gsc.JSONObject;
 public class Member {
     private ChannelHandlerContext ch;             // 通讯对象
     private HttpContext queryTask;  // 查询任务
-    private String token;           // 任务唯一识别符
 
     private Member(ChannelHandlerContext ch, HttpContext task) {
         this.ch = ch;
@@ -37,10 +36,6 @@ public class Member {
 
     public void setQueryTask(HttpContext queryTask) {
         this.queryTask = queryTask;
-    }
-
-    public String getToken() {
-        return token;
     }
 
     public void refresh() {

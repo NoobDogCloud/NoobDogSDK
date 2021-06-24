@@ -393,9 +393,10 @@ public class Sql {
         if (tableFields.size() < 1) {
             Connection conn = getNewConnection();
             try {
-                java.sql.DatabaseMetaData DBM = conn.getMetaData();
+                DatabaseMetaData DBM = conn.getMetaData();
                 //ResultSet tableRet = DBM.getTables(null, "%", getform(),new String[]{"TABLE"});
-                ResultSet colRet = DBM.getColumns(null, "%", getfullform(), "%");
+                String tableName = _getFullForm();
+                ResultSet colRet = DBM.getColumns(null, "%", tableName, "%");
                 int i = 0;
                 while (colRet.next()) {
                     if (i == 0) {
@@ -774,6 +775,10 @@ public class Sql {
     }
 
     public String getfullform() {
+        return ownid == null || ownid.equals("") ? formName : formName + "_" + ownid;
+    }
+
+    private String _getFullForm() {
         return ownid == null || ownid.equals("") ? formName : formName + "_" + ownid;
     }
 
