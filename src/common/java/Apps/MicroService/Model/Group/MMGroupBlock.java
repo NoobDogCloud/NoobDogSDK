@@ -3,12 +3,7 @@ package common.java.Apps.MicroService.Model.Group;
 import common.java.Http.Server.HttpContext;
 import org.json.gsc.JSONObject;
 
-public class MMGroupBlock {
-    private final JSONObject nodeInfo;
-
-    private MMGroupBlock(JSONObject nodeInfo) {
-        this.nodeInfo = nodeInfo;
-    }
+public record MMGroupBlock(JSONObject nodeInfo) {
 
     public static MMGroupBlock build(JSONObject nodeInfo) {
         return new MMGroupBlock(nodeInfo);

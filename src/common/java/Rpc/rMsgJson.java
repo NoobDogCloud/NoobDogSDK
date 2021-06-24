@@ -27,8 +27,7 @@ public class rMsgJson {
             return netState(false);
         }
 
-        if (data instanceof Boolean) {
-            Boolean b = (Boolean) data;
+        if (data instanceof Boolean b) {
             return netState(b);
         }
 

@@ -1,13 +1,6 @@
 package common.java.Rpc;
 
-public class RpcError {
-    private final int errorCode;
-    private final String msg;
-
-    private RpcError(int errorCode, String msg) {
-        this.errorCode = errorCode;
-        this.msg = msg;
-    }
+public record RpcError(int errorCode, String msg) {
 
     public static RpcError Instant(int errorCode, String msg) {
         return new RpcError(errorCode, msg);

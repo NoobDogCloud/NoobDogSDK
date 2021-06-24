@@ -72,7 +72,6 @@ public class GrapeHttpServer {
     }
 
     public static void _startService(ChannelHandlerContext _ctx, HttpContext ctx) {
-        HttpContext ctxFinal = ctx;
         // 正常线程池
         es.submit(() -> {
             // 为正常线程创建协程
@@ -85,7 +84,7 @@ public class GrapeHttpServer {
             child_es.submit(() -> {
                 RequestSession.setChannelID(_ctx.channel().id());
                 try {
-                    stubLoop(ctxFinal);
+                    stubLoop(ctx);
                 } catch (Exception e) {
                     if (Config.debug) {
                         writeHttpResponse(_ctx, rMsg.netMSG(false, e.getMessage()));

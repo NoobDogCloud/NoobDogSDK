@@ -88,7 +88,7 @@ public class RpcHttp {
                     rs = null;
                 } else {
                     ThreadHelper.sleep(delay_retry);
-                    continue;   // 无意义
+                    // 无意义
                 }
             }
         }

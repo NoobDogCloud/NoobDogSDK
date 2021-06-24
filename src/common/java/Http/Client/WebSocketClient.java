@@ -110,9 +110,7 @@ public class WebSocketClient {
                 connect_status.set(true);
             });
             // 网络中断回调
-            handler.setOnDisconnected(ctx -> {
-                this.reConnect(ctx.channel().eventLoop());
-            });
+            handler.setOnDisconnected(ctx -> this.reConnect(ctx.channel().eventLoop()));
             // 连接服务器
             _connect(uri, handler, loop);
         } catch (Exception e) {

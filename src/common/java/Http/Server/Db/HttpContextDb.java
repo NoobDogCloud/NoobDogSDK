@@ -11,7 +11,7 @@ public class HttpContextDb {
     public final static String fields = "GrapeDbFields";
     public final static String sorts = "GrapeDbSorts";
     public final static String options = "GrapeDbOptions";
-    public static Set<String> DBHeaderKeys = new HashSet<>();
+    public final static Set<String> DBHeaderKeys = new HashSet<>();
 
     static {
         DBHeaderKeys.add(fields);

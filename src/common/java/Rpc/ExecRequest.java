@@ -153,17 +153,12 @@ public class ExecRequest {//框架内请求类
         }
         for (int i = 0; i < objs.length; i++) {
             Object o = objs[i];
-            if (o instanceof String) {
-                String v = (String) o;
+            if (o instanceof String v) {
                 var header = GscJson.getHeader(v);
                 if (header != null) {
                     switch (GscJson.getType(header)) {
-                        case "json":
-                            objs[i] = GscJson.decodeJson(v);
-                            break;
-                        case "jsonArray":
-                            objs[i] = GscJson.decodeJsonArray(v);
-                            break;
+                        case "json" -> objs[i] = GscJson.decodeJson(v);
+                        case "jsonArray" -> objs[i] = GscJson.decodeJsonArray(v);
                     }
                 }
             }
@@ -207,8 +202,7 @@ public class ExecRequest {//框架内请求类
         if (o == null) {
             return rMsg.netState(false);
         }
-        if (o instanceof RpcPure) {
-            RpcPure v = (RpcPure) o;
+        if (o instanceof RpcPure v) {
             return v.payload();
         }
         if (o instanceof String ||

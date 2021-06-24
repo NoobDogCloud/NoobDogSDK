@@ -71,7 +71,7 @@ public class GscPulsarServer {
                     var consumer = getConsumer(topicName, mode);
                     //消费消息
                     while (!Thread.currentThread().isInterrupted()) {
-                        Message message = null;
+                        Message message;
                         try {
                             message = consumer.receive();
                         } catch (PulsarClientException e) {

@@ -44,7 +44,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
             InitDB_fn.accept(this);
         }
         // 新增读取数据时前置操作
-        db.readPipe(m -> InitDBFilter(m));
+        db.readPipe(this::InitDBFilter);
         // 根据模型字段定义，生成 join
         var ruleArr = db.getMicroModel().rules();
         for (var node : ruleArr.values()) {
@@ -329,9 +329,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
         String[] _ids = ids.split(",");
         if (_ids.length > 1) {
             Set<String> idsSet = new HashSet<>();
-            for (String id : _ids) {
-                idsSet.add(id);
-            }
+            idsSet.addAll(Arrays.asList(_ids));
             for (String id : idsSet) {
                 dbf.or().eq(fieldName, id);
             }

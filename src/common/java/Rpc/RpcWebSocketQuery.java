@@ -9,7 +9,7 @@ public record RpcWebSocketQuery(String url, JSONObject header) {
     }
 
     public JSONObject build() {
-        if (url.indexOf("://") >= 0) {   // url包含协议
+        if (url.contains("://")) {   // url包含协议
             throw new RuntimeException("输入url[" + url + "]是完整请求url,仅允许输入path");
         }
         return JSONObject.build().put("path", url).put("header", header).put("param", "{}");

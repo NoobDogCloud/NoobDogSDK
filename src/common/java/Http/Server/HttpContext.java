@@ -412,68 +412,42 @@ public class HttpContext {
                 if (stype.length > 0) {//包含类型信息
                     switch (stype[0]) {
 //string
-                        case "s":
-                            arglist[idx] = svalue.substring(2);
-                            break;
+                        case "s" -> arglist[idx] = svalue.substring(2);
+
 //int
-                        case "i":
-                            arglist[idx] = Integer.parseInt(svalue.substring(2));
-                            break;
-                        case "int":
-                            arglist[idx] = Integer.parseInt(svalue.substring(4));
-                            break;
+                        case "i" -> arglist[idx] = Integer.parseInt(svalue.substring(2));
+                        case "int" -> arglist[idx] = Integer.parseInt(svalue.substring(4));
+
 //char
-                        case "char":
-                            arglist[idx] = svalue.charAt(5);
-                            break;
+                        case "char" -> arglist[idx] = svalue.charAt(5);
+
 //short
-                        case "short":
-                            arglist[idx] = Short.parseShort(svalue.substring(6));
-                            break;
+                        case "short" -> arglist[idx] = Short.parseShort(svalue.substring(6));
+
 //boolean
-                        case "b":
-                            arglist[idx] = Boolean.parseBoolean(svalue.substring(2));
-                            break;
-                        case "bool":
-                            arglist[idx] = Boolean.parseBoolean(svalue.substring(5));
-                            break;
+                        case "b" -> arglist[idx] = Boolean.parseBoolean(svalue.substring(2));
+                        case "bool" -> arglist[idx] = Boolean.parseBoolean(svalue.substring(5));
+
 //float
-                        case "f":
-                            arglist[idx] = Float.parseFloat(svalue.substring(2));
-                            break;
-                        case "float":
-                            arglist[idx] = Float.parseFloat(svalue.substring(6));
-                            break;
+                        case "f" -> arglist[idx] = Float.parseFloat(svalue.substring(2));
+                        case "float" -> arglist[idx] = Float.parseFloat(svalue.substring(6));
+
 //long
-                        case "l":
-                            arglist[idx] = Long.parseLong(svalue.substring(2));
-                            break;
-                        case "long":
-                            arglist[idx] = Long.parseLong(svalue.substring(5));
-                            break;
+                        case "l" -> arglist[idx] = Long.parseLong(svalue.substring(2));
+                        case "long" -> arglist[idx] = Long.parseLong(svalue.substring(5));
+
 //double
-                        case "d":
-                            arglist[idx] = Double.parseDouble(svalue.substring(2));
-                            break;
-                        case "double":
-                            arglist[idx] = Double.parseDouble(svalue.substring(7));
-                            break;
+                        case "d" -> arglist[idx] = Double.parseDouble(svalue.substring(2));
+                        case "double" -> arglist[idx] = Double.parseDouble(svalue.substring(7));
+
 //json
-                        case "j":
-                            arglist[idx] = JSONObject.build(svalue.substring(2));
-                            break;
-                        case "json":
-                            arglist[idx] = JSONObject.build(svalue.substring(5));
-                            break;
+                        case "j" -> arglist[idx] = JSONObject.build(svalue.substring(2));
+                        case "json" -> arglist[idx] = JSONObject.build(svalue.substring(5));
+
 //jsonArray
-                        case "ja":
-                            arglist[idx] = JSONArray.build(svalue.substring(2));
-                            break;
-                        case "jsonArray":
-                            arglist[idx] = JSONArray.build(svalue.substring(10));
-                            break;
-                        default:
-                            arglist[idx] = svalue;
+                        case "ja" -> arglist[idx] = JSONArray.build(svalue.substring(2));
+                        case "jsonArray" -> arglist[idx] = JSONArray.build(svalue.substring(10));
+                        default -> arglist[idx] = svalue;
                     }
                 } else {
                     arglist[i] = svalue;

@@ -178,17 +178,15 @@ public class FormHelper {
         Object rs = nowValue;
         if (nowValue instanceof String) {
             switch (nowValue.toString()) {
-                case ":timestamp":
-                    rs = TimeHelper.build().nowDatetime();
-                    break;
-                case ":user": {
+                case ":timestamp" -> rs = TimeHelper.build().nowDatetime();
+                case ":user" -> {
                     UserSession se = UserSession.current();
                     if (se.checkSession()) {
                         rs = UserSession.current().getUID();
                     }
                     break;
                 }
-                case ":group": {
+                case ":group" -> {
                     UserSession se = UserSession.current();
                     if (se.checkSession()) {
                         rs = UserSession.current().getGID();

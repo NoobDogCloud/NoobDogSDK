@@ -82,12 +82,10 @@ public class rpc {
      * 调用RPC
      */
     public RpcResponse call(Object... args) {
-        switch (transferMode) {
-            case MicroServiceContext.TransferKeyName.Pulsar:
-                return RpcPulsar.call(this.toString(), this.ctx, this.needApiAuth, this.needPublicKey, args);
-            default:
-                return RpcHttp.call(this.toString(), this.ctx, this.needApiAuth, this.needPublicKey, args);
-        }
+        return switch (transferMode) {
+            case MicroServiceContext.TransferKeyName.Pulsar -> RpcPulsar.call(this.toString(), this.ctx, this.needApiAuth, this.needPublicKey, args);
+            default -> RpcHttp.call(this.toString(), this.ctx, this.needApiAuth, this.needPublicKey, args);
+        };
     }
 
     public String toPath() {

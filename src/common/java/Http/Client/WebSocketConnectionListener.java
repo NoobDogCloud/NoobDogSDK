@@ -6,12 +6,8 @@ import io.netty.channel.EventLoop;
 
 import java.util.concurrent.TimeUnit;
 
-public class WebSocketConnectionListener implements ChannelFutureListener {
-    private final WebSocketClient wsc;
-
-    public WebSocketConnectionListener(WebSocketClient wsc) {
-        this.wsc = wsc;
-    }
+public record WebSocketConnectionListener(
+        WebSocketClient wsc) implements ChannelFutureListener {
 
     @Override
     public void operationComplete(ChannelFuture channelFuture) throws Exception {

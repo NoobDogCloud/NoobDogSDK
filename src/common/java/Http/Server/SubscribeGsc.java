@@ -109,14 +109,9 @@ public class SubscribeGsc {
         if (h.containsKey("mode")) {
             String mode = h.getString("mode");
             switch (mode) {
-                case "subscribe":
-                    updateOrCreate(topic).add(ctx.channelContext(), ctx);
-                    break;
-                case "update":
-                    update(topic);
-                    break;
-                default:
-                    cancel(ctx.channelContext());
+                case "subscribe" -> updateOrCreate(topic).add(ctx.channelContext(), ctx);
+                case "update" -> update(topic);
+                default -> cancel(ctx.channelContext());
             }
         }
         return topic;

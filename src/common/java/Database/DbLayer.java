@@ -153,22 +153,22 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         if (obj != null) {
             String dbName = obj.getString("dbName").toLowerCase();
             switch (dbName) {
-                case "mongodb": {
+                case "mongodb" -> {
                     _db = (new _reflect(Mongodb.class)).newInstance(_configString);
                     _dbName = dbType.mongodb;
                     break;
                 }
-                case "oracle": {
+                case "oracle" -> {
                     _db = (new _reflect(Oracle.class)).newInstance(_configString);
                     _dbName = dbType.oracle;
                     break;
                 }
-                case "h2": {
+                case "h2" -> {
                     _db = (new _reflect(H2.class)).newInstance(_configString);
                     _dbName = dbType.h2;
                     break;
                 }
-                default: {
+                default -> {
                     _db = (new _reflect(Sql.class)).newInstance(_configString);
                     _dbName = dbType.mysql;
                 }

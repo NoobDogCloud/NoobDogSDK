@@ -4,7 +4,6 @@ import common.java.Thread.ThreadHelper;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
-import io.netty.util.CharsetUtil;
 
 import java.util.function.Consumer;
 
@@ -100,14 +99,11 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         }
 
         if (msg instanceof FullHttpResponse) {
-            FullHttpResponse response = (FullHttpResponse) msg;
-            throw new IllegalStateException("Unexpected FullHttpResponse (getStatus=" + response.getStatus()
-                    + ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
+            throw new IllegalStateException("Unexpected FullHttpResponse");
         }
 
         WebSocketFrame frame = (WebSocketFrame) msg;
-        if (frame instanceof TextWebSocketFrame) {
-            TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
+        if (frame instanceof TextWebSocketFrame textFrame) {
             // 收到返回数据
             if (onReceive != null) {
                 onReceive.accept(textFrame.text());

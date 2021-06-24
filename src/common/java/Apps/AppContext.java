@@ -71,7 +71,7 @@ public class AppContext {
      * 设置当前线程上下文
      */
     public static AppContext virtualAppContext(AppThreadContext atc) {
-        return virtualAppContext(atc.AppID, atc.MicroServiceName);
+        return virtualAppContext(atc.AppID(), atc.MicroServiceName());
     }
 
     /**

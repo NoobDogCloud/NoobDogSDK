@@ -29,18 +29,16 @@ public class Permissions {
     private List<String> groupArr(MModelPermInfo perm) {
         AppRoles roles = AppContext.current().roles();
         List<String> totalGroupArr = roles.getRolesTree(perm.value());
-        switch (perm.logic()) {
-            case MModelPermDef.perm_group_logic_gt:
-                // 获得最小的用户组
-                return roles.gt(roles.getMinRole(totalGroupArr), totalGroupArr);
-            case MModelPermDef.perm_group_logic_lt:
-                // 获得最大的用户组
-                return roles.lt(roles.getMaxRole(totalGroupArr), totalGroupArr);
-            case MModelPermDef.perm_group_logic_eq:
-                return totalGroupArr;
-            default:
-                return new ArrayList<>();
-        }
+        return switch (perm.logic()) {
+            case MModelPermDef.perm_group_logic_gt ->
+                    // 获得最小的用户组
+                    roles.gt(roles.getMinRole(totalGroupArr), totalGroupArr);
+            case MModelPermDef.perm_group_logic_lt ->
+                    // 获得最大的用户组
+                    roles.lt(roles.getMaxRole(totalGroupArr), totalGroupArr);
+            case MModelPermDef.perm_group_logic_eq -> totalGroupArr;
+            default -> new ArrayList<>();
+        };
     }
 
     private boolean queryFilter(DbFilter dbf, MModelPermInfo perm) {
@@ -72,13 +70,9 @@ public class Permissions {
     private void _completeFilter(JSONObject data, UserSession se, MModelPermInfo perm) {
         // 替换对应值
         switch (perm.type()) {
-            case MModelPermDef.perm_type_user:
-                data.put(SuperItemField.userIdField, se.getUID());
-                break;
-            case MModelPermDef.perm_type_group:
-                data.put(SuperItemField.groupIdField, se.getGID())
-                        .put(SuperItemField.PVField, se.getGPV());
-                break;
+            case MModelPermDef.perm_type_user -> data.put(SuperItemField.userIdField, se.getUID());
+            case MModelPermDef.perm_type_group -> data.put(SuperItemField.groupIdField, se.getGID())
+                    .put(SuperItemField.PVField, se.getGPV());
         }
         // 无脑写入用户，用户组，用户组权限
         /*

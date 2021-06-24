@@ -556,8 +556,7 @@ public class Sql {
     }
 
     public List<JSONObject> clearData() {
-        List<JSONObject> v = new ArrayList<>();
-        v.addAll(data());
+        List<JSONObject> v = new ArrayList<>(data());
         dataJSON.clear();
         return v;
     }
@@ -591,9 +590,7 @@ public class Sql {
     }
 
     public Sql field(String[] _fieldList) {
-        for (String v : _fieldList) {
-            fieldVisible.add(v);
-        }
+        fieldVisible.addAll(Arrays.asList(_fieldList));
         return this;
     }
 
@@ -603,9 +600,7 @@ public class Sql {
     }
 
     public Sql mask(String[] _fieldList) {
-        for (String v : _fieldList) {
-            fieldDisable.add(v);
-        }
+        fieldDisable.addAll(Arrays.asList(_fieldList));
         return this;
     }
 
@@ -625,14 +620,9 @@ public class Sql {
                     n = m.getColumnDisplaySize(i);
                     //fieldName += " NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP";
                     switch (fieldType) {
-                        case "INT UNSIGNED":
-                            fieldType = "INT(" + n + ") UNSIGNED";
-                            break;
-                        case "TIMESTAMP":
-                            fieldType += " NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP";
-                            break;
-                        default:
-                            fieldType = fieldType + "(" + n + ")";
+                        case "INT UNSIGNED" -> fieldType = "INT(" + n + ") UNSIGNED";
+                        case "TIMESTAMP" -> fieldType += " NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP";
+                        default -> fieldType = fieldType + "(" + n + ")";
                     }
                     if (m.isAutoIncrement(i)) {
                         fieldType += " auto_increment primary key";
@@ -1503,8 +1493,7 @@ public class Sql {
         Connection conn = getNewConnection();
         try {
             Statement smt = conn.createStatement();
-            String sql = cmd;
-            TransactSQLInjection(sql);
+            TransactSQLInjection(cmd);
             return smt.execute(cmd);
         } catch (Exception e) {
             nLogger.logInfo(e);

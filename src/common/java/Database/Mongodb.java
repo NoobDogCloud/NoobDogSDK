@@ -293,12 +293,12 @@ public class Mongodb {
         }
 
         if (condArray.size() > 0) {
-            for (Object jObject : condArray) {
+            for (JSONObject jObject : condArray) {
                 field = null;
                 logic = null;
                 value = null;
                 link_login = null;
-                tmpJSON = (JSONObject) jObject;
+                tmpJSON = jObject;
                 if (tmpJSON.containsKey("logic")) {
                     logic = (String) tmpJSON.get("logic");
                 }
@@ -328,25 +328,16 @@ public class Mongodb {
     }
 
     private String logic2mongodb(String logic) {
-        switch (logic) {
-            case "=":
-            case "==":
-                return "$eq";
-            case "!=":
-                return "$ne";
-            case ">":
-                return "$gt";
-            case "<":
-                return "$lt";
-            case ">=":
-                return "$gte";
-            case "<=":
-                return "$lte";
-            case "like":
-                return "$regex";
-            default:
-                return logic;
-        }
+        return switch (logic) {
+            case "=", "==" -> "$eq";
+            case "!=" -> "$ne";
+            case ">" -> "$gt";
+            case "<" -> "$lt";
+            case ">=" -> "$gte";
+            case "<=" -> "$lte";
+            case "like" -> "$regex";
+            default -> logic;
+        };
     }
 
     private void addCondition(String field, Object value, String logic) {
@@ -440,16 +431,12 @@ public class Mongodb {
     }
 
     public Mongodb field(String[] fieldList) {
-        for (String k : fieldList) {
-            fieldVisible.add(k);
-        }
+        fieldVisible.addAll(Arrays.asList(fieldList));
         return this;
     }
 
     public Mongodb mask(String[] fieldList) {
-        for (String k : fieldList) {
-            fieldDisable.add(k);
-        }
+        fieldDisable.addAll(Arrays.asList(fieldList));
         return this;
     }
 
@@ -758,7 +745,7 @@ public class Mongodb {
      * @return
      */
     public JSONArray<JSONObject> group(String groupName) {
-        JSONArray<JSONObject> rs = new JSONArray<JSONObject>();
+        JSONArray<JSONObject> rs = new JSONArray<>();
         List<Bson> ntemp = new ArrayList<>();
         List<BsonField> groupParamts = new ArrayList<>();
         Bson filterData = translate2bsonAndRun();

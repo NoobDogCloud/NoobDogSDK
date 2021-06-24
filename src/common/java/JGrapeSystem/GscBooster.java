@@ -65,13 +65,11 @@ public class GscBooster {
                 func.run();
             }
             String transfer = JSONArray.isInvalided(serviceArr) ? "default" : serviceArr.get(0).getString("transfer");
-            switch (transfer) {
-                case MicroServiceContext.TransferKeyName.Pulsar:
-                    GscPulsarServer.start(serviceArr);
-                    break;
-                default:
-                    // 启动http服务
-                    GscServer.start(Config.bindIP, Config.port);
+            // 启动http服务
+            if (MicroServiceContext.TransferKeyName.Pulsar.equals(transfer)) {
+                GscPulsarServer.start(serviceArr);
+            } else {
+                GscServer.start(Config.bindIP, Config.port);
             }
         } catch (Exception e) {
             nLogger.errorInfo(e);

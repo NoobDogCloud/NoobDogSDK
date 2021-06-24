@@ -13,12 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class UploadFile {
-    private final UploadFileInfo file;
-
-    public UploadFile(UploadFileInfo file) {
-        this.file = file;
-    }
+public record UploadFile(UploadFileInfo file) {
 
     public static List<UploadFile> getAll() {
         List<UploadFile> fileList = new ArrayList<>();

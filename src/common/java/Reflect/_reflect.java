@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
@@ -80,23 +81,13 @@ public class _reflect {
 
     // api接口类型文本化
     private static String declApiType(ApiType _at) {
-        String r;
-        switch (_at.value()) {
-            case CloseApi:
-                r = "closeApi";
-                break;
-            case OauthApi:
-                r = "oauth2Api";
-                break;
-            case PrivateApi:
-                r = "LocalApi";
-                break;
-            case SessionApi:
-                r = "SessionApi";
-                break;
-            default:
-                r = "PublicApi";
-        }
+        String r = switch (_at.value()) {
+            case CloseApi -> "closeApi";
+            case OauthApi -> "oauth2Api";
+            case PrivateApi -> "LocalApi";
+            case SessionApi -> "SessionApi";
+            default -> "PublicApi";
+        };
         return r + ",";
     }
 
@@ -250,14 +241,14 @@ public class _reflect {
                         var header = GscJson.getHeader(objStr);
                         if (header != null) {
                             switch (GscJson.getType(header)) {
-                                case "json":
+                                case "json" -> {
                                     _oClass = JSONObject.class;
                                     obj = GscJson.decodeJson(objStr);
-                                    break;
-                                case "jsonArray":
+                                }
+                                case "jsonArray" -> {
                                     _oClass = JSONArray.class;
                                     obj = GscJson.decodeJson(objStr);
-                                    break;
+                                }
                             }
                             // 替换参数值
                             parameters[i] = obj;
@@ -435,9 +426,7 @@ public class _reflect {
         cls = objectArr2class(parameters);
         if (cls == null) {
             cls = object2class(parameters);
-            for (Object v : parameters) {
-                out.add(v);
-            }
+            out.addAll(Arrays.asList(parameters));
         } else {
             out.add(parameters);
         }
