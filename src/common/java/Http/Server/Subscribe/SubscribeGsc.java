@@ -1,6 +1,6 @@
-package common.java.Http.Server;
+package common.java.Http.Server.Subscribe;
 
-import common.java.Http.Server.Subscribe.Room;
+import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
 import common.java.Time.TimeHelper;
 import common.java.nLogger.nLogger;
@@ -10,8 +10,6 @@ import org.json.gsc.JSONObject;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
-import java.util.function.Function;
 
 /**
  * 负责处理基于GSC-Websocket请求的服务数据订阅头
@@ -20,17 +18,8 @@ import java.util.function.Function;
 public class SubscribeGsc {
 
     private static final ScheduledExecutorService heart_thread;
-    // 注册更新广播回调（支持本地或者通过redis跨机器广播）
-    // 主题数据改变后50ms内不更新->更新主题更新时间
-    // 主题数据发生改变500ms内->更新主题更新时间
-    // 主题数据500ms内一直更新,最多2s->更新主题更新时间
-    private static Consumer<String> onChanged;          // 推送当前主题更新时间
-    // 获得主题当前数据刷新时间（新鲜值）
-    private static Function<String, Boolean> getFleshStatus;     // 拉取当前主题更新时间
 
-    public static void setOnChanged(Consumer<String> onChanged) {
-        SubscribeGsc.onChanged = onChanged;
-    }
+    private static DistributionSubscribeInterface distribution_subscribe = null;
 
     // 定时检测任务
     // 负责 数据新鲜度 同步监测
@@ -61,8 +50,18 @@ public class SubscribeGsc {
         }, 0, 50, TimeUnit.MILLISECONDS);
     }
 
-    public static void setGetFleshStatus(Function<String, Boolean> getFleshStatus) {
-        SubscribeGsc.getFleshStatus = getFleshStatus;
+    /**
+     * 注入自定义分布式订阅组件
+     */
+    public static void injectDistribution(DistributionSubscribeInterface ds) {
+        distribution_subscribe = ds;
+    }
+
+    /**
+     * 注入默认分布式订阅组件
+     */
+    public static void injectDistribution() {
+        distribution_subscribe = new DistributionSubscribe();
     }
 
     public static String computerTopic(String path) {
@@ -135,12 +134,16 @@ public class SubscribeGsc {
 
     // 获得主题数据刷新数据
     private static boolean getUpdateStatus(String topic) {
-        return (getFleshStatus != null) ? getFleshStatus.apply(topic) : Room.getInstance(topic).getUpdateStatus();
+        if (distribution_subscribe != null) {
+            return distribution_subscribe.pullStatus(topic);
+        } else {
+            return Room.getInstance(topic).getUpdateStatus();
+        }
     }
 
     private static void _onChanged(String topic, Room room) {
-        if (SubscribeGsc.onChanged != null) {
-            SubscribeGsc.onChanged.accept(topic);
+        if (distribution_subscribe != null) {
+            distribution_subscribe.pushStatus(topic);
         }
         room.fleshSyncUpdateTime();
     }
