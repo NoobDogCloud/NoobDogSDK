@@ -62,7 +62,9 @@ public class GscBooster {
             // 设置日志过滤器
             GscBooterBefore._before(serverName);
             // 载入全部服务类到内存
-            ExecRequest.loadServiceClass();
+            ExecRequest.loadServiceApi();
+            ExecRequest.loadServiceBefore();
+            ExecRequest.loadServiceAfter();
             if (func != null) {
                 func.run();
             }

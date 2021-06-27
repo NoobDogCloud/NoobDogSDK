@@ -13,9 +13,6 @@ import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -23,8 +20,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ExecRequest {//框架内请求类
 
     private static final HashMap<Class<?>, String> class2string;
-    private static final ConcurrentHashMap<String, List<Object>> BeforeFilterObjectCache = new ConcurrentHashMap<>();
-    private static final ConcurrentHashMap<String, List<Object>> AfterFilterObjectCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, RpcFilterFnCache> BeforeFilterObjectCache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, RpcFilterFnCache> AfterFilterObjectCache = new ConcurrentHashMap<>();
 
     static {
 
@@ -85,16 +82,38 @@ public class ExecRequest {//框架内请求类
     }
 
     private static final ConcurrentHashMap<String, ReflectStruct> share_class = new ConcurrentHashMap<>();
-    public static String ExecBaseFolder = "main.java.Api._Api";
+    public static String ExecBaseFolder = "main.java.Api";
 
     /**
-     * 遍历 目录下所有类
+     * 遍历 api 目录下所有类
      */
-    public static void loadServiceClass() {
-        List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder, true);
+    public static void loadServiceApi() {
+        List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Api", true);
         // 修改每个载入的 class,增加调用方法
         for (Class<?> cls : clsArr) {
             share_class.put(cls.getName(), ReflectStruct.build(cls));
+        }
+    }
+
+    /**
+     * 遍历 api_before 目录下所有类
+     */
+    public static void loadServiceBefore() {
+        List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Before", true);
+        // 修改每个载入的 class,增加调用方法
+        for (Class<?> cls : clsArr) {
+            BeforeFilterObjectCache.put(cls.getName(), RpcFilterFnCache.build(cls));
+        }
+    }
+
+    /**
+     * 遍历 api_before 目录下所有类
+     */
+    public static void loadServiceAfter() {
+        List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._After", true);
+        // 修改每个载入的 class,增加调用方法
+        for (Class<?> cls : clsArr) {
+            AfterFilterObjectCache.put(cls.getName(), RpcFilterFnCache.build(cls));
         }
     }
 
@@ -109,7 +128,7 @@ public class ExecRequest {//框架内请求类
             String actionName = hCtx.actionName();
             try {
                 // MainClassPath
-                String MainClassName = ExecBaseFolder + "." + className;
+                String MainClassName = ExecBaseFolder + "._Api." + className;
                 // 目标类不存在
                 if (!share_class.containsKey(MainClassName)) {
                     return RpcError.Instant(false, "请求错误 ->目标不存在！");
@@ -144,29 +163,6 @@ public class ExecRequest {//框架内请求类
         return rs;
     }
 
-    private static List<Object> getFilterCache(String classFullName, ConcurrentHashMap<String, List<Object>> cacheObject, Class<?>... pCls) {
-        List<Object> o_array;
-        try {
-            o_array = cacheObject.get(classFullName);
-            if (o_array == null) {
-                Class<?> _after_cls = Class.forName(classFullName);
-                Constructor<?> cObject = _after_cls.getDeclaredConstructor(null);
-                try {
-                    // String.class, String.class, ReturnCallback.class
-                    Method f = _after_cls.getMethod("filter", pCls);
-                    o_array = new ArrayList<>();
-                    o_array.add(cObject.newInstance(null));
-                    o_array.add(f);
-                    cacheObject.put(classFullName, o_array);
-                } catch (Exception e) {
-                    return null;
-                }
-            }
-        } catch (Exception e) {
-            o_array = null;
-        }
-        return o_array;
-    }
 
     // 转换 GscJson 参数(请求层转换)
     private static Object[] convert2GscCode(Object[] objs) {
@@ -190,15 +186,13 @@ public class ExecRequest {//框架内请求类
 
     // 过滤函数改变输入参数
     private static FilterReturn beforeExecute(String className, String actionName, Object[] objs) {
-        String classFullName = "main.java.Api._Before" + "." + className;
-        List<Object> o_array = getFilterCache(classFullName, BeforeFilterObjectCache, String.class, String.class, Object[].class);
-        if (o_array == null) {  // 没有过滤函数
+        String classFullName = ExecBaseFolder + "._Before." + className;
+        RpcFilterFnCache filterFn = BeforeFilterObjectCache.getOrDefault(classFullName, null);
+        if (filterFn == null) {  // 没有过滤函数
             return FilterReturn.buildTrue();
         }
-        Object o = o_array.get(0);
-        Method f = (Method) o_array.get(1);
         try {
-            return (FilterReturn) f.invoke(o, className, actionName, objs);
+            return filterFn.filter(actionName, objs);
         } catch (Exception e) {
             return FilterReturn.build(false, "过滤函数异常");
         }
@@ -206,15 +200,13 @@ public class ExecRequest {//框架内请求类
 
     // 结果函数改变输入参数
     private static Object afterExecute(String className, String actionName, Object[] parameter, Object obj) {
-        String classFullName = "main.java.Api._After" + "." + className;
-        List<Object> o_array = getFilterCache(classFullName, AfterFilterObjectCache, String.class, String.class, Object[].class, Object.class);
-        if (o_array == null) {  // 没有过滤函数
+        String classFullName = ExecBaseFolder + "._After." + className;
+        RpcFilterFnCache filterFn = AfterFilterObjectCache.getOrDefault(classFullName, null);
+        if (filterFn == null) {  // 没有过滤函数
             return obj;
         }
-        Object o = o_array.get(0);
-        Method f = (Method) o_array.get(1);
         try {
-            return f.invoke(o, className, actionName, parameter, obj);
+            return filterFn.filter(actionName, parameter, obj);
         } catch (Exception e) {
             return obj;
         }
