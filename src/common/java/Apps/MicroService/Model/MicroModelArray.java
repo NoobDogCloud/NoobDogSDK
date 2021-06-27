@@ -8,11 +8,11 @@ import java.util.function.BiConsumer;
 public class MicroModelArray {
     private final HashMap<String, MicroModel> mModels;
 
-    public MicroModelArray(JSONObject mModel) {
+    public MicroModelArray(int appId, JSONObject mModel) {
         this.mModels = new HashMap<>();
         if (mModel != null) {
             for (String key : mModel.keySet()) {
-                this.mModels.put(key, new MicroModel(key, mModel.getJson(key)));
+                this.mModels.put(key, new MicroModel(appId, key, mModel.getJson(key)));
             }
         }
     }

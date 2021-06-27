@@ -24,20 +24,20 @@ public class MicroServiceContext {
     private final ModelServiceConfig servConfig;
     private final MicroModelArray servModelInfo;
 
-    private MicroServiceContext(JSONObject servInfo) {
+    private MicroServiceContext(int appId, JSONObject servInfo) {
         // 获得对应微服务信息
         this.servInfo = servInfo;
-        this.servModelInfo = new MicroModelArray(this.servInfo.getJson("datamodel"));
+        this.servModelInfo = new MicroModelArray(appId, this.servInfo.getJson("datamodel"));
         this.servConfig = new ModelServiceConfig(this.servInfo.getJson("config"));
     }
 
-    public static MicroServiceContext build(JSONObject serviceInfo) {
-        return new MicroServiceContext(serviceInfo);
+    public static MicroServiceContext build(int appId, JSONObject serviceInfo) {
+        return new MicroServiceContext(appId, serviceInfo);
     }
 
     public static MicroServiceContext getInstance(String name) {
         HttpContext ctx = HttpContext.current();
-        return Coordination.getInstance().getMicroServiceContext(ctx.appId(), name);
+        return ctx != null ? Coordination.getInstance().getMicroServiceContext(ctx.appId(), name) : null;
     }
 
     public static MicroServiceContext current() {

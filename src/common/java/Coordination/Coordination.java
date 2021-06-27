@@ -22,16 +22,10 @@ public class Coordination {
     private Coordination() {
     }
 
-    private Coordination(JSONObject data) {
-        init(data);
-    }
 
     public static Coordination build(JSONObject data) {
-        if (handle == null) {
-            handle = new Coordination(data);
-        } else {
-            handle.init(data);
-        }
+        // 必须先运行 getInstance 写入实例句柄，才可以载入（载入会用到 Coordination 自身）
+        getInstance().init(data);
         return handle;
     }
 
@@ -48,9 +42,13 @@ public class Coordination {
         services.set(data.getJsonArray("services"));
         configs.set(data.getJsonArray("configs"));
         // 生成上下文
-        for (JSONObject v : apps.get()) {
+        JSONArray<JSONObject> appArr = apps.get();
+        JSONArray<JSONObject> svcArr = services.get();
+        for (JSONObject v : appArr) {
             int appId = v.getInt("id");
-            app_context.put(appId, AppContext.build(v).loadPreMicroContext(services.get()));
+            AppContext aCtx = AppContext.build(v);
+            app_context.put(appId, aCtx);
+            aCtx.loadPreMicroContext(svcArr);
             String domain = v.getString("domain");
             if (!StringHelper.isInvalided(domain)) {
                 domain_context.put(domain, appId);
@@ -75,6 +73,7 @@ public class Coordination {
     }
 
     public MicroServiceContext getMicroServiceContext(int appId, String serviceName) {
+        // 必须先实例化 AppContext 再设置 ServiceContext
         AppContext app_ctx = getAppContext(appId);
         MicroServiceContext msc_ctx = app_ctx.service(serviceName);
         if (msc_ctx == null) {

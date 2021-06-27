@@ -77,7 +77,7 @@ public class AppContext {
         // 找到当前 appId 对应数据
         for (JSONObject v : service) {
             if (v.getInt("appid") == appId) {
-                micro_service_context.put(v.getString("name"), MicroServiceContext.build(v));
+                micro_service_context.put(v.getString("name"), MicroServiceContext.build(appId, v));
             }
         }
         return this;

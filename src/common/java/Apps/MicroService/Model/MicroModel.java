@@ -6,14 +6,16 @@ import org.json.gsc.JSONObject;
 import java.util.HashMap;
 
 public class MicroModel {
+    private final int appId;
     private String tableName;
     private MModelRuleArray mmrArray;
     private MModelPerm mmps;
 
-    public MicroModel(String tableName, JSONObject modelJson) {
+    public MicroModel(int appId, String tableName, JSONObject modelJson) {
+        this.appId = appId;
         if (modelJson != null) {
             this.tableName = tableName;
-            this.mmps = new MModelPerm(modelJson.getJson("perm"));
+            this.mmps = new MModelPerm(appId, modelJson.getJson("perm"));
             this.mmrArray = new MModelRuleArray(modelJson.getJsonArray("rule"));
         }
     }

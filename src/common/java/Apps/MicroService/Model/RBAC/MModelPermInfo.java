@@ -1,8 +1,8 @@
 package common.java.Apps.MicroService.Model.RBAC;
 
-import common.java.Apps.AppContext;
 import common.java.Apps.Roles.Role;
 import common.java.Authority.MModelPermDef;
+import common.java.Coordination.Coordination;
 import common.java.String.StringHelper;
 import org.json.gsc.JSONObject;
 
@@ -14,10 +14,12 @@ import java.util.List;
  */
 
 public class MModelPermInfo {
+    private final int appId;
     private final JSONObject info;
     private List<String> group_values;
 
-    private MModelPermInfo(JSONObject info) {
+    private MModelPermInfo(int appId, JSONObject info) {
+        this.appId = appId;
         this.info = info;
         String typeStr = info.getString(MModelPermDef.perm_type_caption);
         if ("user".equals(typeStr)) {
@@ -34,17 +36,17 @@ public class MModelPermInfo {
         }
     }
 
-    public static MModelPermInfo build(JSONObject info) {
-        return new MModelPermInfo(info);
+    public static MModelPermInfo build(int appId, JSONObject info) {
+        return new MModelPermInfo(appId, info);
     }
 
-    public static MModelPermInfo build() {
-        return new MModelPermInfo(new JSONObject());
+    public static MModelPermInfo build(int appId) {
+        return new MModelPermInfo(appId, new JSONObject());
     }
 
     // 按照用户组权值排序
     private void updateSortRole() {
-        var appRoles = AppContext.current().roles();
+        var appRoles = Coordination.getInstance().getAppContext(appId).roles();
         String[] roleArr = Arrays.stream(this.info.getString(MModelPermDef.perm_value_caption).split(","))
                 .distinct()
                 .map(v -> Role.build(v, appRoles.getPV(v), appRoles.getElder(v)))

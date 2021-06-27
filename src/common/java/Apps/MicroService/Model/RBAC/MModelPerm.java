@@ -6,11 +6,12 @@ import org.json.gsc.JSONObject;
 import java.util.HashMap;
 
 public class MModelPerm {
-
+    private final int appId;
     private final JSONObject initPerm;
     private final HashMap<String, MModelPermInfo> permInfo;
 
-    public MModelPerm(JSONObject pInfo) {
+    public MModelPerm(int appId, JSONObject pInfo) {
+        this.appId = appId;
         this.initPerm = pInfo;
         this.permInfo = new HashMap<>();
         buildPermInfoArr(PermItemDef.createMode);
@@ -24,7 +25,7 @@ public class MModelPerm {
         if (initPerm.containsKey(key)) {
             JSONObject info = initPerm.getJson(key);
             if (!JSONObject.isInvalided(info)) {
-                permInfo.put(key, MModelPermInfo.build(info));
+                permInfo.put(key, MModelPermInfo.build(appId, info));
             }
         }
     }
