@@ -1,9 +1,10 @@
 package common.java.Reflect;
 
+import com.esotericsoftware.reflectasm.MethodAccess;
 import common.java.Encrypt.GscJson;
 import common.java.Http.Server.Upload.UploadFile;
-import common.java.InterfaceModel.Type.ApiType;
-import common.java.InterfaceModel.Type.ApiTypes;
+import common.java.InterfaceModel.Type.InterfaceType;
+import common.java.InterfaceModel.Type.InterfaceTypeArray;
 import common.java.JGrapeSystem.SystemDefined;
 import common.java.OAuth.oauthApi;
 import common.java.Rpc.ExecRequest;
@@ -62,25 +63,28 @@ public class _reflect {
     }
 
     private final Class<?> _Class;        //类
+    private final MethodAccess _method;
+    private final ReflectStruct _rf;
     private final HashMap<String, FilterCallback> filterCallback; //调用前接口HOOK数组
     private final HashMap<String, ReturnCallback> returnCallback; //调用后接口HOOK数组
     private Object _oObject;        //对象
     private boolean _superMode;     //私有接口是否生效(是否允许调用 private 接口)
     private boolean privateMode;    //注解解析是否生效(是否按照接口注解定义控制访问)
 
-    public _reflect(Class<?> cls) {
+    public _reflect(ReflectStruct cls) {
         // 初始化属性
         filterCallback = new HashMap<>();
         returnCallback = new HashMap<>();
         _superMode = false;
         privateMode = false;
-        _Class = cls;
-
+        _Class = cls.getCls();
+        _method = cls.getMethod();
+        _rf = cls;
     }
     // 获得class名称
 
     // api接口类型文本化
-    private static String declApiType(ApiType _at) {
+    private static String declApiType(InterfaceType _at) {
         String r = switch (_at.value()) {
             case CloseApi -> "closeApi";
             case OauthApi -> "oauth2Api";
@@ -104,13 +108,13 @@ public class _reflect {
         StringBuilder apiString = new StringBuilder();
         Annotation[] atApiTypes = method.getDeclaredAnnotations();
         for (Annotation an : atApiTypes) {
-            if (an.annotationType() == ApiTypes.class) {
-                ApiTypes at = method.getAnnotation(ApiTypes.class);
-                for (ApiType _at : at.value()) {
+            if (an.annotationType() == InterfaceTypeArray.class) {
+                InterfaceTypeArray at = method.getAnnotation(InterfaceTypeArray.class);
+                for (InterfaceType _at : at.value()) {
                     apiString.append(declApiType(_at));
                 }
-            } else if (an.annotationType() == ApiType.class) {
-                apiString.append(declApiType(method.getAnnotation(ApiType.class)));
+            } else if (an.annotationType() == InterfaceType.class) {
+                apiString.append(declApiType(method.getAnnotation(InterfaceType.class)));
             }
         }
         return StringHelper.build(apiString.toString()).trimTrailingFrom(',').toString();
@@ -208,13 +212,14 @@ public class _reflect {
         return this;
     }
 
+    /*
     private Method _getMethod(String functionName, Class<?>[] parameterlist) {
         int i = parameterlist == null ? 0 : parameterlist.length;
         Class<?>[] c = parameterlist == null ? new Class<?>[]{} : parameterlist;
         Method comMethod = null;
         while (true) {
             try {
-                comMethod = _Class.getMethod(functionName, c);
+                comMethod =  _Class.getMethod(functionName, c);
             } catch (NoSuchMethodException e) {
             }
             if (comMethod == null && i > 0) {
@@ -226,6 +231,7 @@ public class _reflect {
         }
         return comMethod;
     }
+     */
 
     private Class<?>[] object2class(Object[] parameters) {
         Class<?>[] rs = new Class[parameters.length];
@@ -301,7 +307,7 @@ public class _reflect {
         return rs;
     }
 
-    private RpcError chkApiType(ApiType _at) {
+    private RpcError chkApiType(InterfaceType _at) {
         RpcError rs = null;
         switch (_at.value()) {
             case SessionApi:
@@ -326,76 +332,56 @@ public class _reflect {
         return rs;
     }
 
-    // 调用主方法
-    private Object callMainAction(Method comMethod, Class<?>[] cls, String functionName, Object... parameters) {
+    // 检查方法注解
+    private Object chkAnnotationAction(String functionName) {
+        //------------------方法注解检查，多个注解权限时，OR逻辑连接多个注解条件
         Object rs = null;
-        if (comMethod != null) {
-            //------------------方法注解检查，多个注解权限时，OR逻辑连接多个注解条件
-            if (!privateMode) {
-                Annotation[] ans = comMethod.getDeclaredAnnotations();
-                // Annotation[] ans = comMethod.getAnnotations();
-                for (Annotation an : ans) {//遍历全部注解
-                    if (an.annotationType() == ApiType.class) {
-                        rs = chkApiType(comMethod.getAnnotation(ApiType.class));
-                    } else if (an.annotationType() == ApiTypes.class) {
-                        ApiTypes atApiType = comMethod.getAnnotation(ApiTypes.class);
-                        for (ApiType _at : atApiType.value()) {
-                            rs = chkApiType(_at);
-                            if (rs == null) {
-                                break;
-                            } else {
-                                rs = "Interface Error:[" + rs + "]";
-                            }
+        if (!privateMode) {
+            AnnotationStruct[] ans = _rf.getMethodAnnotation(functionName);
+            for (AnnotationStruct an : ans) {//遍历全部注解
+                if (an.getType() == InterfaceType.class) {
+                    rs = chkApiType(an.getVal());
+                } else if (an.getType() == InterfaceTypeArray.class) {
+                    InterfaceTypeArray atApiType = an.getVal();
+                    for (InterfaceType _at : atApiType.value()) {
+                        rs = chkApiType(_at);
+                        if (rs == null) {
+                            break;
+                        } else {
+                            rs = "Interface Error:[" + rs + "]";
                         }
                     }
                 }
             }
-            //rs == null表示通过检查
-            if (rs == null) {
-                //------------------方法类型检查
-                int mf = comMethod.getModifiers();
-                /* mf = 1  public
-                 * mf = 9  public static
-                 * mf = 25 public static final
-                 * */
-                try {
-                    // 如果包含调用hook
-                    // 调用方法
-                    rs = comMethod.invoke((mf == 9 || mf == 25) ? null : _oObject, parameters);
-                    // 如果包含结果hook
-                } catch (IllegalAccessException e) {
-                    // TODO Auto-generated catch block
-                    nLogger.logInfo(_Class.getName() + "." + functionName + "无效访问");
-                    //e.printStackTrace();
-                    rs = null;
-                } catch (IllegalArgumentException e) {
-                    // TODO Auto-generated catch block
-                    nLogger.logInfo(e, _Class.getName() + "." + functionName + "无效参数");
-                    rs = null;
-                } catch (InvocationTargetException e) {
-                    // TODO Auto-generated catch block
-                    nLogger.logInfo(e, "函数:" + _Class.getName() + "." + functionName + "内部错误");
-                    rs = null;
-                } catch (Exception e) {
-                    nLogger.logInfo(e, "函数:" + _Class.getName() + "." + functionName + "未知异常");
-                    //e.printStackTrace();
-                    rs = null;
-                }
-            }
-        } else {
-            StringBuilder clsString = new StringBuilder();
-            if (parameters != null) {
-                try {
-                    for (int i = 0; i < parameters.length; i++) {
-                        clsString.append(cls[i].getSimpleName()).append(":").append(parameters[i].toString()).append(",");
-                    }
-                } catch (Exception e) {
-                    clsString = new StringBuilder();
-                }
-            }
-            nLogger.logInfo("函数:" + _Class.getName() + "." + functionName + "(" + StringHelper.build(clsString.toString()).removeTrailingFrom().toString() + ") -不存在,或者形参与实参不匹配");
         }
         return rs;
+    }
+
+    // 调用主方法
+    private Object callMainAction(String functionName, Object... parameters) {
+        // 方法注解检查
+        Object rs = chkAnnotationAction(functionName);
+        if (rs != null) {
+            return rs;
+        }
+        //------------------方法类型检查
+        // int mf = comMethod.getModifiers();
+        /* mf = 1  public
+         * mf = 9  public static
+         * mf = 25 public static final
+         * */
+        try {
+            // 如果包含调用hook
+            // 调用方法
+            return _method.invoke(_oObject, functionName, parameters);
+            // 如果包含结果hook
+        } catch (IllegalArgumentException e) {
+            // TODO Auto-generated catch block
+            nLogger.logInfo(e, _Class.getName() + "." + functionName + "无效参数");
+        } catch (Exception e) {
+            nLogger.logInfo(e, "函数:" + _Class.getName() + "." + functionName + "未知异常");
+        }
+        return null;
     }
 
     private Class<?>[] objectArr2class(Object... parameters) {
@@ -444,16 +430,8 @@ public class _reflect {
     public Object _call(String functionName, Object... parameters) {
         Object rs = global_service(functionName, parameters);
         if (rs == null) {
-            List<Object> pArr = new ArrayList<>();
-            Class<?>[] cls = c2p(parameters, pArr);
-            Method comMethod = _getMethod(functionName, cls);
-            // 主方法存在
-            if (comMethod != null) {
-                // 调用主要方法
-                rs = callMainAction(comMethod, cls, functionName, pArr.size() > 0 ? pArr.toArray() : null);
-            } else {
-                rs = RpcError.Instant(false, "无效接口!");
-            }
+            // 调用主要方法
+            rs = callMainAction(functionName, parameters);
         }
         _superMode = false;
         return rs;

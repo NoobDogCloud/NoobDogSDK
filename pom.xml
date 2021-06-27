@@ -24,6 +24,12 @@
             <artifactId>netty-all</artifactId>
             <version>4.1.59.Final</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.esotericsoftware/reflectasm -->
+        <dependency>
+            <groupId>com.esotericsoftware</groupId>
+            <artifactId>reflectasm</artifactId>
+            <version>1.11.9</version>
+        </dependency>
         <!-- https://mvnrepository.com/artifact/org.mongodb/mongo-java-driver -->
         <dependency>
             <groupId>org.mongodb</groupId>

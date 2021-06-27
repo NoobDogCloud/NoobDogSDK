@@ -6,8 +6,8 @@ import java.lang.annotation.RetentionPolicy;
 
 
 @Retention(RetentionPolicy.RUNTIME)
-@Repeatable(ApiTypes.class)
-public @interface ApiType {
+@Repeatable(InterfaceTypeArray.class)
+public @interface InterfaceType {
     type value() default type.PublicApi;
 
     enum type {PublicApi, SessionApi, OauthApi, PrivateApi, CloseApi}

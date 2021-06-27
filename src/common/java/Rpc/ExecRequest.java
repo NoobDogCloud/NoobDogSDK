@@ -5,6 +5,8 @@ import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.Encrypt.GscJson;
 import common.java.Http.Common.RequestSession;
 import common.java.Http.Server.HttpContext;
+import common.java.JGrapeSystem.GrapeJar;
+import common.java.Reflect.ReflectStruct;
 import common.java.Reflect._reflect;
 import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
@@ -82,6 +84,20 @@ public class ExecRequest {//框架内请求类
         return rs;
     }
 
+    private static final ConcurrentHashMap<String, ReflectStruct> share_class = new ConcurrentHashMap<>();
+    public static String ExecBaseFolder = "main.java.Api._Api";
+
+    /**
+     * 遍历 目录下所有类
+     */
+    public static void loadServiceClass() {
+        List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder, true);
+        // 修改每个载入的 class,增加调用方法
+        for (Class<?> cls : clsArr) {
+            share_class.put(cls.getName(), ReflectStruct.build(cls));
+        }
+    }
+
     /**
      * 执行当前上下文环境下的调用
      */
@@ -92,12 +108,18 @@ public class ExecRequest {//框架内请求类
             String className = hCtx.className();
             String actionName = hCtx.actionName();
             try {
+                // MainClassPath
+                String MainClassName = ExecBaseFolder + "." + className;
+                // 目标类不存在
+                if (!share_class.containsKey(MainClassName)) {
+                    return RpcError.Instant(false, "请求错误 ->目标不存在！");
+                }
                 // 执行转换前置类
                 Object[] _objs = convert2GscCode(hCtx.invokeParamter());
                 FilterReturn filterReturn = beforeExecute(className, actionName, _objs);
                 if (filterReturn.state()) {
                     // 载入主类
-                    Class<?> _cls = Class.forName("main.java.Api._Api" + "." + className);
+                    ReflectStruct _cls = share_class.get(MainClassName);
                     // 执行call
                     try {
                         // 创建类反射

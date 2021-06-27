@@ -2,7 +2,7 @@ package common.java.ServiceTemplate;
 
 import common.java.Database.DbLayer;
 import common.java.Http.Server.HttpContext;
-import common.java.InterfaceModel.Type.ApiType;
+import common.java.InterfaceModel.Type.InterfaceType;
 import common.java.Rpc.RpcPageInfo;
 import common.java.String.StringHelper;
 import org.json.gsc.JSONArray;
@@ -26,27 +26,27 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
         return fdb;
     }
 
-    @ApiType(ApiType.type.CloseApi)
+    @InterfaceType(InterfaceType.type.CloseApi)
     public void init(String tableName) {
         fdb = DbLayer.build();
         fdb.form(tableName);
     }
 
-    @ApiType(ApiType.type.SessionApi)
-    @ApiType(ApiType.type.OauthApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.OauthApi)
     @Override
     public JSONArray select() {
         return fdb.select();
     }
 
-    @ApiType(ApiType.type.SessionApi)
-    @ApiType(ApiType.type.OauthApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.OauthApi)
     public JSONArray select(String appID) {
         return fdb.eq("appid", appID).select();
     }
 
-    @ApiType(ApiType.type.SessionApi)
-    @ApiType(ApiType.type.OauthApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.OauthApi)
     @Override
     public JSONArray selectEx(JSONArray cond) {
         if (fdb.where(JSONArray.toJSONArray(cond)).nullCondition()) {
@@ -61,13 +61,13 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
      * @param idx 当前页码
      * @param max 每页最大数量
      */
-    @ApiType(ApiType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
     @Override
     public RpcPageInfo page(int idx, int max) {
         return RpcPageInfo.Instant(idx, max, fdb.dirty().count(), fdb.page(idx, max));
     }
 
-    @ApiType(ApiType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
     @Override
     public RpcPageInfo pageEx(int idx, int max, JSONArray cond) {
         if (fdb.where(cond).nullCondition()) {
@@ -82,13 +82,13 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
      * @param uidArr 用,分开的id组
      * @param json   GSC-FastJSON:更新的内容
      */
-    @ApiType(ApiType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
     @Override
     public int update(String uidArr, JSONObject json) {
         return _update(uidArr, json, null);
     }
 
-    @ApiType(ApiType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
     @Override
     public int updateEx(JSONObject json, JSONArray cond) {
         return _update(null, json, cond);
@@ -112,19 +112,19 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
     /**
      * 删除计划任务信息
      */
-    @ApiType(ApiType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
     @Override
     public int delete(String uidArr) {
         return (int) (fdb.putAllOr(uidArr).nullCondition() ? 0 : fdb.deleteAll());
     }
 
-    @ApiType(ApiType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
     @Override
     public int deleteEx(JSONArray cond) {
         return (int) (fdb.where(cond).nullCondition() ? 0 : fdb.deleteAll());
     }
 
-    @ApiType(ApiType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
     @Override
     public String insert(JSONObject nObj) {
         String rString = null;
@@ -135,13 +135,13 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
         return rString;
     }
 
-    @ApiType(ApiType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
     @Override
     public String find(String key, String val) {
         return StringHelper.toString(fdb.eq(key, val).find());
     }
 
-    @ApiType(ApiType.type.SessionApi)
+    @InterfaceType(InterfaceType.type.SessionApi)
     @Override
     public JSONObject findEx(JSONArray cond) {
         return fdb.where(cond).nullCondition() ? null : fdb.find();
