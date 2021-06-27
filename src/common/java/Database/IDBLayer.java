@@ -6,20 +6,20 @@ import org.json.gsc.JSONObject;
 import java.util.List;
 import java.util.function.Function;
 
-public interface InterfaceDatabase<T> {
-    T addFieldOutPipe(String fieldName, Function<Object, Object> func);
+public interface IDBLayer<T> {
+    // T addFieldOutPipe(String fieldName, Function<Object, Object> func);
 
-    T addFieldInPipe(String fieldName, Function<Object, Object> func);
+    // T addFieldInPipe(String fieldName, Function<Object, Object> func);
 
-    JSONArray selectByCache(int second);
+    // JSONArray selectByCache(int second);
 
-    void invalidCache();
+    // void invalidCache();
 
-    JSONObject findByCache(int second);
+    // JSONObject findByCache(int second);
 
-    JSONObject findByCache();
+    // JSONObject findByCache();
 
-    void Close();
+    // void Close();
 
     void addConstantCond(String fieldName, Object CondValue);
 
@@ -29,11 +29,11 @@ public interface InterfaceDatabase<T> {
 
     boolean nullCondition();
 
-    T where(JSONArray condArray);
+    T where(JSONArray<JSONObject> condArray);
 
     T groupCondition(List<List<Object>> conds);
 
-    T groupWhere(JSONArray conds);
+    T groupWhere(JSONArray<JSONObject> conds);
 
     T eq(String field, Object value);
 
@@ -55,7 +55,7 @@ public interface InterfaceDatabase<T> {
 
     T data(JSONObject doc);
 
-    // T clearData();
+    List<JSONObject> clearData();
 
     T field();
 
@@ -99,23 +99,23 @@ public interface InterfaceDatabase<T> {
 
     JSONObject getAndAdd(String fieldName, long num);
 
-    boolean sub(String fieldName, long num);
+    // boolean sub(String fieldName, long num);
 
-    JSONObject getAndSub(String fieldName, long num);
+    // JSONObject getAndSub(String fieldName, long num);
 
     JSONObject find();
 
-    JSONArray select();
+    JSONArray<JSONObject> select();
 
-    JSONArray group();
+    JSONArray<JSONObject> group();
 
-    JSONArray group(String groupName);
+    JSONArray<JSONObject> group(String groupName);
 
-    JSONArray distinct(String fieldName);
+    JSONArray<String> distinct(String fieldName);
 
-    JSONArray page(int pageIdx, int pageMax);
+    JSONArray<JSONObject> page(int pageIdx, int pageMax);
 
-    JSONArray page(int pageIdx, int pageMax, int lastId, String fastField);
+    JSONArray<JSONObject> page(int pageIdx, int pageMax, Object lastId, String fastField);
 
     long count();
 
@@ -141,7 +141,7 @@ public interface InterfaceDatabase<T> {
 
     T bind(String ownerID);
 
-    T bind();
+    // T bind();
 
     int limit();
 
@@ -153,17 +153,27 @@ public interface InterfaceDatabase<T> {
 
     void clear();
 
-    JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max);
+    JSONArray<JSONObject> scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max);
 
-    JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo);
+    JSONArray<JSONObject> scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo);
 
-    JSONObject getCond();
+    List<List<Object>> getCond();
 
-    T setCond(JSONObject conJSON);
+    T setCond(List<List<Object>> conJSON);
 
     List<String> getAllTables();
 
     String getConditionString();
 
-    // boolean run(String cmd);
+    boolean run(String cmd);
+
+    String func(String str);
+
+    String now();
+
+    String formUnixTime(long unixTime);
+
+    String curDate();
+
+    String curTime();
 }

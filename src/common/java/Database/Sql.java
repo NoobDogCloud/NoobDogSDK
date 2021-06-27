@@ -37,7 +37,7 @@ import java.util.function.Function;
  *
  */
 
-public class Sql {
+public class Sql implements IDBLayer<Sql> {
     /**
      *
      */
@@ -211,7 +211,7 @@ public class Sql {
     }
 
     @SuppressWarnings("unchecked")
-    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max) {
+    public JSONArray<JSONObject> scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max) {
         if (func == null) {
             nLogger.logInfo("scan 过滤函数不存在");
         }
@@ -243,7 +243,7 @@ public class Sql {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo) {
+    public JSONArray<JSONObject> scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo) {
         if (func == null) {
             nLogger.logInfo("scan 过滤函数不存在");
         }
@@ -263,7 +263,7 @@ public class Sql {
         tempResult = new ConcurrentHashMap<>();
         try (ExecutorService es = Executors.newVirtualThreadExecutor()) {
             List<List<Object>> condJSON = getCond();
-            String _formName = getform();
+            String _formName = getForm();
             for (index = 1; index <= pageNO; index++) {
                 final int _index = index;
                 final int _max = max;
@@ -711,7 +711,7 @@ public class Sql {
         boolean rb = false;
         String createSQL = getCreateTableColSQL();
         if (!createSQL.equals("")) {
-            rb = createTable(getfullform(), createSQL);
+            rb = createTable(getFullForm(), createSQL);
         }
         reinit();
         return rb;
@@ -721,7 +721,7 @@ public class Sql {
         boolean rb = false;
         String createSQL = getCreateTableColSQL();
         if (!createSQL.equals("")) {
-            rb = createTable(getfullform(), createSQL);
+            rb = createTable(getFullForm(), createSQL);
         }
         reinit();
         return rb;
@@ -764,7 +764,7 @@ public class Sql {
         return this;
     }
 
-    public String getfullform() {
+    public String getFullForm() {
         return ownid == null || ownid.equals("") ? formName : formName + "_" + ownid;
     }
 
@@ -772,7 +772,7 @@ public class Sql {
         return ownid == null || ownid.equals("") ? formName : formName + "_" + ownid;
     }
 
-    public String getform() {
+    public String getForm() {
         return formName;
     }
 
@@ -929,7 +929,7 @@ public class Sql {
                 fieldString = fieldString + "`" + _j.toString() + "`,";
                 valueString = valueString + sqlvalue(_t.get(_j)) + ",";
             }
-            sqlList.add("insert into " + getfullform() + "(" + StringHelper.build(fieldString).removeTrailingFrom().toString() + ")" + " values(" + StringHelper.build(valueString).removeTrailingFrom().toString() + ")");
+            sqlList.add("insert into " + getFullForm() + "(" + StringHelper.build(fieldString).removeTrailingFrom().toString() + ")" + " values(" + StringHelper.build(valueString).removeTrailingFrom().toString() + ")");
             //sqlList.add("insert into " + formName + " values(" + StringHelper.killlast(valueString) + ")");
         }
         return sqlList;
@@ -1005,7 +1005,7 @@ public class Sql {
             for (Object _j : _t.keySet()) {//为每一个jsonString构造k-v insertsql
                 updateString = updateString + _j.toString() + "=" + sqlvalue(_t.get(_j)) + ",";
             }
-            sqlList.add("update " + getfullform() + " set " + StringHelper.build(updateString).removeTrailingFrom().toString() + whereSQL());
+            sqlList.add("update " + getFullForm() + " set " + StringHelper.build(updateString).removeTrailingFrom().toString() + whereSQL());
         }
         return sqlList;
     }
@@ -1037,7 +1037,7 @@ public class Sql {
             Connection conn = getNewConnection();
             try {
                 smt = conn.createStatement();
-                String sql = TransactSQLInjection("delete from " + getfullform() + whereSQL() + (isall ? "" : " limit 1"));
+                String sql = TransactSQLInjection("delete from " + getFullForm() + whereSQL() + (isall ? "" : " limit 1"));
                 TransactSQLInjection(sql);
                 rs = smt.executeUpdate(sql);
             } catch (Exception e) {
@@ -1082,7 +1082,7 @@ public class Sql {
         return fd == null ? null : (fd.size() > 0 ? (JSONObject) fd.get(0) : null);
     }
 
-    public JSONArray select() {
+    public JSONArray<JSONObject> select() {
         boolean skipMode = (skipNo > 0 && limitNo < 1);
         if (skipMode) {
             long fromCount = _count();
@@ -1118,7 +1118,7 @@ public class Sql {
                 if (limitNo == 0)
                     limitNo = 1;
             }
-            String sql = TransactSQLInjection("select " + fieldSQL() + " from " + getfullform() + whereSQL() + sortSQL() + limitSQl());
+            String sql = TransactSQLInjection("select " + fieldSQL() + " from " + getFullForm() + whereSQL() + sortSQL() + limitSQl());
             TransactSQLInjection(sql);
             rs = col2jsonArray(smt.executeQuery(sql));
         } catch (Exception e) {
@@ -1145,7 +1145,7 @@ public class Sql {
         return null;
     }
 
-    public JSONArray group() {
+    public JSONArray<JSONObject> group() {
         return group(null);
     }
 
@@ -1157,7 +1157,7 @@ public class Sql {
      * @param groupName //groupby fieldName
      * @return
      */
-    public JSONArray group(String groupName) {
+    public JSONArray<JSONObject> group(String groupName) {
         String groupSQL;
         String sql;
         String _valueName = groupbyfield == null || groupbyfield.equals("") ? groupName : groupbyfield;
@@ -1174,7 +1174,7 @@ public class Sql {
             otherfield += ", avg(" + _distinctfield(_valueName) + ") as avg";
         String condString = whereSQL();
         groupSQL = groupName == null || groupName.equals("") ? "" : (condString) + " group by " + groupName;
-        sql = TransactSQLInjection("select " + fieldSQL() + otherfield + " from " + getfullform() + groupSQL + sortSQL() + limitSQl());
+        sql = TransactSQLInjection("select " + fieldSQL() + otherfield + " from " + getFullForm() + groupSQL + sortSQL() + limitSQl());
         TransactSQLInjection(sql);
         JSONArray fd;
         Statement smt;
@@ -1206,7 +1206,7 @@ public class Sql {
         return this;
     }
 
-    public JSONArray distinct(String fieldName) {
+    public JSONArray<String> distinct(String fieldName) {
         boolean havefield = false;
         StringBuilder fieldString = new StringBuilder();
         Connection conn = getNewConnection();
@@ -1225,7 +1225,7 @@ public class Sql {
                 fieldString.insert(0, "DISTINCT(" + fieldName + "),");
             }
             fieldString = new StringBuilder(StringHelper.build(fieldString.toString()).trimFrom(',').toString());
-            String sql = TransactSQLInjection("select " + fieldString + " from " + getfullform() + whereSQL() + sortSQL() + limitSQl());
+            String sql = TransactSQLInjection("select " + fieldString + " from " + getFullForm() + whereSQL() + sortSQL() + limitSQl());
             TransactSQLInjection(sql);
             return col2jsonArray(smt.executeQuery(sql));
         } catch (Exception e) {
@@ -1237,8 +1237,12 @@ public class Sql {
         return null;
     }
 
-    public JSONArray page(int pageidx, int pagemax) {//普通分页
+    public JSONArray<JSONObject> page(int pageidx, int pagemax) {//普通分页
         return skip((pageidx - 1) * pagemax).limit(pagemax).select();
+    }
+
+    public JSONArray<JSONObject> page(int pageidx, int pagemax, Object lastId, String fastField) {//普通分页
+        return skip((pageidx - 1) * pagemax).limit(pagemax).gt(fastField, lastId).select();
     }
 
     protected long _count() {
@@ -1246,7 +1250,7 @@ public class Sql {
         Connection conn = getNewConnection();
         try {
             Statement smt = conn.createStatement();
-            String sql = TransactSQLInjection("select count(*) from " + getfullform());
+            String sql = TransactSQLInjection("select count(*) from " + getFullForm());
             TransactSQLInjection(sql);
             return (long) Result(smt.executeQuery(sql));
         } catch (Exception e) {
@@ -1265,7 +1269,7 @@ public class Sql {
         Connection conn = getNewConnection();
         try {
             Statement smt = conn.createStatement();
-            String sql = TransactSQLInjection("select count(*) from " + getfullform() + whereSQL());
+            String sql = TransactSQLInjection("select count(*) from " + getFullForm() + whereSQL());
             //TransactSQLInjection(Sql);
             return (long) Result(smt.executeQuery(sql));
         } catch (Exception e) {
@@ -1398,7 +1402,7 @@ public class Sql {
         return rs;
     }
 
-    public String getformName() {
+    public String getFormName() {
         return formName;
     }
 
@@ -1525,7 +1529,7 @@ public class Sql {
     /**
      * 10位unixtime
      */
-    public String formUnixtime(long unixTime) {
+    public String formUnixTime(long unixTime) {
         return func("from_unixtime(" + unixTime + ")");
     }
 

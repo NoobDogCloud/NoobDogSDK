@@ -5,7 +5,6 @@ import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Cache.Cache;
 import common.java.Config.Config;
 import common.java.Http.Server.HttpContext;
-import common.java.Reflect._reflect;
 import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
@@ -17,12 +16,12 @@ import java.util.List;
 import java.util.function.Function;
 
 
-public class DbLayer implements InterfaceDatabase<DbLayer> {
+public class DbLayer implements IDBLayer<DbLayer> {
     private final HashMap<String, List<Function<Object, Object>>> outHookFunc = new HashMap<>();
     private final HashMap<String, List<Function<Object, Object>>> inHookFunc = new HashMap<>();
     public int _dbName;
     public String formName;
-    private _reflect _db;            //数据库抽象对象
+    private IDBLayer _db;            //数据库抽象对象
     private Cache cache;        //缓存抽象对象
     private String ownId;
     private boolean out_piper_flag = true;
@@ -132,7 +131,7 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
     }
 
 
-    public _reflect getDBObject(String cN) {
+    public IDBLayer getDBObject(String cN) {
         String _configString = Config.netConfig(cN);
         try {
             if (_configString != null) {
@@ -140,7 +139,6 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
             } else {
                 nLogger.logInfo("DB配置信息[" + cN + "]为空:=>" + null);
             }
-            _db.privateMode();//内部调用，启动私有模式
         } catch (Exception e) {
             nLogger.logInfo(e, "连接关系型数据系统失败! 配置名:[" + cN + "]");
             _db = null;
@@ -148,28 +146,28 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         return _db;
     }
 
-    public _reflect getDbByConfigContent(String _configString) {
+    public IDBLayer getDbByConfigContent(String _configString) {
         JSONObject obj = JSONObject.toJSON(_configString);
         if (obj != null) {
             String dbName = obj.getString("dbName").toLowerCase();
             switch (dbName) {
                 case "mongodb" -> {
-                    _db = (new _reflect(Mongodb.class)).newInstance(_configString);
+                    _db = new Mongodb(_configString);
                     _dbName = dbType.mongodb;
-                    break;
+                    // break;
                 }
                 case "oracle" -> {
-                    _db = (new _reflect(Oracle.class)).newInstance(_configString);
+                    _db = new Oracle(_configString);
                     _dbName = dbType.oracle;
-                    break;
+                    // break;
                 }
                 case "h2" -> {
-                    _db = (new _reflect(H2.class)).newInstance(_configString);
+                    _db = new H2(_configString);
                     _dbName = dbType.h2;
-                    break;
+                    // break;
                 }
                 default -> {
-                    _db = (new _reflect(Sql.class)).newInstance(_configString);
+                    _db = new Sql(_configString);
                     _dbName = dbType.mysql;
                 }
             }
@@ -223,14 +221,14 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
     /**
      * 从缓存取数据，如果缓存不存在数据，那么从数据库取并填充
      */
-    public JSONArray selectByCache() {
+    public JSONArray<JSONObject> selectByCache() {
         return selectByCache(3);
     }
 
     /**
      * 从缓存取数据，如果缓存不存在数据，那么从数据库取并填充
      */
-    public JSONArray selectByCache(int second) {
+    public JSONArray<JSONObject> selectByCache(int second) {
         JSONArray rs = null;
         String key = getFormName() + getConditionString();
         Cache c = getCache();
@@ -284,34 +282,30 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
     }
 
     //---------------------------db接口引用
-    public void Close() {
-        //_db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
-    }
 
     public void addConstantCond(String fieldName, Object CondValue) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), fieldName, CondValue);
+        _db.addConstantCond(fieldName, CondValue);
     }
 
     public DbLayer and() {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        _db.and();
         return this;
     }
 
     public DbLayer or() {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        _db.or();
         return this;
     }
 
     public boolean nullCondition() {
-        return (boolean) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.nullCondition();
     }
 
     public DbLayer where(JSONArray condArray) {
         if (condArray == null) {
             condArray = new JSONArray();
         }
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), condArray);
+        _db.where(condArray);
         return this;
     }
 
@@ -319,49 +313,47 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
         if (conds == null) {
             conds = new ArrayList<>();
         }
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), conds);
-        // System.out.println(getCond());
+        _db.groupCondition(conds);
         return this;
     }
 
-    public DbLayer groupWhere(JSONArray conds) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), conds);
-        // System.out.println(getCond());
+    public DbLayer groupWhere(JSONArray<JSONObject> conds) {
+        _db.groupWhere(conds);
         return this;
     }
 
     public DbLayer eq(String field, Object value) {//One Condition
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), field, value);
+        _db.eq(field, value);
         return this;
     }
 
     public DbLayer ne(String field, Object value) {//One Condition
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), field, value);
+        _db.ne(field, value);
         return this;
     }
 
     public DbLayer gt(String field, Object value) {//One Condition
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), field, value);
+        _db.gt(field, value);
         return this;
     }
 
     public DbLayer lt(String field, Object value) {//One Condition
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), field, value);
+        _db.lt(field, value);
         return this;
     }
 
     public DbLayer gte(String field, Object value) {//One Condition
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), field, value);
+        _db.gte(field, value);
         return this;
     }
 
     public DbLayer lte(String field, Object value) {//One Condition
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), field, value);
+        _db.lte(field, value);
         return this;
     }
 
     public DbLayer like(String field, Object value) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), field, value);
+        _db.like(field, value);
         return this;
     }
 
@@ -371,127 +363,118 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
 
     public DbLayer data(JSONObject doc) {//One Condition
         fieldPiper(doc, inHookFunc);
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), doc);
+        _db.data(doc);
         return this;
     }
 
-    public List<JSONObject> clearData() {
-        return (List<JSONObject>) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
-    }
-
     public List<JSONObject> data() {
-        return (List<JSONObject>) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.data();
     }
 
     public DbLayer field() {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        _db.field();
         return this;
     }
 
     public DbLayer field(String[] fieldString) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), fieldString);
+        _db.field(fieldString);
         return this;
     }
 
     public DbLayer mask(String[] fieldString) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), fieldString);
+        _db.mask(fieldString);
         return this;
     }
 
     public DbLayer form(String _formName) {
         formName = _formName;
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), _formName);
+        _db.form(_formName);
         return this;
     }
 
     public DbLayer skip(int no) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), no);
+        _db.skip(no);
         return this;
     }
 
     public DbLayer limit(int no) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), no);
+        _db.limit(no);
         return this;
     }
 
     public DbLayer asc(String field) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), field);
+        _db.asc(field);
         return this;
     }
 
     public DbLayer desc(String field) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), field);
-        return this;
-    }
-
-    public DbLayer findOne() {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        _db.desc(field);
         return this;
     }
 
     public List<Object> insert() {
         updateFix();
-        return (List<Object>) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.insert();
     }
 
     public JSONObject getAndUpdate() {
         updateFix();
-        return (JSONObject) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.getAndUpdate();
     }
 
     public boolean update() {
         updateFix();
-        return (boolean) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.update();
     }
 
     public long updateAll() {
         updateFix();
-        return (long) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.updateAll();
     }
 
     public JSONObject getAndDelete() {
         updateFix();
-        return (JSONObject) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.getAndDelete();
     }
 
     public boolean delete() {
         updateFix();
-        return (boolean) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.delete();
     }
 
     public long deleteAll() {
         updateFix();
-        return (long) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.deleteAll();
     }
 
     public JSONObject getAndInc(String fieldName) {
         updateFix();
-        return (JSONObject) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), fieldName);
+        return _db.getAndInc(fieldName);
     }
 
     public boolean inc(String fieldName) {
         updateFix();
-        return (boolean) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), fieldName);
+        return _db.inc(fieldName);
     }
 
     public JSONObject getAndDec(String fieldName) {
         updateFix();
-        return (JSONObject) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), fieldName);
+        return _db.getAndDec(fieldName);
     }
 
     public boolean dec(String fieldName) {
         updateFix();
-        return (boolean) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), fieldName);
+        return _db.dec(fieldName);
     }
 
     public JSONObject getAndAdd(String fieldName, long num) {
         updateFix();
-        return (JSONObject) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), fieldName, num);
+        return _db.getAndAdd(fieldName, num);
     }
 
     public boolean add(String fieldName, long num) {
         updateFix();
-        return (boolean) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), fieldName, num);
+        return _db.add(fieldName, num);
     }
 
     public JSONObject getAndSub(String fieldName, long num) {
@@ -504,99 +487,99 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
 
     public JSONObject find() {
         updateFix();
-        return (JSONObject) fieldOutPiper(_db._call(Thread.currentThread().getStackTrace()[1].getMethodName()));
+        return (JSONObject) fieldOutPiper(_db.find());
     }
 
-    public JSONArray select() {
+    public JSONArray<JSONObject> select() {
         updateFix();
-        return (JSONArray) fieldOutPiper(_db._call(Thread.currentThread().getStackTrace()[1].getMethodName()));
+        return (JSONArray<JSONObject>) fieldOutPiper(_db.select());
     }
 
     public String getConditionString() {
         updateFix();
-        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.getConditionString();
     }
 
-    public JSONArray group() {
+    public JSONArray<JSONObject> group() {
         updateFix();
-        return (JSONArray) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.group();
     }
 
-    public JSONArray group(String groupName) {
+    public JSONArray<JSONObject> group(String groupName) {
         updateFix();
-        return (JSONArray) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), groupName);
+        return _db.group(groupName);
     }
 
-    public JSONArray distinct(String fieldName) {
+    public JSONArray<String> distinct(String fieldName) {
         updateFix();
-        return (JSONArray) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), fieldName);
+        return _db.distinct(fieldName);
     }
 
-    public JSONArray page(int pageidx, int pagemax) {
+    public JSONArray<JSONObject> page(int pageidx, int pagemax) {
         updateFix();
-        return (JSONArray) fieldOutPiper(_db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), pageidx, pagemax));
+        return (JSONArray<JSONObject>) fieldOutPiper(_db.page(pageidx, pagemax));
     }
 
-    public final JSONArray page(int pageidx, int pagemax, int lastid, String fastfield) {
+    public JSONArray<JSONObject> page(int pageidx, int pagemax, Object lastid, String fastfield) {
         updateFix();
-        return (JSONArray) fieldOutPiper(_db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), pageidx, pagemax, lastid, fastfield));
+        return (JSONArray<JSONObject>) fieldOutPiper(_db.page(pageidx, pagemax, lastid, fastfield));
     }
 
     public long count() {
-        return (long) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.count();
     }
 
     public DbLayer count(String groupbyString) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), groupbyString);
+        _db.count(groupbyString);
         return this;
     }
 
     public DbLayer max(String groupbyString) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), groupbyString);
+        _db.max(groupbyString);
         return this;
     }
 
     public DbLayer min(String groupbyString) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), groupbyString);
+        _db.min(groupbyString);
         return this;
     }
 
     public DbLayer avg(String groupbyString) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), groupbyString);
+        _db.avg(groupbyString);
         return this;
     }
 
     public DbLayer sum(String groupbyString) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), groupbyString);
+        _db.sum(groupbyString);
         return this;
     }
 
     public String getFormName() {
         return formName;
-        //return (String)_db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        //return_db._call();
     }
 
     public String getForm() {
-        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.getForm();
     }
 
     public String getFullForm() {
-        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.getFullForm();
     }
 
     public void asyncInsert() {
         updateFix();
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        _db.asyncInsert();
     }
 
     public Object insertOnce() {
         updateFix();
-        return _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.insertOnce();
     }
 
     public DbLayer bind(String ownerID) {
         ownId = ownerID == null || ownerID.equals("0") ? "" : ownerID;
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), ownId);
+        _db.bind(ownId);
         return this;
     }
 
@@ -614,76 +597,79 @@ public class DbLayer implements InterfaceDatabase<DbLayer> {
     }
 
     public int limit() {
-        return (int) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.limit();
     }
 
     public int pageMax(int max) {
-        return (int) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), max);
+        return _db.pageMax(max);
     }
 
     public String getGeneratedKeys() {
-        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.getGeneratedKeys();
     }
 
     public DbLayer dirty() {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        _db.dirty();
         return this;
     }
 
     public void clear() {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        _db.clear();
     }
 
-    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max) {
-        return (JSONArray) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), func, max);
+    public List<JSONObject> clearData() {
+        return _db.clearData();
     }
 
-    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo) {
-        return (JSONArray) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), func, max, synNo);
+    public JSONArray<JSONObject> scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max) {
+        return _db.scan(func, max);
     }
 
-    public JSONObject getCond() {
-        return (JSONObject) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+    public JSONArray<JSONObject> scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo) {
+        return _db.scan(func, max, synNo);
     }
 
-    public DbLayer setCond(JSONObject conJSON) {
-        _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), conJSON);
+    public List<List<Object>> getCond() {
+        return _db.getCond();
+    }
+
+    public DbLayer setCond(List<List<Object>> conJSON) {
+        _db.setCond(conJSON);
         return this;
     }
 
     public List<String> getAllTables() {
-        return (List<String>) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.getAllTables();
     }
 
     public boolean run(String cmd) {
-        return (boolean) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), cmd);
+        return _db.run(cmd);
     }
 
-
     public String func(String str) {
-        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), str);
+        return _db.func(str);
     }
 
     /**
      * 10位unixtime
      */
     public String now() {
-        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.now();
     }
 
     /**
      * 10位unixtime
      */
-    public String formUnixtime(long unixTime) {
-        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName(), unixTime);
+    public String formUnixTime(long unixTime) {
+        return _db.formUnixTime(unixTime);
     }
 
     public String curDate() {
-        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.curDate();
     }
 
     public String curTime() {
-        return (String) _db._call(Thread.currentThread().getStackTrace()[1].getMethodName());
+        return _db.curTime();
     }
 
     public static class dbType {

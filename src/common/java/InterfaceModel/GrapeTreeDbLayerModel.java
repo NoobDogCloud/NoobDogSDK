@@ -7,7 +7,6 @@ import common.java.Authority.Permissions;
 import common.java.Check.FormHelper;
 import common.java.Database.DbFilter;
 import common.java.Database.DbLayer;
-import common.java.Database.InterfaceDatabase;
 import common.java.Http.Server.HttpContext;
 import common.java.InterfaceModel.Type.Aggregation;
 import common.java.ServiceTemplate.SuperItemField;
@@ -24,7 +23,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 
-public class GrapeTreeDbLayerModel implements InterfaceDatabase<GrapeTreeDbLayerModel> {
+public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerModel> {
     private List<Function<JSONArray, JSONArray>> pipeJSONArray_Out;
     private List<Consumer<GrapeTreeDbLayerModel>> pipeRead;
     private boolean hardMode = false;
@@ -63,8 +62,8 @@ public class GrapeTreeDbLayerModel implements InterfaceDatabase<GrapeTreeDbLayer
         return this;
     }
 
-    public void Close() {
-        this.db.Close();
+    public List<JSONObject> clearData() {
+        return this.db.clearData();
     }
 
     public void addConstantCond(String fieldName, Object CondValue) {
@@ -321,7 +320,7 @@ public class GrapeTreeDbLayerModel implements InterfaceDatabase<GrapeTreeDbLayer
     }
 
     //获得下1级子节点数据集合
-    public JSONArray getChildren(List<Function<JSONArray, JSONArray>> outPipe) {
+    public JSONArray<JSONObject> getChildren(List<Function<JSONArray, JSONArray>> outPipe) {
         JSONArray rArray = null;
         JSONObject json = find();//获得当前数据
         if (json != null) {
@@ -716,42 +715,42 @@ public class GrapeTreeDbLayerModel implements InterfaceDatabase<GrapeTreeDbLayer
         );
     }
 
-    public JSONArray selectByCache(int second) {
+    public JSONArray<JSONObject> selectByCache(int second) {
         return runOutPipe(_readFilter() ?
                 this.db.selectByCache(second) :
                 null
         );
     }
 
-    public JSONArray select() {
+    public JSONArray<JSONObject> select() {
         return runOutPipe(_readFilter() ?
                 this.db.select() :
                 null
         );
     }
 
-    public JSONArray page(int pageIdx, int pageMax) {
+    public JSONArray<JSONObject> page(int pageIdx, int pageMax) {
         return runOutPipe(_readFilter() ?
                 this.db.page(pageIdx, pageMax) :
                 null
         );
     }
 
-    public JSONArray page(int pageIdx, int pageMax, int lastId, String fastField) {
+    public JSONArray<JSONObject> page(int pageIdx, int pageMax, Object lastId, String fastField) {
         return runOutPipe(_readFilter() ?
                 this.db.page(pageIdx, pageMax, lastId, fastField) :
                 null
         );
     }
 
-    public JSONArray page(int pageIdx, int pageMax, Object lastObj) {
+    public JSONArray<JSONObject> page(int pageIdx, int pageMax, Object lastObj) {
         return runOutPipe(_readFilter() ?
                 this.db.and().eq(getGeneratedKeys(), lastObj).page(pageIdx, pageMax) :
                 null
         );
     }
 
-    public JSONArray group(String groupName) {
+    public JSONArray<JSONObject> group(String groupName) {
         return (_readFilter() ?
                 this.db.group(groupName) :
                 null
@@ -759,7 +758,7 @@ public class GrapeTreeDbLayerModel implements InterfaceDatabase<GrapeTreeDbLayer
     }
 
     //覆盖父类分组方法
-    public JSONArray group() {
+    public JSONArray<JSONObject> group() {
         return (_readFilter() ?
                 this.db.group() :
                 null
@@ -859,15 +858,15 @@ public class GrapeTreeDbLayerModel implements InterfaceDatabase<GrapeTreeDbLayer
         return this;
     }
 
-    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max) {
+    public JSONArray<JSONObject> scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max) {
         return this.db.scan(func, max);
     }
 
-    public JSONArray scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo) {
+    public JSONArray<JSONObject> scan(Function<JSONArray<JSONObject>, JSONArray<JSONObject>> func, int max, int synNo) {
         return this.db.scan(func, max, synNo);
     }
 
-    public JSONArray distinct(String fieldName) {
+    public JSONArray<String> distinct(String fieldName) {
         return this.db.distinct(fieldName);
     }
 
@@ -906,16 +905,40 @@ public class GrapeTreeDbLayerModel implements InterfaceDatabase<GrapeTreeDbLayer
         this.db.clear();
     }
 
-    public JSONObject getCond() {
+    public List<List<Object>> getCond() {
         return this.db.getCond();
     }
 
-    public GrapeTreeDbLayerModel setCond(JSONObject conJSON) {
+    public GrapeTreeDbLayerModel setCond(List<List<Object>> conJSON) {
         this.db.setCond(conJSON);
         return this;
     }
 
     public List<String> getAllTables() {
         return this.db.getAllTables();
+    }
+
+    public boolean run(String cmd) {
+        return this.db.run(cmd);
+    }
+
+    public String func(String str) {
+        return this.db.func(str);
+    }
+
+    public String now() {
+        return this.db.now();
+    }
+
+    public String formUnixTime(long unixTime) {
+        return this.db.formUnixTime(unixTime);
+    }
+
+    public String curDate() {
+        return this.db.curDate();
+    }
+
+    public String curTime() {
+        return this.db.curTime();
     }
 }

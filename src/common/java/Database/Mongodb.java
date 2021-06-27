@@ -35,7 +35,7 @@ import java.util.logging.Level;
  * "nodeAddresses": ["123.57.213.15:27017", "123.57.213.15:27018", "123.57.213.15:27019"]
  * }
  */
-public class Mongodb {
+public class Mongodb implements IDBLayer<Mongodb> {
     private static final HashMap<String, MongoClient> DataSource;
     private static final JsonWriterSettings build;
 
@@ -345,8 +345,8 @@ public class Mongodb {
     }
 
     private void addCondition(String field, Object value, String logic, boolean link_logic) {
-        //fixCondObject();
-        BasicDBList logicBSON;
+        // fixCondObject();
+        // BasicDBList logicBSON;
         //JSONObject tempObject;
         String logicStr;
         if (value != null) {
@@ -422,7 +422,7 @@ public class Mongodb {
 
     public Mongodb field(String fieldString) {
         String[] fieldList = fieldString.split(",");
-        return fieldList == null ? null : field(fieldList);
+        return fieldList.length <= 1 ? null : field(fieldList);
     }
 
     public Mongodb mask(String fieldString) {
@@ -440,7 +440,7 @@ public class Mongodb {
         return this;
     }
 
-    private void buildFieldBSON(Set<String> set, int state) {
+    private void buildFieldBSON(Set<String> set) {
         for (String v : set) {
             fieldBSON.put(v, set);
         }
@@ -452,19 +452,19 @@ public class Mongodb {
             for (String v : fieldDisable) {
                 fieldVisible.remove(v);
             }
-            buildFieldBSON(fieldVisible, 1);
+            buildFieldBSON(fieldVisible);
         } else { // 不可见字段 多于 可见字段,去掉不可见字段里可见字段
             for (String v : fieldVisible) {
                 fieldDisable.remove(v);
             }
-            buildFieldBSON(fieldDisable, 0);
+            buildFieldBSON(fieldDisable);
         }
         return fieldBSON;
     }
 
     public Mongodb form(String _formName) {
         formName = _formName;
-        collection = mongoDatabase.getCollection(getfullform());
+        collection = mongoDatabase.getCollection(getFullForm());
         return this;
     }
 
@@ -473,7 +473,7 @@ public class Mongodb {
         return this;
     }
 
-    public String getfullform() {
+    public String getFullForm() {
         return ownid == null || ownid.equals("") ? formName : formName + "_" + ownid;
     }
 
@@ -505,12 +505,7 @@ public class Mongodb {
 
     public List<Object> insert() {
         List<Object> rList = new ArrayList<>();
-        dataBSON = clearDocument(dataBSON);
-        if (dataBSON.size() > 1) {
-            collection.insertMany(dataBSON);
-        } else {
-            _insertOnce(false);
-        }
+        asyncInsert();
         reinit();
         // int l = dataBSON.size();
         for (Document document : dataBSON) {
@@ -521,6 +516,15 @@ public class Mongodb {
 
     public Object insertOnce() {
         return _insertOnce(true);
+    }
+
+    public void asyncInsert() {
+        dataBSON = clearDocument(dataBSON);
+        if (dataBSON.size() > 1) {
+            collection.insertMany(dataBSON);
+        } else {
+            _insertOnce(false);
+        }
     }
 
     private Object _insertOnce(boolean rsState) {
@@ -727,10 +731,6 @@ public class Mongodb {
         return fd;
     }
 
-    public Mongodb on(String baseField, String forgenField) {
-        return this;
-    }
-
     public Mongodb distinct() {
         _distinct = true;
         return this;
@@ -832,10 +832,12 @@ public class Mongodb {
     }
     //透明分表mongodb不需要
 
-    //！！！权限分到一个新模块里面
-
     public JSONArray<JSONObject> page(int pageidx, int pagemax) {//普通分页
         return skip((pageidx - 1) * pagemax).limit(pagemax).select();
+    }
+
+    public JSONArray<JSONObject> page(int pageidx, int pagemax, Object lastId, String fastField) {//普通分页
+        return skip((pageidx - 1) * pagemax).limit(pagemax).gt(fastField, lastId).select();
     }
 
     public long count() {
@@ -900,7 +902,7 @@ public class Mongodb {
         tempResult = new ConcurrentHashMap<>();
 
         List<List<Object>> condJSON = getCond();
-        String _formName = getfullform();
+        String _formName = getFullForm();
         try (ExecutorService es = Executors.newVirtualThreadExecutor()) {
             for (int index = 1; index <= pageNO; index++) {
                 final int _index = index;
@@ -989,37 +991,6 @@ public class Mongodb {
             }
         }
         return Updates.combine(updateBSON);
-    }
-
-    private BasicDBObject killAnd(BasicDBObject rBSON) {
-        BasicDBObject r = new BasicDBObject();
-        if (rBSON.size() > 0) {
-            for (Object key : rBSON.keySet()) {
-                if (key.equals("$and")) {
-                    BasicDBList cArray = (BasicDBList) rBSON.get("$and");
-                    for (Object _o : cArray) {
-                        BasicDBObject o = (BasicDBObject) _o;
-                        for (Object _l : o.keySet()) {
-                            Object _v = r.get(_l);
-                            if (_v == null) {
-                                _v = o.get(_l);
-                                r.put(_l.toString(), _v);
-                            } else {
-                                BasicDBList _vl;
-                                if (_v instanceof BasicDBObject) {
-                                    _vl = new BasicDBList();
-                                } else {
-                                    _vl = (BasicDBList) _v;
-                                }
-                                _vl.add(_v);
-                            }
-
-                        }
-                    }
-                }
-            }
-        }
-        return r;
     }
 
     private BasicDBObject translate2bsonAndRun() {//翻译到BSON并执行
@@ -1247,7 +1218,7 @@ public class Mongodb {
     /**
      * 10位unixtime
      */
-    public String formUnixtime(long unixTime) {
+    public String formUnixTime(long unixTime) {
         return TimeHelper.build().timestampToDatetime(unixTime);
     }
 

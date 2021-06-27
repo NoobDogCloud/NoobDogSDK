@@ -10,7 +10,6 @@ import common.java.Cache.Redis.RedisSentinel;
 import common.java.Cache.Redis.RedisSingle;
 import common.java.Config.Config;
 import common.java.Number.NumberHelper;
-import common.java.Reflect._reflect;
 import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
@@ -29,7 +28,7 @@ public class Cache implements InterfaceCache {
         CacheClient = new ConcurrentHashMap<>();
     }
 
-    private _reflect _cache;                    // 共享缓存抽象对象
+    private InterfaceCache _cache;                    // 共享缓存抽象对象
     private CaffeineCache _mem_cache;           // 内存缓存对象
     private boolean local_mem_cache = true;     // 开启二级缓存模式，默认开启
 
@@ -101,7 +100,7 @@ public class Cache implements InterfaceCache {
         return CaffeineCache.getInstance();
     }
 
-    private _reflect getCacheObject(String cN) {
+    private InterfaceCache getCacheObject(String cN) {
         String cacheName;
         JSONObject obj;
         String _configString = Config.netConfig(cN);
@@ -113,23 +112,23 @@ public class Cache implements InterfaceCache {
                     //缓存名
                     switch (cacheName) {
                         case "redis" -> {
-                            _cache = (new _reflect(RedisSingle.class)).newInstance(_configString);
+                            _cache = new RedisSingle(_configString);
                             break;
                         }
                         case "redis-cluster" -> {
-                            _cache = (new _reflect(RedisCluster.class)).newInstance(_configString);
+                            _cache = new RedisCluster(_configString);
                             break;
                         }
                         case "redis-sentinel" -> {
-                            _cache = (new _reflect(RedisSentinel.class)).newInstance(_configString);
+                            _cache = new RedisSentinel(_configString);
                             break;
                         }
                         case "redis-masterslave" -> {
-                            _cache = (new _reflect(RedisMasterSlave.class)).newInstance(_configString);
+                            _cache = new RedisMasterSlave(_configString);
                             break;
                         }
                         default -> {
-                            _cache = new _reflect(CaffeineCache.class);
+                            _cache = CaffeineCache.build();
                         }
                     }
                 } else {
@@ -138,7 +137,6 @@ public class Cache implements InterfaceCache {
             } else {
                 nLogger.logInfo("cache配置信息[" + cN + "]为空:=>" + null);
             }
-            _cache.privateMode();//内部调用，启动私有模式
         } catch (Exception e) {
             nLogger.logInfo(e, "连接缓存系统失败! 配置名:[" + cN + "]");
             _cache = null;
@@ -153,7 +151,7 @@ public class Cache implements InterfaceCache {
     public Object get(String objectName) {
         Object r = local_get(objectName);
         if (_cache != null && r == null) {
-            r = _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName);
+            r = _cache.get(objectName);
         }
         return r;
     }
@@ -193,7 +191,7 @@ public class Cache implements InterfaceCache {
     public JSONObject getJson(String objectName) {
         Object r = local_get(objectName);
         if (_cache != null && r == null) {
-            return (JSONObject) _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName);
+            return _cache.getJson(objectName);
         }
         return JSONObject.toJSON(r.toString());
     }
@@ -201,14 +199,14 @@ public class Cache implements InterfaceCache {
     public JSONArray getJsonArray(String objectName) {
         Object r = local_get(objectName);
         if (_cache != null && r == null) {
-            return (JSONArray) _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName);
+            return _cache.getJsonArray(objectName);
         }
         return JSONArray.toJSONArray(r.toString());
     }
 
     public long inc(String objectName) {
         if (_cache != null) {
-            long r = (long) _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName);
+            long r = _cache.inc(objectName);
             if (local_mem_cache) {
                 _mem_cache.set(objectName, r);
             }
@@ -223,14 +221,14 @@ public class Cache implements InterfaceCache {
             _mem_cache.delete(objectName);
         }
         if (_cache != null) {
-            _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName);
+            _cache.delete(objectName);
         }
         return 0;
     }
 
     public long dec(String objectName) {
         if (_cache != null) {
-            long r = (long) _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName);
+            long r = _cache.dec(objectName);
             if (local_mem_cache) {
                 _mem_cache.set(objectName, r);
             }
@@ -242,7 +240,7 @@ public class Cache implements InterfaceCache {
 
     public long decBy(String objectName, long num) {
         if (_cache != null) {
-            long r = (long) _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName);
+            long r = _cache.decBy(objectName, num);
             if (local_mem_cache) {
                 _mem_cache.set(objectName, r);
             }
@@ -254,7 +252,7 @@ public class Cache implements InterfaceCache {
 
     public long incBy(String objectName, long num) {
         if (_cache != null) {
-            long r = (long) _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName);
+            long r = _cache.incBy(objectName, num);
             if (local_mem_cache) {
                 _mem_cache.set(objectName, r);
             }
@@ -270,7 +268,7 @@ public class Cache implements InterfaceCache {
             r = _mem_cache.setExpire(objectName, expire);
         }
         if (_cache != null) {
-            r = (boolean) _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName, expire);
+            r = _cache.setExpire(objectName, expire);
         }
         return r;
     }
@@ -281,7 +279,7 @@ public class Cache implements InterfaceCache {
             r = _mem_cache.set(objectName, objectValue);
         }
         if (_cache != null) {
-            r = (String) _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName, objectValue);
+            r = _cache.set(objectName, objectValue);
         }
         return r;
     }
@@ -297,7 +295,7 @@ public class Cache implements InterfaceCache {
             r = _mem_cache.set(objectName, expire, objectValue);
         }
         if (_cache != null) {
-            r = (String) _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName, expire, objectValue);
+            r = _cache.set(objectName, expire, objectValue);
         }
         return r;
     }
@@ -308,7 +306,7 @@ public class Cache implements InterfaceCache {
             r = _mem_cache.getSet(objectName, expire, objectValue);
         }
         if (_cache != null) {
-            r = _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName, expire, objectValue);
+            r = _cache.getSet(objectName, expire, objectValue);
         }
         return r;
     }
@@ -319,7 +317,7 @@ public class Cache implements InterfaceCache {
             r = _mem_cache.setNX(objectName, objectValue);
         }
         if (_cache != null) {
-            r = (boolean) _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName, objectValue);
+            r = _cache.setNX(objectName, objectValue);
         }
         return r;
     }
@@ -330,7 +328,7 @@ public class Cache implements InterfaceCache {
             r = _mem_cache.getSet(objectName, objectValue);
         }
         if (_cache != null) {
-            r = _cache._call(Thread.currentThread().getStackTrace()[1].getMethodName(), objectName, objectValue);
+            r = _cache.getSet(objectName, objectValue);
         }
         return r;
     }

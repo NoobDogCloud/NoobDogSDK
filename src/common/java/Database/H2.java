@@ -5,7 +5,7 @@ public class H2 extends Sql {
         super(configString);
     }
 
-    public String getfullform() {
+    public String getFullForm() {
         return '"' + (ownid == null || ownid.equals("") ? formName : formName + "_" + ownid) + '"';
     }
 }

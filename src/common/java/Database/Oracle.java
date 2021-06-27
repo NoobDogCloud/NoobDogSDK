@@ -108,9 +108,9 @@ public class Oracle extends Sql {
     private String getfullformSQL() {
         // 包含需要跳过的数据行
         if (limitNo > 0 && skipNo > 0) {
-            return "(select rownum rn,a.* from " + getfullform() + " a where rownum <= " + limitNo + ")";
+            return "(select rownum rn,a.* from " + getFullForm() + " a where rownum <= " + limitNo + ")";
         } else {
-            return getfullform();
+            return getFullForm();
         }
     }
 
