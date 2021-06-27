@@ -3,62 +3,61 @@ package common.java.Apps;
 import common.java.Apps.MicroService.Config.ModelServiceConfig;
 import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Apps.Roles.AppRoles;
+import common.java.Coordination.Coordination;
 import common.java.Http.Common.RequestSession;
 import common.java.Http.Server.HttpContext;
 import io.netty.channel.ChannelId;
+import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
+
+import java.util.HashMap;
 
 // 应用上下文
 public class AppContext {
-    public static final String SessionKey = "AppContext";
-    // private static final ExecutorService globalService = Executors.newCachedThreadPool();
-    private int appId;
-    private String domain;
-    private JSONObject appInfo;
-    private ModelServiceConfig msc;
+    private final HashMap<String, MicroServiceContext> micro_service_context = new HashMap<>();
+
+    private final int appId;
+    private final String domain;
+    private final JSONObject appInfo;
+    private final ModelServiceConfig msc;
     private MicroServiceContext microServiceInfo;
-    private AppRoles roles;
+    private final AppRoles roles;
 
-    private AppContext() {
+    private AppContext(JSONObject appInfo) {
         // 默认使用当前上下文 或者 0
-        init(HttpContext.current().appId());
+        this.appInfo = appInfo;
+        this.appId = this.appInfo.getInt("id");
+        this.domain = this.appInfo.getString("domain");
+        this.roles = AppRoles.build(this.appInfo.getJson("roles"));
+        this.msc = new ModelServiceConfig(this.appInfo.getJson("config"));
     }
 
-    private AppContext(int appId) {
-        init(appId);
-    }
-
-    private AppContext(String domain) {
-        init(domain);
-    }
-
-    public static AppContext build(int appId) {
-        return build(appId, HttpContext.current().serviceName());
-    }
-
-    public static AppContext build(int appId, String serviceName) {
-        return (new AppContext(appId)).loadMircServiceInfo(serviceName);
-    }
-
-    public static AppContext build(String domain) {
-        return build(domain, HttpContext.current().serviceName());
-    }
-
-    public static AppContext build(String domain, String serviceName) {
-        return (new AppContext(domain)).loadMircServiceInfo(serviceName);
+    public static AppContext build(JSONObject appInfo) {
+        return new AppContext(appInfo);
     }
 
     public static AppContext current() {
-        AppContext r = RequestSession.getValue(AppContext.SessionKey);
-        if (r == null) {
-            r = new AppContext();
-            RequestSession.setValue(AppContext.SessionKey, r);
-            String serviceName = HttpContext.current().serviceName();
-            r.loadMircServiceInfo(serviceName);
-        }
+        return Coordination.getInstance().getAppContext(HttpContext.current().appId());
+    }
+
+    /**
+     * 根据指定的appId创建虚拟上下文
+     */
+    public static AppContext virtualAppContext(int appId, String serviceName) {
+        ChannelId cid = RequestSession.buildChannelId();
+        RequestSession.setChannelID(cid);
+        RequestSession.create(cid);
+        AppContext r = Coordination.getInstance().getAppContext(appId);
+        HttpContext.setNewHttpContext()
+                .serviceName(serviceName)
+                .appId(appId);
         return r;
     }
 
+    public MicroServiceContext service(String name) {
+        this.microServiceInfo = micro_service_context.get(name);
+        return this.microServiceInfo;
+    }
 
     /**
      * 获得当前应用上下文
@@ -74,46 +73,12 @@ public class AppContext {
         return virtualAppContext(atc.AppID(), atc.MicroServiceName());
     }
 
-    /**
-     * 根据指定的appId创建虚拟上下文
-     */
-    public static AppContext virtualAppContext(int appId, String serviceName) {
-        ChannelId cid = RequestSession.buildChannelId();
-        RequestSession.setChannelID(cid);
-        RequestSession.create(cid);
-        AppContext r = new AppContext(appId);
-        RequestSession.setValue(AppContext.SessionKey, r);
-        HttpContext.setNewHttpContext()
-                .serviceName(serviceName)
-                .appId(appId);
-        return r;
-    }
-
-    private void init(int appId) {
-        init(AppsProxy.getAppInfo(appId));
-    }
-
-    private void init(String domain) {
-        init(AppsProxy.getAppInfo(domain));
-    }
-
-    private void init(JSONObject appInfo) {
-        this.appInfo = appInfo;
-        if (this.appInfo != null) {
-            this.appId = this.appInfo.getInt("id");
-            this.domain = this.appInfo.getString("domain");
-            this.roles = AppRoles.build(this.appInfo.getJson("roles"));
-            this.msc = new ModelServiceConfig(this.appInfo.getJson("config"));
-        }
-
-    }
-
-    // 获得
-    private AppContext loadMircServiceInfo(String serviceName) {
-        // 单服务只管自己的微服务信息
-        MicroServiceContext msc = new MicroServiceContext(this.appId, serviceName);
-        if (msc.hasData()) {
-            this.microServiceInfo = msc;
+    public AppContext loadPreMicroContext(JSONArray<JSONObject> service) {
+        // 找到当前 appId 对应数据
+        for (JSONObject v : service) {
+            if (v.getInt("appid") == appId) {
+                micro_service_context.put(v.getString("name"), MicroServiceContext.build(v));
+            }
         }
         return this;
     }

@@ -1,8 +1,13 @@
 package common.java.Coordination;
 
+import common.java.Apps.AppContext;
+import common.java.Apps.MicroService.MicroServiceContext;
+import common.java.Http.Server.HttpContext;
+import common.java.String.StringHelper;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Coordination {
@@ -10,6 +15,9 @@ public class Coordination {
     private final AtomicReference<JSONArray<JSONObject>> apps = new AtomicReference<>();
     private final AtomicReference<JSONArray<JSONObject>> services = new AtomicReference<>();
     private final AtomicReference<JSONArray<JSONObject>> configs = new AtomicReference<>();
+
+    private final HashMap<Integer, AppContext> app_context = new HashMap<>();
+    private final HashMap<String, Integer> domain_context = new HashMap<>();
 
     private Coordination() {
     }
@@ -35,9 +43,44 @@ public class Coordination {
     }
 
     private void init(JSONObject data) {
+        // 记录全局数据
         apps.set(data.getJsonArray("apps"));
         services.set(data.getJsonArray("services"));
         configs.set(data.getJsonArray("configs"));
+        // 生成上下文
+        for (JSONObject v : apps.get()) {
+            int appId = v.getInt("id");
+            app_context.put(appId, AppContext.build(v).loadPreMicroContext(services.get()));
+            String domain = v.getString("domain");
+            if (!StringHelper.isInvalided(domain)) {
+                domain_context.put(domain, appId);
+            }
+        }
+    }
+
+    public AppContext getAppContext(int appId) {
+        AppContext ctx = app_context.get(appId);
+        if (ctx == null) {
+            HttpContext.current().throwOut("当前应用id[" + appId + "]无效!");
+        }
+        return ctx;
+    }
+
+    public AppContext getAppContext(String domain) {
+        Integer appId = domain_context.get(domain);
+        if (appId == null) {
+            HttpContext.current().throwOut("当前域名[" + domain + "]未绑定!");
+        }
+        return getAppContext(appId);
+    }
+
+    public MicroServiceContext getMicroServiceContext(int appId, String serviceName) {
+        AppContext app_ctx = getAppContext(appId);
+        MicroServiceContext msc_ctx = app_ctx.service(serviceName);
+        if (msc_ctx == null) {
+            HttpContext.current().throwOut("当前服务[" + serviceName + "]未部署在应用[" + appId + "]!");
+        }
+        return msc_ctx;
     }
 
     public JSONArray<JSONObject> getAppArray() {

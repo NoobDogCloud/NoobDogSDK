@@ -1,9 +1,9 @@
 package common.java.Apps.MicroService;
 
-import common.java.Apps.AppsProxy;
 import common.java.Apps.MicroService.Config.ModelServiceConfig;
 import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.Apps.MicroService.Model.MicroModelArray;
+import common.java.Coordination.Coordination;
 import common.java.Http.Server.HttpContext;
 import org.json.gsc.JSONObject;
 
@@ -20,40 +20,31 @@ public class MicroServiceContext {
     }
 
     private static int currentNo = 0;
-    private JSONObject servInfo;
-    private ModelServiceConfig servConfig;
-    private MicroModelArray servModelInfo;
+    private final JSONObject servInfo;
+    private final ModelServiceConfig servConfig;
+    private final MicroModelArray servModelInfo;
 
-    private MicroServiceContext() {
-        // 获得当前微服务名
+    private MicroServiceContext(JSONObject servInfo) {
+        // 获得对应微服务信息
+        this.servInfo = servInfo;
+        this.servModelInfo = new MicroModelArray(this.servInfo.getJson("datamodel"));
+        this.servConfig = new ModelServiceConfig(this.servInfo.getJson("config"));
+    }
+
+    public static MicroServiceContext build(JSONObject serviceInfo) {
+        return new MicroServiceContext(serviceInfo);
+    }
+
+    public static MicroServiceContext getInstance(String name) {
         HttpContext ctx = HttpContext.current();
-        init(ctx.appId(), ctx.serviceName());
-    }
-
-    public MicroServiceContext(int appId, String servName) {
-        init(appId, servName);
-    }
-
-    public MicroServiceContext(String servName) {
-        init(HttpContext.current().appId(), servName);
-    }
-
-    public static MicroServiceContext getInstance(String servName) {
-        return HttpContext.current() != null ? new MicroServiceContext(servName) : null;
+        return Coordination.getInstance().getMicroServiceContext(ctx.appId(), name);
     }
 
     public static MicroServiceContext current() {
-        return new MicroServiceContext();
+        HttpContext ctx = HttpContext.current();
+        return Coordination.getInstance().getMicroServiceContext(ctx.appId(), ctx.serviceName());
     }
 
-    private void init(int appId, String servName) {
-        // 获得对应微服务信息
-        this.servInfo = AppsProxy.getServiceInfo(appId, servName);
-        if (this.servInfo != null) {
-            this.servModelInfo = new MicroModelArray(this.servInfo.getJson("datamodel"));
-            this.servConfig = new ModelServiceConfig(this.servInfo.getJson("config"));
-        }
-    }
 
     public static Set<String> TransferKey() {
         return TransferKey;

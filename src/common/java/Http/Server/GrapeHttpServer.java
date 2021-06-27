@@ -2,6 +2,7 @@ package common.java.Http.Server;
 
 import common.java.Apps.AppContext;
 import common.java.Config.Config;
+import common.java.Coordination.Coordination;
 import common.java.Http.Common.RequestSession;
 import common.java.Http.Mime;
 import common.java.Http.Server.Db.HttpContextDb;
@@ -131,21 +132,18 @@ public class GrapeHttpServer {
         if (GrapeRequest.length >= 2) {
             // 不包含 公钥
             if (StringHelper.isInvalided(ctx.publicKey())) {
+                Coordination crd = Coordination.getInstance();
                 // appId 无效, 尝试根据域名获得 appId
                 if (appId == 0) {
-                    appContext = AppContext.build(host, GrapeRequest[0]);
+                    appContext = crd.getAppContext(host);
                     if (appContext.hasData()) {
                         appId = appContext.appId();
                         ctx.appId(appId);
                     }
                 } else {
-                    appContext = AppContext.build(appId, GrapeRequest[0]);
-                    // 微服务名无效或者应用ID无效
-                    if (!appContext.hasData()) {
-                        HttpContext.current().throwOut("[应用ID:" + appId + " 无效] 或者 [微服务名称:" + GrapeRequest[0] + " 无效]");
-                        return "";
-                    }
+                    appContext = crd.getAppContext(appId);
                 }
+                appContext.service(GrapeRequest[0]);
             }
             // 包含 公钥 服务名必须是 system
             else {
