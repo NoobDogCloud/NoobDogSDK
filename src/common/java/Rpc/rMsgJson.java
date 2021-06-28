@@ -49,7 +49,6 @@ public class rMsgJson {
 
     public JSONObject netPAGE(int idx, int max, long count, JSONArray record) {
         if (record != null) {
-            info.put("data", record);
             if (count >= 0) {
                 info.put("totalSize", count);
             }
@@ -60,7 +59,7 @@ public class rMsgJson {
                 info.put("pageSize", String.valueOf(max));
             }
         }
-        return netMSG(0, info);
+        return netMSG(0, record);
     }
 
     public JSONObject netState(Object state) {

@@ -809,7 +809,7 @@ public class Sql implements IDBLayer<Sql> {
                 smt.execute(nsql, Statement.RETURN_GENERATED_KEYS);
                 rs = smt.getGeneratedKeys();
                 if (rs != null && rs.next()) {
-                    rList.add(rs.getInt(1));
+                    rList.add(rs.getObject(1));
                 }
             }
         } catch (Exception e) {
