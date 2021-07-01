@@ -91,7 +91,7 @@ public class ExecRequest {//框架内请求类
         List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Api", true);
         // 修改每个载入的 class,增加调用方法
         for (Class<?> cls : clsArr) {
-            share_class.put(cls.getName(), ReflectStruct.build(cls));
+            share_class.put(cls.getSimpleName(), ReflectStruct.build(cls));
         }
     }
 
@@ -102,7 +102,7 @@ public class ExecRequest {//框架内请求类
         List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Before", true);
         // 修改每个载入的 class,增加调用方法
         for (Class<?> cls : clsArr) {
-            BeforeFilterObjectCache.put(cls.getName(), RpcFilterFnCache.build(cls));
+            BeforeFilterObjectCache.put(cls.getSimpleName(), RpcFilterFnCache.build(cls));
         }
     }
 
@@ -113,7 +113,7 @@ public class ExecRequest {//框架内请求类
         List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._After", true);
         // 修改每个载入的 class,增加调用方法
         for (Class<?> cls : clsArr) {
-            AfterFilterObjectCache.put(cls.getName(), RpcFilterFnCache.build(cls));
+            AfterFilterObjectCache.put(cls.getSimpleName(), RpcFilterFnCache.build(cls));
         }
     }
 
@@ -128,9 +128,9 @@ public class ExecRequest {//框架内请求类
             String actionName = hCtx.actionName();
             try {
                 // MainClassPath
-                String MainClassName = ExecBaseFolder + "._Api." + className;
+                // String MainClassName = ExecBaseFolder + "._Api." + className;
                 // 目标类不存在
-                if (!share_class.containsKey(MainClassName)) {
+                if (!share_class.containsKey(className)) {
                     return RpcError.Instant(false, "请求错误 ->目标不存在！");
                 }
                 // 执行转换前置类
@@ -138,7 +138,7 @@ public class ExecRequest {//框架内请求类
                 FilterReturn filterReturn = beforeExecute(className, actionName, _objs);
                 if (filterReturn.state()) {
                     // 载入主类
-                    ReflectStruct _cls = share_class.get(MainClassName);
+                    ReflectStruct _cls = share_class.get(className);
                     // 执行call
                     try {
                         // 创建类反射
@@ -186,8 +186,8 @@ public class ExecRequest {//框架内请求类
 
     // 过滤函数改变输入参数
     private static FilterReturn beforeExecute(String className, String actionName, Object[] objs) {
-        String classFullName = ExecBaseFolder + "._Before." + className;
-        RpcFilterFnCache filterFn = BeforeFilterObjectCache.getOrDefault(classFullName, null);
+        // String classFullName = ExecBaseFolder + "._Before." + className;
+        RpcFilterFnCache filterFn = BeforeFilterObjectCache.getOrDefault(className, null);
         if (filterFn == null) {  // 没有过滤函数
             return FilterReturn.buildTrue();
         }
@@ -200,8 +200,8 @@ public class ExecRequest {//框架内请求类
 
     // 结果函数改变输入参数
     private static Object afterExecute(String className, String actionName, Object[] parameter, Object obj) {
-        String classFullName = ExecBaseFolder + "._After." + className;
-        RpcFilterFnCache filterFn = AfterFilterObjectCache.getOrDefault(classFullName, null);
+        // String classFullName = ExecBaseFolder + "._After." + className;
+        RpcFilterFnCache filterFn = AfterFilterObjectCache.getOrDefault(className, null);
         if (filterFn == null) {  // 没有过滤函数
             return obj;
         }
