@@ -276,10 +276,12 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return findByCache(3);
     }
 
-    private void updateFix() {
+    /*
+    private void // updateFix() {
         form(formName);
         bind(ownId);
     }
+    */
 
     //---------------------------db接口引用
 
@@ -413,67 +415,67 @@ public class DbLayer implements IDBLayer<DbLayer> {
     }
 
     public List<Object> insert() {
-        updateFix();
+        // updateFix();
         return _db.insert();
     }
 
     public JSONObject getAndUpdate() {
-        updateFix();
+        // updateFix();
         return _db.getAndUpdate();
     }
 
     public boolean update() {
-        updateFix();
+        // updateFix();
         return _db.update();
     }
 
     public long updateAll() {
-        updateFix();
+        // updateFix();
         return _db.updateAll();
     }
 
     public JSONObject getAndDelete() {
-        updateFix();
+        // updateFix();
         return _db.getAndDelete();
     }
 
     public boolean delete() {
-        updateFix();
+        // updateFix();
         return _db.delete();
     }
 
     public long deleteAll() {
-        updateFix();
+        // updateFix();
         return _db.deleteAll();
     }
 
     public JSONObject getAndInc(String fieldName) {
-        updateFix();
+        // updateFix();
         return _db.getAndInc(fieldName);
     }
 
     public boolean inc(String fieldName) {
-        updateFix();
+        // updateFix();
         return _db.inc(fieldName);
     }
 
     public JSONObject getAndDec(String fieldName) {
-        updateFix();
+        // updateFix();
         return _db.getAndDec(fieldName);
     }
 
     public boolean dec(String fieldName) {
-        updateFix();
+        // updateFix();
         return _db.dec(fieldName);
     }
 
     public JSONObject getAndAdd(String fieldName, long num) {
-        updateFix();
+        // updateFix();
         return _db.getAndAdd(fieldName, num);
     }
 
     public boolean add(String fieldName, long num) {
-        updateFix();
+        // updateFix();
         return _db.add(fieldName, num);
     }
 
@@ -486,42 +488,42 @@ public class DbLayer implements IDBLayer<DbLayer> {
     }
 
     public JSONObject find() {
-        updateFix();
+        // updateFix();
         return (JSONObject) fieldOutPiper(_db.find());
     }
 
     public JSONArray<JSONObject> select() {
-        updateFix();
+        // updateFix();
         return (JSONArray<JSONObject>) fieldOutPiper(_db.select());
     }
 
     public String getConditionString() {
-        updateFix();
+        // updateFix();
         return _db.getConditionString();
     }
 
     public JSONArray<JSONObject> group() {
-        updateFix();
+        // updateFix();
         return _db.group();
     }
 
     public JSONArray<JSONObject> group(String groupName) {
-        updateFix();
+        // updateFix();
         return _db.group(groupName);
     }
 
     public JSONArray<String> distinct(String fieldName) {
-        updateFix();
+        // updateFix();
         return _db.distinct(fieldName);
     }
 
     public JSONArray<JSONObject> page(int pageidx, int pagemax) {
-        updateFix();
+        // updateFix();
         return (JSONArray<JSONObject>) fieldOutPiper(_db.page(pageidx, pagemax));
     }
 
     public JSONArray<JSONObject> page(int pageidx, int pagemax, Object lastid, String fastfield) {
-        updateFix();
+        // updateFix();
         return (JSONArray<JSONObject>) fieldOutPiper(_db.page(pageidx, pagemax, lastid, fastfield));
     }
 
@@ -568,12 +570,12 @@ public class DbLayer implements IDBLayer<DbLayer> {
     }
 
     public void asyncInsert() {
-        updateFix();
+        // updateFix();
         _db.asyncInsert();
     }
 
     public Object insertOnce() {
-        updateFix();
+        // updateFix();
         return _db.insertOnce();
     }
 
