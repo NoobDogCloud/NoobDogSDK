@@ -53,10 +53,10 @@ public class rMsgJson {
                 info.put("totalSize", count);
             }
             if (idx >= 0) {
-                info.put("currentPage", String.valueOf(idx));
+                info.put("currentPage", idx);
             }
             if (max >= 0) {
-                info.put("pageSize", String.valueOf(max));
+                info.put("pageSize", max);
             }
         }
         return netMSG(0, record);
