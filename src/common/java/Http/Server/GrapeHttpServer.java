@@ -4,30 +4,19 @@ import common.java.Apps.AppContext;
 import common.java.Config.Config;
 import common.java.Coordination.Coordination;
 import common.java.Http.Common.RequestSession;
-import common.java.Http.Mime;
-import common.java.Http.Server.Db.HttpContextDb;
+import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.Subscribe.SubscribeGsc;
 import common.java.Number.NumberHelper;
 import common.java.Rpc.ExecRequest;
-import common.java.Rpc.RpcLocation;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
-import common.java.nLogger.nLogger;
-import io.netty.channel.*;
-import io.netty.handler.codec.http.*;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
-import io.netty.handler.stream.ChunkedStream;
 import org.json.gsc.JSONObject;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static io.netty.handler.codec.http.HttpHeaderNames.*;
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
 public class GrapeHttpServer {
 
@@ -77,19 +66,25 @@ public class GrapeHttpServer {
         // 正常线程池
         es.submit(() -> {
             // 为正常线程创建协程
-            ThreadLocal<ExecutorService> child_thread_es = new ThreadLocal();
+            ThreadLocal<ExecutorService> child_thread_es = new ThreadLocal<>();
             ExecutorService child_es = child_thread_es.get();
             if (child_es == null) {
                 child_es = Executors.newVirtualThreadExecutor();
                 child_thread_es.set(child_es);
             }
             child_es.submit(() -> {
-                RequestSession.setChannelID(_ctx.channel().id());
+                OutResponse oResponse = OutResponse.build(_ctx);
+                SocketContext sc = RequestSession.get(_ctx.channel().id().asLongText());
+                if (sc == null) {
+                    OutResponse.defaultOut(_ctx, rMsg.netMSG(false, "请求Socket上下文丢失!"));
+                    return;
+                }
+                sc.setWorker().setRequest(ctx).setResponse(oResponse);
                 try {
                     stubLoop(ctx);
                 } catch (Exception e) {
                     if (Config.debug) {
-                        writeHttpResponse(_ctx, rMsg.netMSG(false, e.getMessage()));
+                        oResponse.out(rMsg.netMSG(false, e.getMessage()));
                     }
                 }
             });
@@ -97,25 +92,18 @@ public class GrapeHttpServer {
     }
 
     public static void stubLoop(HttpContext ctx) {
-        boolean isWS = (ctx.method() == HttpContext.Method.websocket);
-        Object rlt = GrapeHttpServer.EventLoop(ctx);
-        if (isWS) {
+        Object rlt = systemCall(ctx);
+        OutResponse or = SocketContext.current().getResponse();
+        if (ctx.method() == HttpContext.Method.websocket) {
             // 响应自动订阅参数(能运行到这里说明请求代码层执行完毕)
             String topic = SubscribeGsc.filterSubscribe(ctx);
             // 补充Websocket结果外衣 返回结果转换成 string
-            rlt = new TextWebSocketFrame(JSONObject.build(rlt.toString()).put(HttpContext.GrapeHttpHeader.WebSocket.wsId, topic).toString());
+            JSONObject r = rlt == null ? JSONObject.build() : JSONObject.build(rlt.toString());
+            r.put(HttpContext.GrapeHttpHeader.WebSocket.wsId, topic);
+            or.out(new TextWebSocketFrame(r.toString()));
+        } else {
+            or.out(rlt);
         }
-        GrapeHttpServer.writeHttpResponse(ctx.channelContext(), rlt);
-    }
-
-    public static Object EventLoop(HttpContext ctx) {
-        RequestSession.setValue(HttpContext.SessionKey, ctx);
-        RequestSession.setValue(HttpContext.ResponseSessionKey, new DefaultFullHttpResponse(HTTP_1_1, OK));
-        HttpRequest req = ctx.getRequest();
-        if (req != null) {
-            RequestSession.setValue(HttpContext.RequestSessionKey, ctx.getRequest());
-        }
-        return systemCall(ctx);
     }
 
     /**
@@ -148,7 +136,10 @@ public class GrapeHttpServer {
             // 包含 公钥 服务名必须是 system
             else {
                 if (!GrapeRequest[0].equalsIgnoreCase("system")) {
-                    HttpContext.current().throwOut("加密模式->服务名称:" + GrapeRequest[0] + " 无效");
+                    HttpContext hCtx = HttpContext.current();
+                    if (hCtx != null) {
+                        hCtx.throwOut("加密模式->服务名称:" + GrapeRequest[0] + " 无效");
+                    }
                     return "";
                 }
             }
@@ -160,151 +151,5 @@ public class GrapeHttpServer {
             }
         }
         return rsValue;
-    }
-
-    public static void ZeroResponse(ChannelHandlerContext ctx) {
-        writeHttpResponse(ctx, "");
-    }
-
-    public static void location(ChannelHandlerContext ctx, String newURL) {
-        GrapeHttpServer.writeHttpResponse(ctx, "".getBytes(), new JSONObject("Location", newURL));
-    }
-
-    public static void location(ChannelHandlerContext ctx, String newURL, JSONObject exHeader) {
-        JSONObject header = new JSONObject("Location", newURL);
-        if (exHeader != null) {
-            header.putAll(exHeader);
-        }
-        GrapeHttpServer.writeHttpResponse(ctx, "".getBytes(), header);
-    }
-
-    private static void addHeader(HttpResponse response, boolean hasChunked) {
-        response.headers().set("Access-Control-Allow-Origin", "*");
-        response.headers().set("Access-Control-Allow-Headers",
-                HttpContext.GrapeHttpHeader.sid + " ," +
-                        HttpContext.GrapeHttpHeader.token + " ," +
-                        HttpContext.GrapeHttpHeader.appId + " ," +
-                        HttpContext.GrapeHttpHeader.publicKey + " ," +
-                        HttpContextDb.fields + " ," +
-                        HttpContextDb.sorts + " ," +
-                        HttpContextDb.options
-
-
-        );
-        if (hasChunked) {
-            response.headers().set("Transfer-Encoding", "chunked");
-            response.headers().set(HttpHeaderNames.CONNECTION, HttpHeaderValues.KEEP_ALIVE);
-        }
-    }
-
-    public static void writeHttpResponse(ChannelHandlerContext ctx, InputStream responseData, JSONObject exHeader) {
-        HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-        addHeader(response, true);
-        if (exHeader != null) {
-            for (String key : exHeader.keySet()) {
-                response.headers().set(key, exHeader.getString(key));
-            }
-        }
-
-        if (responseData != null) {
-            ChannelFuture sendByteFuture = ctx.writeAndFlush(new HttpChunkedInput(new ChunkedStream(responseData, bufferLen)), ctx.newProgressivePromise());
-            ChannelFuture lastContentFuture = ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT);
-            lastContentFuture.addListener(ChannelFutureListener.CLOSE);
-            sendByteFuture.addListener(new ChannelProgressiveFutureListener() {
-                @Override
-                public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
-                }
-
-                @Override
-                public void operationComplete(ChannelProgressiveFuture future) {
-                    try {
-                        responseData.close();
-                    } catch (Exception e) {
-                        nLogger.logInfo("steam is closed");
-                    }
-                }
-            });
-        } else {
-            ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
-                    .addListener(ChannelFutureListener.CLOSE);
-        }
-    }
-
-    public static void writeHttpResponse(ChannelHandlerContext ctx, byte[] responseData, JSONObject exHeader) {
-        // FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-        FullHttpResponse response = HttpContext.response();
-        if (response == null) {
-            response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-        }
-        addHeader(response, false);
-        if (exHeader != null) {
-            for (String key : exHeader.keySet()) {
-                if (key.equalsIgnoreCase("location")) {
-                    response.setStatus(HttpResponseStatus.FOUND);
-                }
-                response.headers().set(key, exHeader.getString(key));
-            }
-        }
-
-        response.content().writeBytes(responseData);
-        if (response.headers().get(CONTENT_TYPE) == null) {
-            if (responseData.length > 0) {
-                response.headers().set(CONTENT_TYPE, Mime.getMime(responseData) + "; charset=UTF-8");
-            } else {
-                response.headers().set(CONTENT_TYPE, "text/html; charset=UTF-8");
-            }
-        }
-        response.headers().set(CONTENT_LENGTH, response.content().readableBytes());
-        response.headers().set(CONNECTION, HttpHeaderValues.CLOSE);
-        ChannelFuture ch = ctx.writeAndFlush(response);
-        /*
-        if ( HttpContext.current() != null && HttpContext.current().method() != HttpContext.Method.websocket ){
-            ch.addListener(ChannelFutureListener.CLOSE);
-        }
-        */
-    }
-
-    public static void writeHttpResponse(ChannelHandlerContext ctx, TextWebSocketFrame responseData) {
-        ctx.channel().writeAndFlush(responseData);
-    }
-
-    public static void writeHttpResponse(ChannelHandlerContext ctx, Object responseData) {
-        JSONObject exHeader = null;
-        //----------流输出
-        if (responseData instanceof File) {
-            try {
-                exHeader = new JSONObject(CONTENT_TYPE.toString(), Mime.getMime((File) responseData));
-                responseData = new FileInputStream((File) responseData);
-            } catch (Exception e) {
-                responseData = rMsg.netMSG(false, "下载文件[" + ((File) responseData).getName() + "]失败");
-            }
-        }
-        if (responseData instanceof InputStream) {//输入流，不管是字符集还是文件
-            writeHttpResponse(ctx, (InputStream) responseData, exHeader);
-            return;
-        }
-        //----------字符输出
-        if (responseData instanceof byte[]) {
-            writeHttpResponse(ctx, (byte[]) responseData, null);
-            return;
-        }
-        //----------301重定向输出
-        if (responseData instanceof RpcLocation) {
-            location(ctx, responseData.toString());
-            return;
-        }
-        //----------wsText输出
-        if (responseData instanceof TextWebSocketFrame) {
-            writeHttpResponse(ctx, (TextWebSocketFrame) responseData);
-            return;
-        }
-        //----------字符串转换
-        if (!(responseData instanceof String)) {
-            responseData = StringHelper.toString(responseData);
-        }
-        if (responseData != null) {
-            responseData = ((String) responseData).getBytes();
-            writeHttpResponse(ctx, (byte[]) responseData, JSONObject.build(CONTENT_TYPE.toString(), "text/plain; charset=UTF-8"));
-        }
     }
 }

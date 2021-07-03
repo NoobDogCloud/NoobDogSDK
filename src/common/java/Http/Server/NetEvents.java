@@ -3,6 +3,7 @@ package common.java.Http.Server;
 import common.java.Encrypt.UrlCode;
 import common.java.File.FileHelper;
 import common.java.Http.Common.RequestSession;
+import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.Upload.UploadFileInfo;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
@@ -64,7 +65,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         try {
             if ("@redirect".equalsIgnoreCase(gr[0])) {
                 if (gr.length == 2) {
-                    GrapeHttpServer.location(ctx, gr[1]);
+                    OutResponse.defaultRedirect(ctx, url);
                 }
                 rs = "";
             }
@@ -88,7 +89,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         String wsData = buf.toString(StandardCharsets.UTF_8);  //将数据按照utf-8的方式转化为字符串
         JSONObject json = JSONObject.toJSON(wsData);
         if (JSONObject.isInvalided(json) || !json.containsKey("path") || !json.containsKey("header")) {
-            GrapeHttpServer.writeHttpResponse(_ctx, rMsg.netMSG(false, "请求错误!"));
+            OutResponse.defaultOut(_ctx, rMsg.netMSG(false, "请求错误!"));
         } else {
             // 开始服务
             GrapeHttpServer.startService(json, _ctx, null);
@@ -196,22 +197,28 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         }
         if (_req != null) {
             if (_req.uri().equals("/favicon.ico")) {
-                GrapeHttpServer.ZeroResponse(_ctx);
+                OutResponse.defaultZero(_ctx);
                 return;
             }
 
             if (_req.uri().equals("/@heart")) {
-                GrapeHttpServer.writeHttpResponse(_ctx, "1");
+                OutResponse.defaultOut(_ctx, "1");
                 return;
             }
 
-            if (!_req.method().equals(HttpMethod.GET) && !_req.method().equals(HttpMethod.POST)) {
-                GrapeHttpServer.ZeroResponse(_ctx);
+            HttpMethod method = _req.method();
+            if (method.equals(HttpMethod.OPTIONS)) {
+                OutResponse.defaultOptions(_ctx);
+                return;
+            }
+
+            if (!method.equals(HttpMethod.GET) && !method.equals(HttpMethod.POST)) {
+                OutResponse.defaultZero(_ctx);
                 return;
             }
 
             if (_Hook(_ctx, _req.uri()) != null) {//过滤执行
-                GrapeHttpServer.ZeroResponse(_ctx);
+                OutResponse.defaultZero(_ctx);
                 return;
             }
         }
@@ -285,7 +292,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
-        RequestSession.create(ctx.channel().id());
+        RequestSession.create(ctx.channel().id().asLongText());
         try {
             super.channelActive(ctx);
         } catch (Exception e) {
@@ -293,9 +300,17 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         }
     }
 
+    private void destroySocketContext(String cid) {
+        SocketContext sc = RequestSession.get(cid);
+        if (sc != null) {
+            sc.destroy();
+        }
+        RequestSession.remove(cid);
+    }
+
     @Override
     public void channelInactive(ChannelHandlerContext ctx) {
-        RequestSession.remove(ctx.channel().id());
+        destroySocketContext(ctx.channel().id().asLongText());
         try {
             super.channelInactive(ctx);
         } catch (Exception e) {
@@ -310,7 +325,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        RequestSession.remove(ctx.channel().id());
+        destroySocketContext(ctx.channel().id().asLongText());
         ctx.close();
         try {
             super.exceptionCaught(ctx, cause);

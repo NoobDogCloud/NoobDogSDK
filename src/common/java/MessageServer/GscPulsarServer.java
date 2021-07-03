@@ -1,6 +1,8 @@
 package common.java.MessageServer;
 
 import common.java.Config.Config;
+import common.java.Http.Common.RequestSession;
+import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.GrapeHttpServer;
 import common.java.Http.Server.HttpContext;
 import common.java.nLogger.nLogger;
@@ -78,16 +80,26 @@ public class GscPulsarServer {
                             e.printStackTrace();
                             break;
                         }
+                        String cid = message.getMessageId().toString();
                         try {
                             JSONObject cmd = JSONObject.build(new String(message.getData()));
                             if (!JSONObject.isInvalided(cmd)) {
                                 HttpContext ctx = new HttpContext(cmd);
-                                GrapeHttpServer.EventLoop(ctx); // 不管结果
+                                RequestSession.create(cid)
+                                        .setValue(HttpContext.SessionKey, ctx)
+                                        .setWorker();
+                                GrapeHttpServer.systemCall(ctx); // 不管结果
                             }
                             consumer.acknowledge(message);
                         } catch (Exception e) {
                             e.printStackTrace();
                             consumer.negativeAcknowledge(message);
+                        } finally {
+                            SocketContext sc = RequestSession.get(cid);
+                            if (sc != null) {
+                                sc.destroy();
+                            }
+                            RequestSession.remove(cid);
                         }
                     }
                 });

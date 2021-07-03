@@ -6,6 +6,6 @@ public class H2 extends Sql {
     }
 
     public String getFullForm() {
-        return '"' + (ownid == null || ownid.equals("") ? formName : formName + "_" + ownid) + '"';
+        return '"' + (ownId == null || ownId.equals("") ? formName : formName + "_" + ownId) + '"';
     }
 }

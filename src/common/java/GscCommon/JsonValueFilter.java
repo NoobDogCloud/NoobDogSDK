@@ -31,6 +31,8 @@ public class JsonValueFilter {
         return this;
     }
 
+    // 把Json内 session 值替换成对应 key的值
+    // 把Json内 other 值替换成 other对象 对应 key的值
     public final JSONObject filter() {
         JSONObject rJson = new JSONObject();
         for (String key : in.keySet()) {

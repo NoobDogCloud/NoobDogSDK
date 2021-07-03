@@ -3,7 +3,6 @@ package common.java.Rpc;
 import common.java.Apps.AppContext;
 import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.Encrypt.GscJson;
-import common.java.Http.Common.RequestSession;
 import common.java.Http.Server.HttpContext;
 import common.java.JGrapeSystem.GrapeJar;
 import common.java.Reflect.ReflectStruct;
@@ -145,7 +144,7 @@ public class ExecRequest {//框架内请求类
                         // 创建类反射
                         _reflect obj = new _reflect(_cls);
                         // 保存反射类
-                        RequestSession.setCurrent(obj);
+                        // RequestSession.setCurrent(obj);
                         // 构造反射类实例
                         obj.newInstance();
                         // 调用主要类,后置类,固定返回结构

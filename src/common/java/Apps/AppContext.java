@@ -45,8 +45,7 @@ public class AppContext {
      */
     public static AppContext virtualAppContext(int appId, String serviceName) {
         ChannelId cid = RequestSession.buildChannelId();
-        RequestSession.setChannelID(cid);
-        RequestSession.create(cid);
+        RequestSession.create(cid.asLongText()).setWorker();
         AppContext r = Coordination.getInstance().getAppContext(appId);
         HttpContext.setNewHttpContext()
                 .serviceName(serviceName)

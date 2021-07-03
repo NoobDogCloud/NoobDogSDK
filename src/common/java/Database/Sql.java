@@ -49,10 +49,10 @@ public class Sql implements IDBLayer<Sql> {
     }
 
     protected final String _configString;
-    protected final HashMap<String, Object> constantConds;
+    protected final HashMap<String, Object> constantCondition;
     protected HikariDataSource dataSource;//  = new DruidDataSource();
     //声明线程共享变量
-    protected boolean conditiobLogicAnd;
+    protected boolean conditionLogicAnd;
     protected int skipNo;
     protected int limitNo;
     protected JSONObject sortBSON;
@@ -67,12 +67,13 @@ public class Sql implements IDBLayer<Sql> {
     protected Set<String> fieldVisible;
     protected Set<String> fieldDisable;
 
-    protected String groupbyfield = "";
+    protected String groupByField = "";
     protected String formName;
-    protected String ownid;
+    protected String ownId;
     protected HashMap<String, String> baseTable;        //基本表信息,准备用
-    protected HashMap<String, Boolean> tableState;    //派生表状态，加速用
-    protected List<String> tableFields;                    //表字段结构
+    protected HashMap<String, Boolean> tableState;      //派生表状态，加速用
+    protected List<String> tableFields;                 //表字段结构
+    protected String pkName;                            //表主键
     protected boolean isDirty;
 
     //配置说明，参考官方网址
@@ -81,7 +82,7 @@ public class Sql implements IDBLayer<Sql> {
         isDirty = false;
         formName = "";
         _configString = configString;
-        constantConds = new HashMap<>();
+        constantCondition = new HashMap<>();
         initsql();
         reinit();
     }
@@ -353,7 +354,7 @@ public class Sql implements IDBLayer<Sql> {
             return;
         }
         conditionJSON = new ArrayList<>();
-        conditiobLogicAnd = true;
+        conditionLogicAnd = true;
         fieldVisible = new HashSet<>();
         fieldDisable = new HashSet<>();
 
@@ -371,14 +372,14 @@ public class Sql implements IDBLayer<Sql> {
 
         _distinct = false;
 
-        ownid = null;
+        ownId = null;
 
         and();
 
         tableState = new HashMap<>();
         baseTable = new HashMap<>();
-        for (String _key : constantConds.keySet()) {//补充条件
-            eq(_key, constantConds.get(_key));
+        for (String _key : constantCondition.keySet()) {//补充条件
+            eq(_key, constantCondition.get(_key));
         }
 
     }
@@ -389,48 +390,43 @@ public class Sql implements IDBLayer<Sql> {
      * @return
      */
     public String getGeneratedKeys() {
-        String pkName = "";
         if (tableFields.size() < 1) {
             Connection conn = getNewConnection();
             try {
                 DatabaseMetaData DBM = conn.getMetaData();
                 //ResultSet tableRet = DBM.getTables(null, "%", getform(),new String[]{"TABLE"});
                 String tableName = _getFullForm();
-                ResultSet colRet = DBM.getColumns(null, "%", tableName, "%");
-                int i = 0;
-                while (colRet.next()) {
-                    if (i == 0) {
-                        pkName = colRet.getString("COLUMN_NAME");
-                    }
-                    i++;
-                    tableFields.add(colRet.getString("COLUMN_NAME"));
+                // ResultSet colRet = DBM.getColumns(null, "%", tableName, "%");
+                ResultSet colRet = DBM.getPrimaryKeys(null, "%", tableName);
+                colRet.next();
+                pkName = colRet.getString("COLUMN_NAME");
+                ResultSet colResult = DBM.getColumns(null, "%", tableName, "%");
+                while (colResult.next()) {
+                    tableFields.add(colResult.getString("COLUMN_NAME"));
                 }
-
             } catch (SQLException e) {
                 // TODO Auto-generated catch block
                 nLogger.logInfo(e);
             } finally {
                 _Close(conn);
             }
-        } else {
-            pkName = tableFields.get(0);
         }
         return pkName;
     }
 
     public void addConstantCond(String fieldName, Object CondValue) {
         and();
-        constantConds.put(fieldName, CondValue);
+        constantCondition.put(fieldName, CondValue);
         eq(fieldName, CondValue);//载入的时候填入条件
     }
 
     public Sql and() {
-        conditiobLogicAnd = true;
+        conditionLogicAnd = true;
         return this;
     }
 
     public Sql or() {
-        conditiobLogicAnd = false;
+        conditionLogicAnd = false;
         return this;
     }
 
@@ -526,7 +522,7 @@ public class Sql implements IDBLayer<Sql> {
     }
 
     protected <T> void addCondition(String field, T value, String logic) {
-        addCondition(field, value, logic, conditiobLogicAnd);
+        addCondition(field, value, logic, conditionLogicAnd);
     }
 
     protected <T> void addCondition(String field, T value, String logic, boolean link_logic) {
@@ -739,14 +735,14 @@ public class Sql implements IDBLayer<Sql> {
          * 2:生成创建SQL
          * 3:填入缓存
          * */
-        if (ownid == null || ownid.equals("")) {
+        if (ownId == null || ownId.equals("")) {
             return true;
         }
         boolean rs = true;
         String baseName = formName;
-        String ownID = ownid;
+        String ownId = this.ownId;
         String createTableSql;
-        String newTable = baseName + "_" + ownID;
+        String newTable = baseName + "_" + ownId;
         if (!tableState.containsKey(newTable)) {
             if (baseTable.containsKey(baseName)) {
                 createTableSql = baseTable.get(baseName);
@@ -765,11 +761,11 @@ public class Sql implements IDBLayer<Sql> {
     }
 
     public String getFullForm() {
-        return ownid == null || ownid.equals("") ? formName : formName + "_" + ownid;
+        return ownId == null || ownId.equals("") ? formName : formName + "_" + ownId;
     }
 
     private String _getFullForm() {
-        return ownid == null || ownid.equals("") ? formName : formName + "_" + ownid;
+        return ownId == null || ownId.equals("") ? formName : formName + "_" + ownId;
     }
 
     public String getForm() {
@@ -951,7 +947,7 @@ public class Sql implements IDBLayer<Sql> {
     public Sql groupCondition(List<List<Object>> conds) {
         if (conds != null && conds.size() > 0) {
             List<Object> block = new ArrayList<>();
-            block.add(conditiobLogicAnd ? "and" : "or");
+            block.add(conditionLogicAnd ? "and" : "or");
             block.add(conds);
             conditionJSON.add(block);
         }
@@ -1160,7 +1156,7 @@ public class Sql implements IDBLayer<Sql> {
     public JSONArray<JSONObject> group(String groupName) {
         String groupSQL;
         String sql;
-        String _valueName = groupbyfield == null || groupbyfield.equals("") ? groupName : groupbyfield;
+        String _valueName = groupByField == null || groupByField.equals("") ? groupName : groupByField;
         String otherfield = "";
         if (_count)
             otherfield += ", count(" + _distinctfield(_valueName) + ") as count";
@@ -1284,31 +1280,31 @@ public class Sql implements IDBLayer<Sql> {
     }
 
     public Sql count(String groupbyString) {//某字段分组后数量
-        groupbyfield = groupbyString;
+        groupByField = groupbyString;
         _count = true;
         return this;
     }
 
     public Sql max(String groupbyString) {
-        groupbyfield = groupbyString;
+        groupByField = groupbyString;
         _max = true;
         return this;
     }
 
     public Sql min(String groupbyString) {
-        groupbyfield = groupbyString;
+        groupByField = groupbyString;
         _min = true;
         return this;
     }
 
     public Sql avg(String groupbyString) {
-        groupbyfield = groupbyString;
+        groupByField = groupbyString;
         _avg = true;
         return this;
     }
 
     public Sql sum(String groupbyString) {
-        groupbyfield = groupbyString;
+        groupByField = groupbyString;
         _sum = true;
         return this;
     }
@@ -1451,7 +1447,7 @@ public class Sql implements IDBLayer<Sql> {
     }
 
     public Sql bind(String ownerID) {
-        ownid = ownerID == null ? "" : ownerID;
+        ownId = ownerID == null ? "" : ownerID;
         return this;
     }
 

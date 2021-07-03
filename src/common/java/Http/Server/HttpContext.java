@@ -2,16 +2,19 @@ package common.java.Http.Server;
 
 import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Config.Config;
-import common.java.Http.Common.RequestSession;
+import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.Db.HttpContextDb;
 import common.java.Http.Server.Subscribe.SubscribeGsc;
 import common.java.Number.NumberHelper;
+import common.java.Object.ObjectHelper;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.handler.codec.http.*;
+import io.netty.handler.codec.http.HttpHeaders;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpUtil;
 import io.netty.util.AsciiString;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
@@ -20,14 +23,9 @@ import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.netty.handler.codec.http.HttpResponseStatus.OK;
-import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
-
 public class HttpContext {
     public static final JSONObject methodStore;
     public static final String SessionKey = "HttpContext";
-    public static final String ResponseSessionKey = "HttpResponse";
-    public static final String RequestSessionKey = "HttpRequest";
     public static final String payload = "payload";
 
     static {
@@ -38,10 +36,6 @@ public class HttpContext {
     }
 
     private Method method;
-
-    public static HttpRequest request() {
-        return RequestSession.getValue(HttpContext.RequestSessionKey);
-    }
 
     private HttpRequest request;
     private String absPath;
@@ -79,18 +73,13 @@ public class HttpContext {
     }
 
     public static HttpContext current() {
-        return RequestSession.getValue(HttpContext.SessionKey);
-    }
-
-    public static FullHttpResponse response() {
-        return RequestSession.getValue(HttpContext.ResponseSessionKey);
+        SocketContext sc = SocketContext.current();
+        return sc != null ? sc.getRequest() : null;
     }
 
     public static HttpContext setNewHttpContext() {
         HttpContext httpCtx = new HttpContext();
-        RequestSession.setValue(HttpContext.SessionKey, httpCtx);
-        RequestSession.setValue(HttpContext.ResponseSessionKey, new DefaultFullHttpResponse(HTTP_1_1, OK));
-        RequestSession.setValue(HttpContext.RequestSessionKey, null);
+        SocketContext.current().setValue(HttpContext.SessionKey, httpCtx);
         return httpCtx;
     }
 
@@ -102,24 +91,20 @@ public class HttpContext {
         return request;
     }
 
-    public static void Break() {
+    public static void breakRequest() {
         throw new RuntimeException("break request");
     }
 
-    public static void showMessage(ChannelHandlerContext ctx, String msg) {
-        if (ctx != null) {
-            GrapeHttpServer.writeHttpResponse(ctx, rMsg.netMSG(false, msg));
-            ctx.close();
-            ctx.deregister();
-        }
+    public static void showMessage(ChannelHandlerContext ctx, Object result) {
+        showResult(ctx, result);
         if (Config.debug) {
-            nLogger.errorInfo(msg);
+            nLogger.errorInfo(result.toString());
         }
     }
 
     public static void showResult(ChannelHandlerContext ctx, Object result) {
         if (ctx != null) {
-            GrapeHttpServer.writeHttpResponse(ctx, result);
+            OutResponse.defaultOut(ctx, rMsg.netMSG(false, result));
             ctx.close();
             ctx.deregister();
         }
@@ -127,7 +112,8 @@ public class HttpContext {
 
     private void init_grape_dbCtx() {
         db_ctx = new HttpContextDb(values);
-        JSONObject db_values = db_ctx.header(values);
+        // JSONObject db_values = db_ctx.header(values);
+        db_ctx.header(values);
     }
 
     public void initHttpRequest(HttpRequest _header) {
@@ -411,7 +397,7 @@ public class HttpContext {
                 stype = svalue.split(":");
                 int idx = i - offset;
                 if (stype.length > 0) {//包含类型信息
-                    switch (stype[0]) {
+                    switch (stype[0].toLowerCase()) {
 //string
                         case "s" -> arglist[idx] = svalue.substring(2);
 
@@ -450,8 +436,8 @@ public class HttpContext {
                         case "jsonArray" -> arglist[idx] = JSONArray.build(svalue.substring(10));
 
 //object
-                        case "o" -> arglist[idx] = JSONArray.build(svalue.substring(2));
-                        case "object" -> arglist[idx] = JSONArray.build(svalue.substring(7));
+                        case "o" -> arglist[idx] = ObjectHelper.build(svalue.substring(2));
+                        case "object" -> arglist[idx] = ObjectHelper.build(svalue.substring(7));
                         default -> arglist[idx] = svalue;
                     }
                 } else {
