@@ -446,8 +446,12 @@ public class HttpContext {
                         case "json" -> arglist[idx] = JSONObject.build(svalue.substring(5));
 
 //jsonArray
-                        case "ja" -> arglist[idx] = JSONArray.build(svalue.substring(2));
+                        case "ja" -> arglist[idx] = JSONArray.build(svalue.substring(3));
                         case "jsonArray" -> arglist[idx] = JSONArray.build(svalue.substring(10));
+
+//object
+                        case "o" -> arglist[idx] = JSONArray.build(svalue.substring(2));
+                        case "object" -> arglist[idx] = JSONArray.build(svalue.substring(7));
                         default -> arglist[idx] = svalue;
                     }
                 } else {

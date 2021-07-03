@@ -45,6 +45,7 @@ public class ExecRequest {//框架内请求类
 
         class2string.put(JSONObject.class, "j,json");
         class2string.put(JSONArray.class, "ja,jsonArray");
+        class2string.put(Object.class, "o,object");
 
     }
 
