@@ -65,29 +65,20 @@ public class GrapeHttpServer {
     public static void _startService(ChannelHandlerContext _ctx, HttpContext ctx) {
         // 正常线程池
         es.submit(() -> {
-            // 为正常线程创建协程
-            ThreadLocal<ExecutorService> child_thread_es = new ThreadLocal<>();
-            ExecutorService child_es = child_thread_es.get();
-            if (child_es == null) {
-                child_es = Executors.newVirtualThreadExecutor();
-                child_thread_es.set(child_es);
+            OutResponse oResponse = OutResponse.build(_ctx);
+            SocketContext sc = RequestSession.get(_ctx.channel().id().asLongText());
+            if (sc == null) {
+                OutResponse.defaultOut(_ctx, rMsg.netMSG(false, "请求Socket上下文丢失!"));
+                return;
             }
-            child_es.submit(() -> {
-                OutResponse oResponse = OutResponse.build(_ctx);
-                SocketContext sc = RequestSession.get(_ctx.channel().id().asLongText());
-                if (sc == null) {
-                    OutResponse.defaultOut(_ctx, rMsg.netMSG(false, "请求Socket上下文丢失!"));
-                    return;
+            sc.setWorker().setRequest(ctx).setResponse(oResponse);
+            try {
+                stubLoop(ctx);
+            } catch (Exception e) {
+                if (Config.debug) {
+                    oResponse.out(rMsg.netMSG(false, e.getMessage()));
                 }
-                sc.setWorker().setRequest(ctx).setResponse(oResponse);
-                try {
-                    stubLoop(ctx);
-                } catch (Exception e) {
-                    if (Config.debug) {
-                        oResponse.out(rMsg.netMSG(false, e.getMessage()));
-                    }
-                }
-            });
+            }
         });
     }
 
