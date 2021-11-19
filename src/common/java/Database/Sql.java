@@ -76,6 +76,7 @@ public class Sql implements IDBLayer<Sql> {
     protected String pkName;                            //表主键
     protected boolean isDirty;
 
+    private static final ExecutorService threadPool = Executors.newCachedThreadPool();
     //配置说明，参考官方网址
     //http://blog.163.com/hongwei_benbear/blog/static/1183952912013518405588/
     public Sql(String configString) {
@@ -262,25 +263,25 @@ public class Sql implements IDBLayer<Sql> {
         int pageNO = maxCount % max > 0 ? (maxCount / max) + 1 : maxCount / max;
         ConcurrentHashMap<Integer, JSONArray> tempResult;
         tempResult = new ConcurrentHashMap<>();
-        try (ExecutorService es = Executors.newVirtualThreadExecutor()) {
-            List<List<Object>> condJSON = getCond();
-            String _formName = getForm();
-            for (index = 1; index <= pageNO; index++) {
-                final int _index = index;
-                final int _max = max;
-                es.execute(() -> {
-                    try {
-                        Sql db = new Sql(_configString);
-                        db.form(_formName);
-                        db.setCond(condJSON);
-                        JSONArray jsonArray = db.page(_index, _max);
-                        tempResult.put(_index, Objects.requireNonNull(func).apply(jsonArray));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
+
+        List<List<Object>> condJSON = getCond();
+        String _formName = getForm();
+        for (index = 1; index <= pageNO; index++) {
+            final int _index = index;
+            final int _max = max;
+            threadPool.execute(() -> {
+                try {
+                    Sql db = new Sql(_configString);
+                    db.form(_formName);
+                    db.setCond(condJSON);
+                    JSONArray jsonArray = db.page(_index, _max);
+                    tempResult.put(_index, Objects.requireNonNull(func).apply(jsonArray));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
+
 
         JSONArray rArray = new JSONArray();
         for (int key : tempResult.keySet()) {

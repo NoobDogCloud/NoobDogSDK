@@ -89,7 +89,7 @@ public class Mongodb implements IDBLayer<Mongodb> {
     private String ownid;
     private boolean isDirty;
     private HashMap<String, Object> constantConds;
-
+    private static final ExecutorService threadPool = Executors.newCachedThreadPool();
     public Mongodb(String configString) {
         _configString = configString;
         constantConds = new HashMap<>();
@@ -903,23 +903,23 @@ public class Mongodb implements IDBLayer<Mongodb> {
 
         List<List<Object>> condJSON = getCond();
         String _formName = getFullForm();
-        try (ExecutorService es = Executors.newVirtualThreadExecutor()) {
-            for (int index = 1; index <= pageNO; index++) {
-                final int _index = index;
-                final int _max = max;
-                es.execute(() -> {
-                    try {
-                        Mongodb db = new Mongodb(_configString);
-                        db.form(_formName);
-                        db.setCond(condJSON);
-                        var jsonArr = db.page(_index, _max);
-                        tempResult.put(_index, Objects.requireNonNull(func).apply(jsonArr));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                });
-            }
+
+        for (int index = 1; index <= pageNO; index++) {
+            final int _index = index;
+            final int _max = max;
+            threadPool.execute(() -> {
+                try {
+                    Mongodb db = new Mongodb(_configString);
+                    db.form(_formName);
+                    db.setCond(condJSON);
+                    var jsonArr = db.page(_index, _max);
+                    tempResult.put(_index, Objects.requireNonNull(func).apply(jsonArr));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         }
+
         JSONArray<JSONObject> rArray = new JSONArray<>();
         for (int key : tempResult.keySet()) {
             rArray.addAll(tempResult.get(key));

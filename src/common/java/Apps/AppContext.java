@@ -11,6 +11,8 @@ import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
 import java.util.HashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 // 应用上下文
 public class AppContext {
@@ -22,6 +24,8 @@ public class AppContext {
     private final ModelServiceConfig msc;
     private MicroServiceContext microServiceInfo;
     private final AppRoles roles;
+
+    private static final ExecutorService pool = Executors.newCachedThreadPool();
 
     private AppContext(JSONObject appInfo) {
         // 默认使用当前上下文 或者 0
@@ -133,7 +137,7 @@ public class AppContext {
      */
     public AppContext thread(Runnable task) {
         AppThreadContext atc = AppContext.virtualAppContext();
-        Thread.ofVirtual().start(() -> {
+        pool.execute(() -> {
             AppContext.virtualAppContext(atc);
             task.run();
         });
