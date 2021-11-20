@@ -338,6 +338,9 @@ public class _reflect {
         Object rs = null;
         if (!privateMode) {
             AnnotationStruct[] ans = _rf.getMethodAnnotation(functionName);
+            if (ans == null) {
+                rs = "Interface Prop Error:[Not Exist]";
+            }
             for (AnnotationStruct an : ans) {//遍历全部注解
                 if (an.getType() == InterfaceType.class) {
                     rs = chkApiType(an.getVal());

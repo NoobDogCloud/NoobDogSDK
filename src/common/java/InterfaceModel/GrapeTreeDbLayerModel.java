@@ -516,7 +516,8 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         if (JSONObject.isInvalided(info)) {
             return;
         }
-        db.data(info);
+        // 补充更新时间字段
+        db.data(info.put(SuperItemField.updateAtField, ":timestamp"));
     }
 
     private boolean _updateImpl(JSONObject v) {
@@ -624,7 +625,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         if (hardMode) {
             return this.db.delete();
         } else {
-            return data(new JSONObject(SuperItemField.deleteField, 1)).update();
+            return data(JSONObject.build(SuperItemField.deleteField, 1).put(SuperItemField.removeAtField, ":timestamp")).update();
         }
     }
 
@@ -635,7 +636,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         if (hardMode) {
             return this.db.getAndDelete();
         } else {
-            return data(new JSONObject(SuperItemField.deleteField, 1)).getAndUpdate();
+            return data(JSONObject.build(SuperItemField.deleteField, 1).put(SuperItemField.removeAtField, ":timestamp")).getAndUpdate();
         }
     }
 
@@ -649,7 +650,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         if (hardMode) {
             return this.db.deleteAll();
         } else {
-            return data(new JSONObject(SuperItemField.deleteField, 1)).updateAll();
+            return data(JSONObject.build(SuperItemField.deleteField, 1).put(SuperItemField.removeAtField, ":timestamp")).updateAll();
         }
     }
 

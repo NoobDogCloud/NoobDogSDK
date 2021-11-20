@@ -1,5 +1,6 @@
 package common.java.Apps.MicroService.Model;
 
+import common.java.GscCommon.checkModel;
 import common.java.ServiceTemplate.SuperItemField;
 import org.json.gsc.JSONObject;
 
@@ -12,12 +13,16 @@ public class MModelSuperField {
     private static final HashMap<String, Object> waitting = new HashMap<>();
 
     static {
-        // 这里要补齐的普通DB字段
+        // 这里要补齐的默认DB字段
         waitting.put(SuperItemField.fatherField, "");
         waitting.put(SuperItemField.deleteField, 0);
         waitting.put(SuperItemField.visibleField, 0);
         waitting.put(SuperItemField.levelField, 0);
         waitting.put(SuperItemField.sortField, 0);
+        waitting.put(SuperItemField.createAtField, ":timestamp");
+        waitting.put(SuperItemField.updateAtField, ":timestamp");
+        waitting.put(SuperItemField.removeAtField, "");
+        waitting.put(SuperItemField.statusField, checkModel.running);
     }
 
     /**

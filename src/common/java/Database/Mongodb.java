@@ -1166,6 +1166,7 @@ public class Mongodb implements IDBLayer<Mongodb> {
             StringBuilder nodeString = new StringBuilder();
             String authString;
             String repsetName;
+            String secMethod;
             int maxPoolSize;
 
             JSONObject obj = JSONObject.toJSON(jsonConfig);
@@ -1173,6 +1174,8 @@ public class Mongodb implements IDBLayer<Mongodb> {
             password = obj.getString("password");
             database = obj.getString("database");
             repsetName = obj.getString("replicaSet");
+            secMethod = obj.getString("sec");
+
             JSONArray<JSONObject> nodes = obj.getJsonArray("nodeAddresses");
             maxPoolSize = obj.getInt("maxTotal");
             if (maxPoolSize <= 0) {
@@ -1185,20 +1188,22 @@ public class Mongodb implements IDBLayer<Mongodb> {
             if (!user.equals("") && !password.equals("")) {
                 authString = user + ":" + password + "@";
             }
+
             nodeString = new StringBuilder(nodeString.substring(0, nodeString.length() - 1));
-            String url = "mongodb://" + authString + nodeString + "/" + database;
-            MongoClientOptions.Builder build = new MongoClientOptions.Builder();
-            url += "?maxPoolSize=" + maxPoolSize + "&waitQueueMultiple=5000";
+            String url = "mongodb://" + authString + nodeString + "/?authSource=" + database;
+
+            if (!secMethod.equals("")) {
+                url += "&authMechanism=" + secMethod;
+            }
+
+            url += "&maxPoolSize=" + maxPoolSize + "&waitQueueMultiple=5000";
             if (repsetName != null && repsetName.length() > 2) {
                 url += "&replicaSet=" + repsetName;
             }
 
-			/*
-			new ServerAddress("host1", 27017)
-			MongoClientOptions.Builder build = new MongoClientOptions.Builder();
-			build.
-			build.socketKeepAlive(true);
-			*/
+            // MongoCredential mcr = MongoCredential.createCredential(user, database, password.toCharArray() );
+
+            MongoClientOptions.Builder build = new MongoClientOptions.Builder();
             build.sslEnabled(obj.getBoolean("ssl"));
 
             rs = new MongoClientURI(url, build);
