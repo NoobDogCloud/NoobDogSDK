@@ -3,7 +3,6 @@ package common.java.Database;
 import com.zaxxer.hikari.HikariDataSource;
 import common.java.EventWorker.Worker;
 import common.java.String.StringHelper;
-import common.java.Time.TimeHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
@@ -1363,8 +1362,14 @@ public class Sql implements IDBLayer<Sql> {
                             tobj = 0;
                         }
                     }
+                    // 时间日期转换成时间戳
+                    /*
                     if (tobj instanceof Timestamp) {
                         tobj = TimeHelper.build().dateTimeToTimestamp(tobj.toString());
+                    }
+                    */
+                    if (tobj instanceof Timestamp ti) {
+                        tobj = ti.toString();
                     }
                     obj.put(columnsName, tobj);
                 }

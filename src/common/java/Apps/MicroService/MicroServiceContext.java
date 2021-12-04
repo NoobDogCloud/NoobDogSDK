@@ -17,6 +17,9 @@ public class MicroServiceContext {
     static {
         TransferKey.add(TransferKeyName.Pulsar);
         TransferKey.add(TransferKeyName.Http);
+        TransferKey.add(TransferKeyName.Https);
+        TransferKey.add(TransferKeyName.RabbitMQ);
+        TransferKey.add(TransferKeyName.ActiveMQ);
     }
 
     private static int currentNo = 0;
@@ -112,6 +115,9 @@ public class MicroServiceContext {
 
     public static class TransferKeyName {
         public static final String Pulsar = "pulsar";
+        public static final String RabbitMQ = "RabbitMQ";
+        public static final String ActiveMQ = "ActiveMQ";
         public static final String Http = "http";
+        public static final String Https = "https";
     }
 }

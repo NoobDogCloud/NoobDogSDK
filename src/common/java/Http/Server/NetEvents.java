@@ -232,61 +232,65 @@ class NetEvents extends ChannelInboundHandlerAdapter {
 
     private JSONObject PostParameter(Object req) {
         JSONObject parmMap = new JSONObject();
-        HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(_req);
-        decoder.offer((HttpContent) req);
         try {
-            while (decoder.hasNext()) {
-                InterfaceHttpData data = decoder.next();
-                if (data != null) {
-                    try {
-                        if (data.getHttpDataType() == HttpDataType.Attribute || data.getHttpDataType() == HttpDataType.InternalAttribute) {
-                            Attribute _data = (Attribute) data;
-                            try {
-                                parmMap.put(_data.getName(), _data.getValue());
-                            } catch (IOException e) {
-                                // TODO Auto-generated catch block
-                                // nLogger.debugInfo(e);
-                            }
-                            continue;
-                        }
-                        if (data.getHttpDataType() == HttpDataType.FileUpload) {
-                            //String uploadFileName = getUploadFileName(data);
-                            FileUpload _data = (FileUpload) data;
-                            if (_data.isCompleted()) {
-                                //System.err.println(_data.getName());
-                                UploadFileInfo fileInfo = new UploadFileInfo(_data.getFilename(), _data.getContentType(), _data.getMaxSize());
-                                if (_data.isInMemory()) {
-                                    try {
-                                        fileInfo.append(_data.getByteBuf().copy());
-                                    } catch (IOException e) {
-                                        // TODO Auto-generated catch block
-                                        // nLogger.debugInfo(e);
-                                    }
-                                } else {
-                                    try {
-                                        File newTempFile = new File(FileHelper.newTempFileName());
-                                        _data.getFile().renameTo(newTempFile);
-                                        fileInfo.append(newTempFile);
-                                    } catch (IOException e) {
-                                        // TODO Auto-generated catch block
-                                        // nLogger.debugInfo(e);
-                                    }
+            HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(_req);
+            decoder.offer((HttpContent) req);
+            try {
+                while (decoder.hasNext()) {
+                    InterfaceHttpData data = decoder.next();
+                    if (data != null) {
+                        try {
+                            if (data.getHttpDataType() == HttpDataType.Attribute || data.getHttpDataType() == HttpDataType.InternalAttribute) {
+                                Attribute _data = (Attribute) data;
+                                try {
+                                    parmMap.put(_data.getName(), _data.getValue());
+                                } catch (IOException e) {
+                                    // TODO Auto-generated catch block
+                                    // nLogger.debugInfo(e);
                                 }
-                                parmMap.put(_data.getName(), fileInfo);
+                                continue;
                             }
+                            if (data.getHttpDataType() == HttpDataType.FileUpload) {
+                                //String uploadFileName = getUploadFileName(data);
+                                FileUpload _data = (FileUpload) data;
+                                if (_data.isCompleted()) {
+                                    //System.err.println(_data.getName());
+                                    UploadFileInfo fileInfo = new UploadFileInfo(_data.getFilename(), _data.getContentType(), _data.getMaxSize());
+                                    if (_data.isInMemory()) {
+                                        try {
+                                            fileInfo.append(_data.getByteBuf().copy());
+                                        } catch (IOException e) {
+                                            // TODO Auto-generated catch block
+                                            // nLogger.debugInfo(e);
+                                        }
+                                    } else {
+                                        try {
+                                            File newTempFile = new File(FileHelper.newTempFileName());
+                                            _data.getFile().renameTo(newTempFile);
+                                            fileInfo.append(newTempFile);
+                                        } catch (IOException e) {
+                                            // TODO Auto-generated catch block
+                                            // nLogger.debugInfo(e);
+                                        }
+                                    }
+                                    parmMap.put(_data.getName(), fileInfo);
+                                }
+                            }
+                        } catch (Exception e) {
+                            // nLogger.debugInfo(e);
+                        } finally {
+                            data.release();
                         }
-                    } catch (Exception e) {
-                        // nLogger.debugInfo(e);
-                    } finally {
-                        data.release();
                     }
                 }
+            } catch (EndOfDataDecoderException e1) {
+                // nLogger.debugInfo(e1);
+            } finally {
+                decoder.destroy();
             }
-        } catch (EndOfDataDecoderException e1) {
-            // nLogger.debugInfo(e1);
-        } finally {
-            decoder.destroy();
+        } catch (Exception e) {
         }
+
         return parmMap.isEmpty() ? null : parmMap;
     }
 

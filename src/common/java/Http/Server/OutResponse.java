@@ -30,7 +30,8 @@ public class OutResponse {
             HttpContext.GrapeHttpHeader.publicKey + " ," +
             HttpContextDb.fields + " ," +
             HttpContextDb.sorts + " ," +
-            HttpContextDb.options;
+            HttpContextDb.options + "," +
+            "Content-Type";
     private final ChannelHandlerContext ctx;
     private JSONObject header;
     private FullHttpResponse response;
