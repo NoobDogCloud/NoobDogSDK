@@ -64,7 +64,7 @@ public class MicroServiceContext {
      * 获得最佳服务节点
      */
     public String bestServer() {
-        String[] servers = servInfo.getString("peerAddr").split(",");
+        String[] servers = servInfo.getString("peeraddr").split(",");
         currentNo++;
         return servers[currentNo % servers.length];
     }
@@ -80,7 +80,7 @@ public class MicroServiceContext {
      * 获得订阅服务通讯协议
      */
     public String bestSubscribe() {
-        String[] servers = this.servInfo.getString("subAddr").split(",");
+        String[] servers = this.servInfo.getString("subaddr").split(",");
         currentNo++;
         return servers[currentNo % servers.length];
     }
