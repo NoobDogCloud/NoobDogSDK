@@ -1,5 +1,8 @@
 package common.java.Rpc;
 
+import org.json.gsc.JSONArray;
+import org.json.gsc.JSONObject;
+
 import java.util.HashMap;
 
 public class RpcAfter {
@@ -56,6 +59,21 @@ public class RpcAfter {
         if (rl != null) {
             rl.unlock();
         }
+        return this;
+    }
+
+    public RpcAfter output(ModelJsonArrayReturnCallback callback) {
+        filter("select", (funcName, parameter, returnValue) -> callback.run((JSONArray<JSONObject>) returnValue));
+        return this;
+    }
+
+    public RpcAfter output(ModelJsonReturnCallback callback) {
+        filter("find", (funcName, parameter, returnValue) -> callback.run((JSONObject) returnValue));
+        return this;
+    }
+
+    public RpcAfter output(ModelPageReturnCallback callback) {
+        filter("page,pageEx", (funcName, parameter, returnValue) -> callback.run((RpcPageInfo) returnValue));
         return this;
     }
 }

@@ -1,5 +1,7 @@
 package common.java.Rpc;
 
+import org.json.gsc.JSONObject;
+
 import java.util.HashMap;
 
 public class RpcBefore {
@@ -52,6 +54,17 @@ public class RpcBefore {
         if (fl != null) {
             fl.unlock();
         }
+        return this;
+    }
+
+    public RpcBefore input(ModelFilterCallback callback) {
+        filter("insert", (func, paramArr) -> callback.run((JSONObject) paramArr[0], false))
+                .filter("update", (func, paramArr) -> callback.run((JSONObject) paramArr[1], true));
+        return this;
+    }
+
+    public RpcBefore delete(ModelIdsFilterCallback callback) {
+        filter("delete", (func, paramArr) -> callback.run(((String) paramArr[0]).split(",")));
         return this;
     }
 }

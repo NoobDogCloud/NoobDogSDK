@@ -1,6 +1,6 @@
 package common.java.Apps.MicroService.Model;
 
-import common.java.GscCommon.checkModel;
+import common.java.GscCommon.CheckModel;
 import common.java.ServiceTemplate.SuperItemField;
 import org.json.gsc.JSONObject;
 
@@ -22,7 +22,7 @@ public class MModelSuperField {
         waitting.put(SuperItemField.createAtField, ":timestamp");
         waitting.put(SuperItemField.updateAtField, ":timestamp");
         waitting.put(SuperItemField.removeAtField, "");
-        waitting.put(SuperItemField.statusField, checkModel.running);
+        waitting.put(SuperItemField.statusField, CheckModel.running);
     }
 
     /**

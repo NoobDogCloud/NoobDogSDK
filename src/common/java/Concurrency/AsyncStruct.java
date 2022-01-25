@@ -1,7 +1,7 @@
 package common.java.Concurrency;
 
 import common.java.Cache.CacheHelper;
-import common.java.GscCommon.checkModel;
+import common.java.GscCommon.CheckModel;
 import org.json.gsc.JSONObject;
 
 public class AsyncStruct {
@@ -28,7 +28,7 @@ public class AsyncStruct {
     }
 
     public static AsyncStruct build(long totalNumber) {
-        return new AsyncStruct(0, totalNumber, "", checkModel.pending);
+        return new AsyncStruct(0, totalNumber, "", CheckModel.pending);
     }
 
     public static AsyncStruct build(JSONObject info) {
@@ -66,7 +66,7 @@ public class AsyncStruct {
             this.currentNumber = 0;
             this.totalNumber = 100;
             this.currentText = "";
-            this.state = checkModel.pending;
+            this.state = CheckModel.pending;
         } else {
             this.currentNumber = info.getLong("currentNumber");
             this.totalNumber = info.getLong("totalNumber");
@@ -77,12 +77,12 @@ public class AsyncStruct {
     }
 
     public AsyncStruct success() {
-        this.state = checkModel.success;
+        this.state = CheckModel.success;
         return this;
     }
 
     public AsyncStruct fail() {
-        this.state = checkModel.failed;
+        this.state = CheckModel.failed;
         return this;
     }
 

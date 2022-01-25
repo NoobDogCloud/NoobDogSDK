@@ -1,6 +1,6 @@
 package common.java.GscCommon;
 
-public class checkModel {
+public class CheckModel {
     public final static int running = 0;
     public final static int active = 1;
     public final static int pending = 2;
