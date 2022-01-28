@@ -2,7 +2,7 @@ package common.java.Rpc;
 
 import common.java.Apps.AppContext;
 import common.java.Apps.MicroService.Model.MicroModel;
-import common.java.Encrypt.GscJson;
+import common.java.Encrypt.GscEncrypt;
 import common.java.Http.Server.HttpContext;
 import common.java.JGrapeSystem.GrapeJar;
 import common.java.Reflect.ReflectStruct;
@@ -172,11 +172,12 @@ public class ExecRequest {//框架内请求类
         for (int i = 0; i < objs.length; i++) {
             Object o = objs[i];
             if (o instanceof String v) {
-                var header = GscJson.getHeader(v);
+                var header = GscEncrypt.getHeader(v);
                 if (header != null) {
-                    switch (GscJson.getType(header)) {
-                        case "json" -> objs[i] = GscJson.decodeJson(v);
-                        case "jsonArray" -> objs[i] = GscJson.decodeJsonArray(v);
+                    switch (GscEncrypt.getType(header)) {
+                        case "json" -> objs[i] = GscEncrypt.decodeJson(v);
+                        case "jsonArray" -> objs[i] = GscEncrypt.decodeJsonArray(v);
+                        case "string" -> objs[i] = GscEncrypt.decodeString(v);
                     }
                 }
             }
@@ -247,11 +248,12 @@ public class ExecRequest {//框架内请求类
         return arg != null && arg.split(":").length > 1;
     }
 
+    // 字符串是否需要自动变加密编码
     private static String rpc_parameter2string(Object obj) {
         if (obj instanceof JSONObject) {
-            return GscJson.encodeJson((JSONObject) obj);
+            return GscEncrypt.encodeJson((JSONObject) obj);
         } else if (obj instanceof JSONArray) {
-            return GscJson.encodeJsonArray((JSONArray) obj);
+            return GscEncrypt.encodeJsonArray((JSONArray) obj);
         } else {
             return StringHelper.toString(obj);
         }

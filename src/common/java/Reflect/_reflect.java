@@ -1,7 +1,7 @@
 package common.java.Reflect;
 
 import com.esotericsoftware.reflectasm.MethodAccess;
-import common.java.Encrypt.GscJson;
+import common.java.Encrypt.GscEncrypt;
 import common.java.Http.Server.Upload.UploadFile;
 import common.java.InterfaceModel.Type.InterfaceType;
 import common.java.InterfaceModel.Type.InterfaceTypeArray;
@@ -244,16 +244,20 @@ public class _reflect {
                     // 如果是字符串，可能是特殊 json,jsonArray
                     if (_oClass == String.class) {
                         var objStr = (String) obj;
-                        var header = GscJson.getHeader(objStr);
+                        var header = GscEncrypt.getHeader(objStr);
                         if (header != null) {
-                            switch (GscJson.getType(header)) {
+                            switch (GscEncrypt.getType(header)) {
                                 case "json" -> {
                                     _oClass = JSONObject.class;
-                                    obj = GscJson.decodeJson(objStr);
+                                    obj = GscEncrypt.decodeJson(objStr);
                                 }
                                 case "jsonArray" -> {
                                     _oClass = JSONArray.class;
-                                    obj = GscJson.decodeJson(objStr);
+                                    obj = GscEncrypt.decodeJson(objStr);
+                                }
+                                case "string" -> {
+                                    _oClass = String.class;
+                                    obj = GscEncrypt.decodeString(objStr);
                                 }
                             }
                             // 替换参数值

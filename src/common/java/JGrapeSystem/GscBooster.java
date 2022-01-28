@@ -9,6 +9,7 @@ import common.java.MessageServer.GscPulsarServer;
 import common.java.Rpc.ExecRequest;
 import common.java.Rpc.rpc;
 import common.java.Thread.ThreadHelper;
+import common.java.args.ArgsHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
@@ -18,6 +19,38 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class GscBooster {
 
+    /**
+     * 启动参数启动服务
+     *
+     * @param args 启动参数
+     *             普通服务
+     *             -n 服务名称 -h 主控连接信息
+     *             主控服务
+     *             -p 服务端口 -k 主控密钥
+     */
+    public static void start(String[] args, Runnable func) {
+        // 初始化数据
+        Config.updateConfig();
+        var argArr = ArgsHelper.dictionary(args);
+        for (String key : argArr.keySet()) {
+            switch (key) {
+                case "-n" -> Config.serviceName = argArr.get(key).toString();
+                case "-h" -> {
+                    var host = argArr.get(key).toString();
+                    var masterUrl = host.split(":");
+                    Config.masterHost = masterUrl[0];
+                    Config.masterPort = Integer.parseInt(masterUrl[1]);
+                }
+                case "-p" -> Config.port = Integer.parseInt(argArr.get(key).toString());
+                case "-k" -> Config.publicKey = argArr.get(key).toString();
+            }
+        }
+        start(func);
+    }
+
+    public static void start(String[] args) {
+        start(args, null);
+    }
 
     public static void start() {
         start(Config.serviceName);
@@ -31,6 +64,12 @@ public class GscBooster {
         start(serverName, null);
     }
 
+    /**
+     * 启动服务
+     *
+     * @param serverName 服务名称
+     * @param func       服务初始化后，正式启动前的回调函数
+     */
     public static void start(String serverName, Runnable func) {
         try {
             JSONArray<JSONObject> serviceArr = null;
@@ -73,6 +112,7 @@ public class GscBooster {
             if (MicroServiceContext.TransferKeyName.Pulsar.equals(transfer)) {
                 GscPulsarServer.start(serviceArr);
             } else {
+                // ip 从服务配置中获取
                 GscServer.start(Config.bindIP, Config.port);
             }
         } catch (Exception e) {
