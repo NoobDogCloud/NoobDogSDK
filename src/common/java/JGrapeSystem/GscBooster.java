@@ -45,7 +45,6 @@ public class GscBooster {
                 case "-k" -> {
                     // 主控才有秘钥，所以直接锁死服务名称
                     Config.publicKey = argArr.get(key).toString();
-                    Config.serviceName = "system";
                 }
             }
         }

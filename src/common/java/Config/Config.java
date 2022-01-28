@@ -79,7 +79,7 @@ public class Config {
         // 必选项
         port = Integer.parseInt(prop.getProperty("port", "80"));
         // 附加选项
-        serviceName = prop.getProperty("name", "default");
+        serviceName = prop.getProperty("name", "system");
         // 可选项
         masterHost = prop.getProperty("MasterHost", "http://127.0.0.1");//read master host url
         masterPort = Integer.parseInt(prop.getProperty("MasterPort", "80"));
