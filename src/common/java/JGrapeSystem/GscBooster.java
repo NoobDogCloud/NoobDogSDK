@@ -93,7 +93,7 @@ public class GscBooster {
                         }
                 );
                 // 等待收到订阅数据
-                while (waiting.get() == true) {
+                while (waiting.get()) {
                     ThreadHelper.sleep(100);
                 }
                 // 获得当前服务类型启动方式
