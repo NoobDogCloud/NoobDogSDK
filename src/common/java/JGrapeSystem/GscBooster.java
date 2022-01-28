@@ -101,6 +101,14 @@ public class GscBooster {
                     return;
                 }
             }
+            JSONObject currentService = serviceArr.get(0);
+            // 根据当前服务调试设置，设置调试模式
+            Config.debug = currentService.getBoolean("debug");
+            // 根据当前服务端口设置，设置调试模式
+            int port = currentService.getInt("port");
+            if (port > 0) {
+                Config.port = port;
+            }
             // 设置日志过滤器
             GscBooterBefore._before(serverName);
             // 载入全部服务类到内存
@@ -110,7 +118,7 @@ public class GscBooster {
             if (func != null) {
                 func.run();
             }
-            String transfer = JSONArray.isInvalided(serviceArr) ? "default" : serviceArr.get(0).getString("transfer");
+            String transfer = JSONArray.isInvalided(serviceArr) ? "default" : currentService.getString("transfer");
             // 启动http服务
             if (MicroServiceContext.TransferKeyName.Pulsar.equals(transfer)) {
                 GscPulsarServer.start(serviceArr);
