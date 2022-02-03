@@ -1,6 +1,6 @@
 package common.java.Rpc;
 
-import com.esotericsoftware.reflectasm.MethodAccess;
+import common.java.Reflect.MethodAccess;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
