@@ -398,8 +398,12 @@ public class Sql implements IDBLayer<Sql> {
                 String tableName = _getFullForm();
                 // ResultSet colRet = DBM.getColumns(null, "%", tableName, "%");
                 ResultSet colRet = DBM.getPrimaryKeys(null, "%", tableName);
-                colRet.next();
-                pkName = colRet.getString("COLUMN_NAME");
+                if (colRet.next()) {
+                    pkName = colRet.getString("COLUMN_NAME");
+                } else {
+                    pkName = null;
+                }
+
                 ResultSet colResult = DBM.getColumns(null, "%", tableName, "%");
                 while (colResult.next()) {
                     tableFields.add(colResult.getString("COLUMN_NAME"));
