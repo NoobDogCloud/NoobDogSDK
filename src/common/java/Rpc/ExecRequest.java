@@ -104,7 +104,7 @@ public class ExecRequest {//框架内请求类
             try {
                 share_class.put(name, ReflectStruct.build(Class.forName(ExecBaseFolder + "._Api." + name)));
             } catch (Exception e) {
-                nLogger.errorInfo(e);
+                // nLogger.errorInfo(e);
                 return null;
             }
         }
@@ -128,7 +128,7 @@ public class ExecRequest {//框架内请求类
             try {
                 BeforeFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + "._Before." + name)));
             } catch (Exception e) {
-                nLogger.errorInfo(e);
+                // nLogger.errorInfo(e);
                 return null;
             }
         }
@@ -152,7 +152,7 @@ public class ExecRequest {//框架内请求类
             try {
                 AfterFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + "._After." + name)));
             } catch (Exception e) {
-                nLogger.errorInfo(e);
+                // nLogger.errorInfo(e);
                 return null;
             }
         }
