@@ -48,7 +48,6 @@ public class GscBooster {
                 }
             }
         }
-        Config.updateConfig();
         start(func);
     }
 
