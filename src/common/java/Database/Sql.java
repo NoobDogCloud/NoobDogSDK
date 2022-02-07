@@ -401,7 +401,7 @@ public class Sql implements IDBLayer<Sql> {
                 if (colRet.next()) {
                     pkName = colRet.getString("COLUMN_NAME");
                 } else {
-                    pkName = null;
+                    pkName = "id";
                 }
 
                 ResultSet colResult = DBM.getColumns(null, "%", tableName, "%");

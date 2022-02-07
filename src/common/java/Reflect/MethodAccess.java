@@ -49,8 +49,8 @@ public class MethodAccess {
                     if (Parameters[i] == null) {
                         continue;
                     }
-                    // 类型不正确
-                    if (!pa[i].equals(Parameters[i].getClass())) {
+                    // 任意类型 或者 类型不正确
+                    if (!pa[i].equals(Object.class) && !pa[i].equals(Parameters[i].getClass())) {
                         continue;
                     }
                     // 获得参数列表最接近的
