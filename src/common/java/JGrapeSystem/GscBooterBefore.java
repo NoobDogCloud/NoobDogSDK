@@ -29,7 +29,7 @@ public class GscBooterBefore {
             */
         };
         // 获得端口
-        System.out.println("节点号:[" + Config.nodeID + "]");
+        System.out.println("节点号:[" + Config.getNodeID() + "]");
         System.out.println("微服务:[" + serverName + "] ...启动完毕");
         System.out.println("监听:" + Config.bindIP + ":" + Config.port + " ...成功");
 

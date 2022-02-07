@@ -22,7 +22,6 @@ public class Config {
     public static int masterPort;
     public static String bindIP;
     public static int port;
-    public static String nodeID;
     public static boolean debug;
     public static String publicKey;
     public static String masterId;
@@ -89,12 +88,10 @@ public class Config {
 
         masterId = prop.getProperty(masterId_Key);
         masterPass = prop.getProperty(masterPass_Key);
-        // 自动生成
-        nodeID = createNodeID(bindIP, port);
     }
 
-    public static String createNodeID(String ip, int port) {
-        return ip + "_" + port;
+    public static String getNodeID() {
+        return bindIP + "_" + port;
     }
 
     // 通过masterProxy从数据库获得配置信息

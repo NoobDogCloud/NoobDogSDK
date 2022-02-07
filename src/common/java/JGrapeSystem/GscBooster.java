@@ -30,6 +30,7 @@ public class GscBooster {
      */
     public static void start(String[] args, Runnable func) {
         // 初始化数据
+        Config.updateConfig();
         var argArr = ArgsHelper.dictionary(args);
         for (String key : argArr.keySet()) {
             switch (key) {
