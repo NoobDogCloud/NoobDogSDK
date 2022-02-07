@@ -4,7 +4,6 @@ import common.java.Apps.AppContext;
 import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.Encrypt.GscEncrypt;
 import common.java.Http.Server.HttpContext;
-import common.java.JGrapeSystem.GrapeJar;
 import common.java.Reflect.ReflectStruct;
 import common.java.Reflect._reflect;
 import common.java.String.StringHelper;
@@ -87,34 +86,77 @@ public class ExecRequest {//框架内请求类
     /**
      * 遍历 api 目录下所有类
      */
-    public static void loadServiceApi() {
-        List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Api", true);
-        // 修改每个载入的 class,增加调用方法
-        for (Class<?> cls : clsArr) {
-            share_class.put(cls.getSimpleName(), ReflectStruct.build(cls));
+    /**
+     public static void loadServiceApi() {
+     List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Api", true);
+     // 修改每个载入的 class,增加调用方法
+     for (Class<?> cls : clsArr) {
+     share_class.put(cls.getSimpleName(), ReflectStruct.build(cls));
+     }
+     }*/
+    /**
+     * 动态载入类
+     *
+     * @return
+     */
+    public static ReflectStruct getServiceApi(String name) {
+        if (!share_class.containsKey(name)) {
+            try {
+                share_class.put(name, ReflectStruct.build(Class.forName(ExecBaseFolder + "._Api." + name)));
+            } catch (Exception e) {
+                nLogger.errorInfo(e);
+                return null;
+            }
         }
+        return share_class.get(name);
     }
 
     /**
      * 遍历 api_before 目录下所有类
      */
-    public static void loadServiceBefore() {
-        List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Before", true);
-        // 修改每个载入的 class,增加调用方法
-        for (Class<?> cls : clsArr) {
-            BeforeFilterObjectCache.put(cls.getSimpleName(), RpcFilterFnCache.build(cls));
+    /**
+     * public static void loadServiceBefore() {
+     * List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Before", true);
+     * // 修改每个载入的 class,增加调用方法
+     * for (Class<?> cls : clsArr) {
+     * BeforeFilterObjectCache.put(cls.getSimpleName(), RpcFilterFnCache.build(cls));
+     * }
+     * }
+     */
+    public static RpcFilterFnCache getServiceBefore(String name) {
+        if (!BeforeFilterObjectCache.containsKey(name)) {
+            try {
+                BeforeFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + "._Before." + name)));
+            } catch (Exception e) {
+                nLogger.errorInfo(e);
+                return null;
+            }
         }
+        return BeforeFilterObjectCache.get(name);
     }
 
     /**
      * 遍历 api_before 目录下所有类
      */
-    public static void loadServiceAfter() {
-        List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._After", true);
-        // 修改每个载入的 class,增加调用方法
-        for (Class<?> cls : clsArr) {
-            AfterFilterObjectCache.put(cls.getSimpleName(), RpcFilterFnCache.build(cls));
+    /**
+     * public static void loadServiceAfter() {
+     * List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._After", true);
+     * // 修改每个载入的 class,增加调用方法
+     * for (Class<?> cls : clsArr) {
+     * AfterFilterObjectCache.put(cls.getSimpleName(), RpcFilterFnCache.build(cls));
+     * }
+     * }
+     */
+    public static RpcFilterFnCache getServiceAfter(String name) {
+        if (!AfterFilterObjectCache.containsKey(name)) {
+            try {
+                AfterFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + "._After." + name)));
+            } catch (Exception e) {
+                nLogger.errorInfo(e);
+                return null;
+            }
         }
+        return AfterFilterObjectCache.get(name);
     }
 
     /**
@@ -127,18 +169,17 @@ public class ExecRequest {//框架内请求类
             String className = hCtx.className();
             String actionName = hCtx.actionName();
             try {
-                // MainClassPath
-                // String MainClassName = ExecBaseFolder + "._Api." + className;
                 // 目标类不存在
-                if (!share_class.containsKey(className)) {
-                    return RpcError.Instant(false, "请求错误 ->目标不存在！");
+                ReflectStruct _cls = getServiceApi(className);
+                if (_cls == null) {
+                    return RpcError.Instant(false, "请求错误 ->目标[" + className + "]不存在！");
                 }
                 // 执行转换前置类
                 Object[] _objs = convert2GscCode(hCtx.invokeParamter());
                 FilterReturn filterReturn = beforeExecute(className, actionName, _objs);
                 if (filterReturn.state()) {
                     // 载入主类
-                    ReflectStruct _cls = share_class.get(className);
+                    // ReflectStruct _cls = getServiceApi(className); // share_class.get(className);
                     // 执行call
                     try {
                         // 创建类反射
@@ -188,7 +229,7 @@ public class ExecRequest {//框架内请求类
     // 过滤函数改变输入参数
     private static FilterReturn beforeExecute(String className, String actionName, Object[] objs) {
         // String classFullName = ExecBaseFolder + "._Before." + className;
-        RpcFilterFnCache filterFn = BeforeFilterObjectCache.getOrDefault(className, null);
+        RpcFilterFnCache filterFn = getServiceBefore(className); // BeforeFilterObjectCache.getOrDefault(className, null);
         if (filterFn == null) {  // 没有过滤函数
             return FilterReturn.buildTrue();
         }
@@ -202,7 +243,7 @@ public class ExecRequest {//框架内请求类
     // 结果函数改变输入参数
     private static Object afterExecute(String className, String actionName, Object[] parameter, Object obj) {
         // String classFullName = ExecBaseFolder + "._After." + className;
-        RpcFilterFnCache filterFn = AfterFilterObjectCache.getOrDefault(className, null);
+        RpcFilterFnCache filterFn = getServiceAfter(className); // AfterFilterObjectCache.getOrDefault(className, null);
         if (filterFn == null) {  // 没有过滤函数
             return obj;
         }

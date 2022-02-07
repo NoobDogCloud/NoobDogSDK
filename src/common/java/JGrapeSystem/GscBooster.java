@@ -7,7 +7,6 @@ import common.java.Coordination.Coordination;
 import common.java.Http.Server.GscServer;
 import common.java.MasterProxy.MasterActor;
 import common.java.MessageServer.GscPulsarServer;
-import common.java.Rpc.ExecRequest;
 import common.java.Rpc.rpc;
 import common.java.Thread.ThreadHelper;
 import common.java.nLogger.nLogger;
@@ -116,9 +115,9 @@ public class GscBooster {
             // 设置日志过滤器
             GscBooterBefore._before(serverName);
             // 载入全部服务类到内存
-            ExecRequest.loadServiceApi();
-            ExecRequest.loadServiceBefore();
-            ExecRequest.loadServiceAfter();
+            // ExecRequest.loadServiceApi();
+            // ExecRequest.loadServiceBefore();
+            // ExecRequest.loadServiceAfter();
             if (func != null) {
                 func.run();
             }

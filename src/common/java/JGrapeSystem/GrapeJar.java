@@ -40,7 +40,6 @@ public class GrapeJar {
             while (iterator.hasMoreElements()) {
                 URL url = iterator.nextElement();
                 String protocol = url.getProtocol();
-                // System.out.println(protocol);
                 List<Class<?>> childClassList = Collections.emptyList();
                 switch (protocol) {
                     case "file":
@@ -57,8 +56,13 @@ public class GrapeJar {
                 classList.addAll(childClassList);
             }
         } catch (IOException e) {
-            nLogger.logInfo(e);
+            nLogger.errorInfo(e);
         }
+
+        for (var f : classList) {
+            System.out.println(f);
+        }
+
         return classList;
     }
 
@@ -118,7 +122,7 @@ public class GrapeJar {
                     classList.addAll(getClassInFile(iterator.next(), packageName, true));
                 }
             } catch (IOException e) {
-                nLogger.logInfo(e);
+                nLogger.errorInfo(e);
             }
         } else {
             try {
@@ -138,7 +142,7 @@ public class GrapeJar {
                 className = lastDotIndex == -1 ? className.substring(beginIndex) : className.substring(beginIndex, lastDotIndex);
                 classList.add(Class.forName(className));
             } catch (IOException | ClassNotFoundException e) {
-                nLogger.logInfo(e);
+                nLogger.errorInfo(e);
             }
         }
         return classList;
