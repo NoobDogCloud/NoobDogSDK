@@ -10,6 +10,7 @@ import common.java.Number.NumberHelper;
 import common.java.Rpc.ExecRequest;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
+import common.java.nLogger.nLogger;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -94,6 +95,9 @@ public class GrapeHttpServer {
             or.out(new TextWebSocketFrame(r.toString()));
         } else {
             or.out(rlt);
+            if (Config.debug) {
+                nLogger.logInfo("Response:" + StringHelper.toString(rlt));
+            }
         }
     }
 
