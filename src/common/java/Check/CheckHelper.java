@@ -185,6 +185,11 @@ public class CheckHelper {
         return match(check, str);
     }
 
+    public static boolean IsStrictID(String str, int len) {
+        String check = "^[a-zA-Z][a-z0-9A-Z-]{2," + len + "}+$";
+        return match(check, str);
+    }
+
     public static boolean notContainSpace(String str) {
         return !(str.contains(" "));
     }
@@ -439,6 +444,11 @@ public class CheckHelper {
 
     public static boolean IsObject(String str) {
         String regex = "^[0-9a-fA-F]{24}$";
+        return match(regex, str);
+    }
+
+    public static boolean IsVersion(String str) {
+        String regex = "^(([0-9]|([1-9]([0-9]*))).){2}([0-9]|([1-9]([0-9]*)))([-](([0-9A-Za-z]|([1-9A-Za-z]([0-9A-Za-z]*)))[.]){0,}([0-9A-Za-z]|([1-9A-Za-z]([0-9A-Za-z]*)))){0,1}([+](([0-9A-Za-z]{1,})[.]){0,}([0-9A-Za-z]{1,})){0,1}$";
         return match(regex, str);
     }
 

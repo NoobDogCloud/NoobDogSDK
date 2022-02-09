@@ -366,6 +366,10 @@ public class FormHelper {
                 return CheckHelper.IsBankCard(str);
             case formdef.ObjectId:
                 return CheckHelper.IsObject(str);
+            case formdef.StrictID:
+                return CheckHelper.IsStrictID(str, 64);
+            case formdef.Version:
+                return CheckHelper.IsVersion(str);
             default:
                 // rule不在有效范围,效验失败
                 return false;
@@ -497,5 +501,13 @@ public class FormHelper {
          * objectId
          */
         public final static int ObjectId = 29;
+        /**
+         * 严格ID（k8s name）
+         */
+        public final static int StrictID = 30;
+        /**
+         * 版本号 x.y.z
+         */
+        public final static int Version = 31;
     }
 }
