@@ -88,7 +88,10 @@ public class GrapeHttpServer {
         OutResponse or = SocketContext.current().getResponse();
         if (ctx.method() == HttpContext.Method.websocket) {
             // 响应自动订阅参数(能运行到这里说明请求代码层执行完毕)
-            String topic = SubscribeGsc.filterSubscribe(ctx);
+            String topic = HttpContext.current().getRequestID();
+            if (StringHelper.isInvalided(topic)) {
+                topic = SubscribeGsc.filterSubscribe(ctx);
+            }
             // 补充Websocket结果外衣 返回结果转换成 string
             JSONObject r = rlt == null ? JSONObject.build() : JSONObject.build(rlt.toString());
             r.put(HttpContext.GrapeHttpHeader.WebSocket.wsId, topic);

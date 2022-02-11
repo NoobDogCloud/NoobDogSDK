@@ -39,6 +39,7 @@ public class HttpContext {
 
     private HttpRequest request;
     private String absPath;
+    private String wsID;
     private String svrName;
     private JSONObject parameter;
     private AsciiString mime;
@@ -67,6 +68,9 @@ public class HttpContext {
         }
         parameter(_header.getJson(GrapeHttpHeader.WebSocket.param));
         absPath = _header.getString(GrapeHttpHeader.WebSocket.url);
+        wsID = _header.containsKey(GrapeHttpHeader.WebSocket.wsId) ?
+                _header.getString(GrapeHttpHeader.WebSocket.wsId) :
+                null;
         method = Method.websocket;
         header = _header;
         init_grape_dbCtx();
@@ -246,6 +250,10 @@ public class HttpContext {
             absPath = path;
         }
         return this;
+    }
+
+    public String getRequestID() {
+        return wsID;
     }
 
     public String path() {
