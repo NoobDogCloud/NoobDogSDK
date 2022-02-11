@@ -6,28 +6,28 @@ import org.json.gsc.JSONObject;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DbFilter {
+public class DBFilter {
     private JSONArray condArray;
     private List<List<Object>> conds;
     private boolean conditiobLogicAnd;
 
-    private DbFilter() {
+    private DBFilter() {
         reinit();
     }
 
-    private DbFilter(JSONArray cond) {
+    private DBFilter(JSONArray cond) {
         reinit();
         if (cond != null) {
             condArray = cond;
         }
     }
 
-    public static DbFilter buildDbFilter() {
-        return new DbFilter();
+    public static DBFilter buildDbFilter() {
+        return new DBFilter();
     }
 
-    public static DbFilter buildDbFilter(JSONArray cond) {
-        return new DbFilter(cond);
+    public static DBFilter buildDbFilter(JSONArray cond) {
+        return new DBFilter(cond);
     }
 
     private void reinit() {
@@ -36,53 +36,53 @@ public class DbFilter {
         conds = new ArrayList<>();
     }
 
-    public DbFilter and() {
+    public DBFilter and() {
         conditiobLogicAnd = true;
         return this;
     }
 
-    public DbFilter or() {
+    public DBFilter or() {
         conditiobLogicAnd = false;
         return this;
     }
 
-    public DbFilter eq(String field, Object value) {//One Condition
+    public DBFilter eq(String field, Object value) {//One Condition
 
         addCondition(field, value, "=");
         return this;
     }
 
-    public DbFilter ne(String field, Object value) {//One Condition
+    public DBFilter ne(String field, Object value) {//One Condition
 
         addCondition(field, value, "!=");
         return this;
     }
 
-    public DbFilter gt(String field, Object value) {//One Condition
+    public DBFilter gt(String field, Object value) {//One Condition
 
         addCondition(field, value, ">");
         return this;
     }
 
-    public DbFilter lt(String field, Object value) {//One Condition
+    public DBFilter lt(String field, Object value) {//One Condition
 
         addCondition(field, value, "<");
         return this;
     }
 
-    public DbFilter gte(String field, Object value) {//One Condition
+    public DBFilter gte(String field, Object value) {//One Condition
 
         addCondition(field, value, ">=");
         return this;
     }
 
-    public DbFilter lte(String field, Object value) {//One Condition
+    public DBFilter lte(String field, Object value) {//One Condition
 
         addCondition(field, value, "<=");
         return this;
     }
 
-    public DbFilter like(String field, Object value) {
+    public DBFilter like(String field, Object value) {
         addCondition(field, value, "like");
         return this;
     }
@@ -99,7 +99,7 @@ public class DbFilter {
         return condArray;
     }
 
-    public DbFilter groupCondition(List<List<Object>> conds) {
+    public DBFilter groupCondition(List<List<Object>> conds) {
         //List<List<Object>> nowConds = this.conds;
         List<Object> block = new ArrayList<>();
         block.add(conditiobLogicAnd ? "and" : "or");

@@ -16,43 +16,43 @@ import java.util.List;
 import java.util.function.Function;
 
 
-public class DbLayer implements IDBLayer<DbLayer> {
+public class DBLayer implements IDBManager<DBLayer> {
     private final HashMap<String, List<Function<Object, Object>>> outHookFunc = new HashMap<>();
     private final HashMap<String, List<Function<Object, Object>>> inHookFunc = new HashMap<>();
     public int _dbName;
     public String formName;
-    private IDBLayer _db;            //数据库抽象对象
+    private IDBManager _db;            //数据库抽象对象
     private Cache cache;        //缓存抽象对象
     private String ownId;
     private boolean out_piper_flag = true;
 
-    private DbLayer() {
+    private DBLayer() {
         init(null);
     }
 
-    private DbLayer(String configName) {
+    private DBLayer(String configName) {
         init(configName);
     }
 
-    private DbLayer(boolean notLoad) {
+    private DBLayer(boolean notLoad) {
         formName = "";
     }
 
-    public static DbLayer buildWithConfig(String configContent) {
-        DbLayer db = new DbLayer(true);
+    public static DBLayer buildWithConfig(String configContent) {
+        DBLayer db = new DBLayer(true);
         db.getDbByConfigContent(configContent);
         return db;
     }
 
-    public static DbLayer build() {
-        return new DbLayer();
+    public static DBLayer build() {
+        return new DBLayer();
     }
 
-    public static DbLayer build(String configName) {
-        return new DbLayer(configName);
+    public static DBLayer build(String configName) {
+        return new DBLayer(configName);
     }
 
-    public DbLayer setPiperEnable(boolean flag) {
+    public DBLayer setPiperEnable(boolean flag) {
         out_piper_flag = flag;
         return this;
     }
@@ -60,12 +60,12 @@ public class DbLayer implements IDBLayer<DbLayer> {
     /**
      * 自动生成多OR条件
      */
-    public DbLayer putAllOr(String ids) {
+    public DBLayer putAllOr(String ids) {
         return putAllOr(ids, getGeneratedKeys());
     }
 
-    public DbLayer putAllOr(String ids, String field) {
-        DbFilter dbf = DbFilter.buildDbFilter();
+    public DBLayer putAllOr(String ids, String field) {
+        DBFilter dbf = DBFilter.buildDbFilter();
         if (!StringHelper.isInvalided(ids)) {
             String[] idList = ids.split(",");
             if (idList.length > 0) {
@@ -78,15 +78,15 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return this;
     }
 
-    public DbLayer addFieldOutPipe(String fieldName, Function<Object, Object> func) {
+    public DBLayer addFieldOutPipe(String fieldName, Function<Object, Object> func) {
         return getDbLayer(fieldName, func, outHookFunc);
     }
 
-    public DbLayer addFieldInPipe(String fieldName, Function<Object, Object> func) {
+    public DBLayer addFieldInPipe(String fieldName, Function<Object, Object> func) {
         return getDbLayer(fieldName, func, inHookFunc);
     }
 
-    private DbLayer getDbLayer(String fieldName, Function<Object, Object> func, HashMap<String, List<Function<Object, Object>>> inHookFunc) {
+    private DBLayer getDbLayer(String fieldName, Function<Object, Object> func, HashMap<String, List<Function<Object, Object>>> inHookFunc) {
         if (func != null) {
             List<Function<Object, Object>> link = inHookFunc.get(fieldName);
             if (link == null) {
@@ -131,7 +131,7 @@ public class DbLayer implements IDBLayer<DbLayer> {
     }
 
 
-    public IDBLayer getDBObject(String cN) {
+    public IDBManager getDBObject(String cN) {
         String _configString = Config.netConfig(cN);
         try {
             if (_configString != null) {
@@ -146,7 +146,7 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return _db;
     }
 
-    public IDBLayer getDbByConfigContent(String _configString) {
+    public IDBManager getDbByConfigContent(String _configString) {
         JSONObject obj = JSONObject.toJSON(_configString);
         if (obj != null) {
             String dbName = obj.getString("dbName").toLowerCase();
@@ -289,12 +289,12 @@ public class DbLayer implements IDBLayer<DbLayer> {
         _db.addConstantCond(fieldName, CondValue);
     }
 
-    public DbLayer and() {
+    public DBLayer and() {
         _db.and();
         return this;
     }
 
-    public DbLayer or() {
+    public DBLayer or() {
         _db.or();
         return this;
     }
@@ -303,7 +303,7 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return _db.nullCondition();
     }
 
-    public DbLayer where(JSONArray condArray) {
+    public DBLayer where(JSONArray condArray) {
         if (condArray == null) {
             condArray = new JSONArray();
         }
@@ -311,7 +311,7 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return this;
     }
 
-    public DbLayer groupCondition(List<List<Object>> conds) {
+    public DBLayer groupCondition(List<List<Object>> conds) {
         if (conds == null) {
             conds = new ArrayList<>();
         }
@@ -319,51 +319,51 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return this;
     }
 
-    public DbLayer groupWhere(JSONArray<JSONObject> conds) {
+    public DBLayer groupWhere(JSONArray<JSONObject> conds) {
         _db.groupWhere(conds);
         return this;
     }
 
-    public DbLayer eq(String field, Object value) {//One Condition
+    public DBLayer eq(String field, Object value) {//One Condition
         _db.eq(field, value);
         return this;
     }
 
-    public DbLayer ne(String field, Object value) {//One Condition
+    public DBLayer ne(String field, Object value) {//One Condition
         _db.ne(field, value);
         return this;
     }
 
-    public DbLayer gt(String field, Object value) {//One Condition
+    public DBLayer gt(String field, Object value) {//One Condition
         _db.gt(field, value);
         return this;
     }
 
-    public DbLayer lt(String field, Object value) {//One Condition
+    public DBLayer lt(String field, Object value) {//One Condition
         _db.lt(field, value);
         return this;
     }
 
-    public DbLayer gte(String field, Object value) {//One Condition
+    public DBLayer gte(String field, Object value) {//One Condition
         _db.gte(field, value);
         return this;
     }
 
-    public DbLayer lte(String field, Object value) {//One Condition
+    public DBLayer lte(String field, Object value) {//One Condition
         _db.lte(field, value);
         return this;
     }
 
-    public DbLayer like(String field, Object value) {
+    public DBLayer like(String field, Object value) {
         _db.like(field, value);
         return this;
     }
 
-    public DbLayer data(String jsonString) {//One Condition
+    public DBLayer data(String jsonString) {//One Condition
         return data(JSONObject.toJSON(jsonString));
     }
 
-    public DbLayer data(JSONObject doc) {//One Condition
+    public DBLayer data(JSONObject doc) {//One Condition
         fieldPiper(doc, inHookFunc);
         _db.data(doc);
         return this;
@@ -373,43 +373,43 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return _db.data();
     }
 
-    public DbLayer field() {
+    public DBLayer field() {
         _db.field();
         return this;
     }
 
-    public DbLayer field(String[] fieldString) {
+    public DBLayer field(String[] fieldString) {
         _db.field(fieldString);
         return this;
     }
 
-    public DbLayer mask(String[] fieldString) {
+    public DBLayer mask(String[] fieldString) {
         _db.mask(fieldString);
         return this;
     }
 
-    public DbLayer form(String _formName) {
+    public DBLayer form(String _formName) {
         formName = _formName;
         _db.form(_formName);
         return this;
     }
 
-    public DbLayer skip(int no) {
+    public DBLayer skip(int no) {
         _db.skip(no);
         return this;
     }
 
-    public DbLayer limit(int no) {
+    public DBLayer limit(int no) {
         _db.limit(no);
         return this;
     }
 
-    public DbLayer asc(String field) {
+    public DBLayer asc(String field) {
         _db.asc(field);
         return this;
     }
 
-    public DbLayer desc(String field) {
+    public DBLayer desc(String field) {
         _db.desc(field);
         return this;
     }
@@ -531,27 +531,27 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return _db.count();
     }
 
-    public DbLayer count(String groupbyString) {
+    public DBLayer count(String groupbyString) {
         _db.count(groupbyString);
         return this;
     }
 
-    public DbLayer max(String groupbyString) {
+    public DBLayer max(String groupbyString) {
         _db.max(groupbyString);
         return this;
     }
 
-    public DbLayer min(String groupbyString) {
+    public DBLayer min(String groupbyString) {
         _db.min(groupbyString);
         return this;
     }
 
-    public DbLayer avg(String groupbyString) {
+    public DBLayer avg(String groupbyString) {
         _db.avg(groupbyString);
         return this;
     }
 
-    public DbLayer sum(String groupbyString) {
+    public DBLayer sum(String groupbyString) {
         _db.sum(groupbyString);
         return this;
     }
@@ -579,13 +579,13 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return _db.insertOnce();
     }
 
-    public DbLayer bind(String ownerID) {
+    public DBLayer bind(String ownerID) {
         ownId = ownerID == null || ownerID.equals("0") ? "" : ownerID;
         _db.bind(ownId);
         return this;
     }
 
-    public DbLayer bind() {
+    public DBLayer bind() {
         int appId = HttpContext.current().appId();
         if (appId != 0) {
             try {
@@ -610,7 +610,7 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return _db.getGeneratedKeys();
     }
 
-    public DbLayer dirty() {
+    public DBLayer dirty() {
         _db.dirty();
         return this;
     }
@@ -635,7 +635,7 @@ public class DbLayer implements IDBLayer<DbLayer> {
         return _db.getCond();
     }
 
-    public DbLayer setCond(List<List<Object>> conJSON) {
+    public DBLayer setCond(List<List<Object>> conJSON) {
         _db.setCond(conJSON);
         return this;
     }
@@ -681,4 +681,11 @@ public class DbLayer implements IDBLayer<DbLayer> {
         public final static int h2 = 4;
     }
 
+    public String tableBuildMeta(String tableName) {
+        return _db.tableBuildMeta(tableName);
+    }
+
+    public boolean buildTableFromMeta(String tableName, String buildMeta) {
+        return _db.buildTableFromMeta(tableName, buildMeta);
+    }
 }

@@ -5,8 +5,8 @@ import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.Authority.Permissions;
 import common.java.Check.FormHelper;
-import common.java.Database.DbFilter;
-import common.java.Database.DbLayer;
+import common.java.Database.DBFilter;
+import common.java.Database.DBLayer;
 import common.java.Http.Server.HttpContext;
 import common.java.InterfaceModel.Type.Aggregation;
 import common.java.ServiceTemplate.SuperItemField;
@@ -28,7 +28,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
     private List<Consumer<GrapeTreeDbLayerModel>> pipeRead;
     private boolean hardMode = false;
     private boolean SuperMode = false;
-    private DbLayer db;
+    private DBLayer db;
     private String pkField = null;
     private FormHelper checker = null;
     private Permissions permissions = null;
@@ -53,7 +53,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         return new GrapeTreeDbLayerModel(modelName);
     }
 
-    public DbLayer getPureDB() {
+    public DBLayer getPureDB() {
         return this.db;
     }
 
@@ -181,7 +181,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         pipeJSONArray_Out = new ArrayList<>();
         pipeRead = new ArrayList<>();
         aggregationJSONArray_Out = null;
-        db = DbLayer.build();
+        db = DBLayer.build();
     }
 
     /**
@@ -521,7 +521,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
     }
 
     private boolean _updateImpl(JSONObject v) {
-        DbFilter q = DbFilter.buildDbFilter();
+        DBFilter q = DBFilter.buildDbFilter();
         if (!permissions.updateFilter(q, v)) {
             HttpContext.current().throwDebugOut("当前用户无权更新数据!");
             return false;
@@ -604,7 +604,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
 
     // 删操作集群
     private boolean _deleteFilter() {
-        DbFilter q = DbFilter.buildDbFilter();
+        DBFilter q = DBFilter.buildDbFilter();
         if (!permissions.deleteFilter(q)) {
             HttpContext.current().throwDebugOut("当前用户无权删除数据!");
             return true;
@@ -674,7 +674,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
 
     private boolean _readFilter() {
         // 处理额外条件
-        DbFilter q = DbFilter.buildDbFilter();
+        DBFilter q = DBFilter.buildDbFilter();
         if (!permissions.readFilter(q)) {
             HttpContext.current().throwDebugOut("当前用户无权访问数据!");
             return false;

@@ -1,6 +1,6 @@
 package common.java.ServiceTemplate;
 
-import common.java.Database.DbLayer;
+import common.java.Database.DBLayer;
 import common.java.Http.Server.HttpContext;
 import common.java.InterfaceModel.Type.InterfaceType;
 import common.java.Rpc.RpcPageInfo;
@@ -9,7 +9,7 @@ import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
 public class MasterServiceTemplate implements MicroServiceTemplateInterface {
-    private DbLayer fdb;
+    private DBLayer fdb;
 
     public MasterServiceTemplate() {
     }
@@ -21,14 +21,14 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
     /**
      * 获得fastDB 设置各类操作回调
      */
-    public DbLayer getPureDB() {
+    public DBLayer getPureDB() {
         fdb.clear();
         return fdb;
     }
 
     @InterfaceType(InterfaceType.type.CloseApi)
     public void init(String tableName) {
-        fdb = DbLayer.build();
+        fdb = DBLayer.build();
         fdb.form(tableName);
     }
 

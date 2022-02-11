@@ -36,7 +36,7 @@ import java.util.function.Function;
  *
  */
 
-public class Sql implements IDBLayer<Sql> {
+public class Sql implements IDBManager<Sql> {
     /**
      *
      */
@@ -727,6 +727,14 @@ public class Sql implements IDBLayer<Sql> {
         return rb;
     }
 
+    public String tableBuildMeta(String tableName) {
+        return getCreateSQL(tableName);
+    }
+
+    public boolean buildTableFromMeta(String tableName, String buildMeta) {
+        return createTable(tableName, buildMeta);
+    }
+
     /**
      * 判断表是否存在，不存在就创建
      *
@@ -945,7 +953,7 @@ public class Sql implements IDBLayer<Sql> {
     }
 
     public Sql groupWhere(JSONArray condArray) {
-        return groupCondition(DbFilter.buildDbFilter(condArray).buildEx());
+        return groupCondition(DBFilter.buildDbFilter(condArray).buildEx());
     }
 
     public Sql groupCondition(List<List<Object>> conds) {

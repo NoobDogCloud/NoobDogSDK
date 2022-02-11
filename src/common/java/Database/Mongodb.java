@@ -35,7 +35,7 @@ import java.util.logging.Level;
  * "nodeAddresses": ["123.57.213.15:27017", "123.57.213.15:27018", "123.57.213.15:27019"]
  * }
  */
-public class Mongodb implements IDBLayer<Mongodb> {
+public class Mongodb implements IDBManager<Mongodb> {
     private static final HashMap<String, MongoClient> DataSource;
     private static final JsonWriterSettings build;
 
@@ -957,7 +957,7 @@ public class Mongodb implements IDBLayer<Mongodb> {
     }
 
     public Mongodb groupWhere(JSONArray<JSONObject> condArray) {
-        return groupCondition(DbFilter.buildDbFilter(condArray).buildEx());
+        return groupCondition(DBFilter.buildDbFilter(condArray).buildEx());
     }
 
     public Mongodb groupCondition(List<List<Object>> conds) {
@@ -1235,5 +1235,11 @@ public class Mongodb implements IDBLayer<Mongodb> {
         return TimeHelper.build().nowTime();
     }
 
+    public String tableBuildMeta(String tableName) {
+        return tableName;
+    }
 
+    public boolean buildTableFromMeta(String tableName, String buildMeta) {
+        return tableName.equals(buildMeta);
+    }
 }

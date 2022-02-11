@@ -5,7 +5,7 @@ import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Apps.MicroService.Model.RBAC.MModelPerm;
 import common.java.Apps.MicroService.Model.RBAC.MModelPermInfo;
 import common.java.Apps.Roles.AppRoles;
-import common.java.Database.DbFilter;
+import common.java.Database.DBFilter;
 import common.java.ServiceTemplate.SuperItemField;
 import common.java.Session.UserSession;
 import org.json.gsc.JSONObject;
@@ -41,7 +41,7 @@ public class Permissions {
         };
     }
 
-    private boolean queryFilter(DbFilter dbf, MModelPermInfo perm) {
+    private boolean queryFilter(DBFilter dbf, MModelPermInfo perm) {
         if (perm == null) {        // 当前操作未定义权限,操作不限
             return true;
         }
@@ -95,7 +95,7 @@ public class Permissions {
     }
 
     // 读操作,增加过滤条件
-    public boolean readFilter(DbFilter dbf) {
+    public boolean readFilter(DBFilter dbf) {
         return isAdmin() || queryFilter(dbf, perms.readPerm());
     }
 
@@ -133,12 +133,12 @@ public class Permissions {
     }
 
     // 删操作,增加过滤条件
-    public boolean deleteFilter(DbFilter dbf) {
+    public boolean deleteFilter(DBFilter dbf) {
         return isAdmin() || queryFilter(dbf, perms.deletePerm());
     }
 
     // 改操作,补充完善字段和增加过滤条件
-    public boolean updateFilter(DbFilter dbf, JSONObject data) {
+    public boolean updateFilter(DBFilter dbf, JSONObject data) {
         MModelPermInfo perm = perms.updatePerm();
         return isAdmin() || (queryFilter(dbf, perm) && completeFilter(data, perm));
     }

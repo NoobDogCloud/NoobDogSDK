@@ -3,8 +3,8 @@ package common.java.ServiceTemplate;
 import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Apps.MicroService.Model.MModelRuleNode;
 import common.java.Check.CheckResult;
-import common.java.Database.DbFilter;
-import common.java.Database.DbLayer;
+import common.java.Database.DBFilter;
+import common.java.Database.DBLayer;
 import common.java.Http.Server.Db.HttpContextDb;
 import common.java.Http.Server.HttpContext;
 import common.java.InterfaceModel.GrapeTreeDbLayerModel;
@@ -122,7 +122,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     /**
      * 返回纯db对象
      */
-    public DbLayer getPureDB() {
+    public DBLayer getPureDB() {
         return this.db.getPureDB();
     }
 
@@ -322,7 +322,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     }
 
     public int _ids(String fieldName, String ids) {
-        DbFilter dbf = DbFilter.buildDbFilter();
+        DBFilter dbf = DBFilter.buildDbFilter();
         if (StringHelper.isInvalided(ids)) {
             return 0;
         }
