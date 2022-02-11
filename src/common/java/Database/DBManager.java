@@ -33,7 +33,9 @@ public class DBManager {
                     .put("data", db.form(tableName).select());
             builder.put(tableName, tableInfo);
         }
-        FileText.build(outFile).write(builder.toString());
+        if (!JSONObject.isInvalided(builder)) {
+            FileText.build(outFile).write(builder.toString());
+        }
     }
 
     // 导入数据库
