@@ -37,8 +37,12 @@ public class GscBooster {
                 case "-h" -> {
                     var host = argArr.get(key).toString();
                     var masterUrl = host.split(":");
-                    Config.masterHost = masterUrl[0];
-                    Config.masterPort = Integer.parseInt(masterUrl[1]);
+                    if (masterUrl.length == 2) {
+                        Config.masterHost = masterUrl[0];
+                        Config.masterPort = Integer.parseInt(masterUrl[1]);
+                    } else {
+                        throw new RuntimeException("主控地址格式错误，格式为：主机名:端口号");
+                    }
                 }
                 case "-p" -> Config.port = Integer.parseInt(argArr.get(key).toString());
                 case "-k" -> {
