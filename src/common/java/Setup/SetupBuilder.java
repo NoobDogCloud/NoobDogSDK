@@ -6,7 +6,7 @@ import common.java.nLogger.nLogger;
 import java.io.File;
 import java.util.function.BooleanSupplier;
 
-public class SetupBuilder implements ISetup {
+public class SetupBuilder {
     private static SetupBuilder instance;
     private final File locker;
     private final BooleanSupplier supplier;

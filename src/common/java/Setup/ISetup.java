@@ -2,7 +2,11 @@ package common.java.Setup;
 
 public interface ISetup {
     // 安装
-    boolean install();
+    static boolean install() {
+        return false;
+    }
 
-    boolean reInstall();
+    static boolean reInstall() {
+        return false;
+    }
 }
