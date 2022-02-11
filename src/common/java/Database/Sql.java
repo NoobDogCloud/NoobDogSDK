@@ -1333,15 +1333,20 @@ public class Sql implements IDBManager<Sql> {
 
     protected List<String> col2list(ResultSet rst) {
         List<String> tableList = new ArrayList<>();
-        ResultSetMetaData m;
+        // ResultSetMetaData m;
         try {
-            m = rst.getMetaData();//获取 列信息
-            int columns = m.getColumnCount();
-            while (rst.next()) {
+            // m = rst.getMetaData();//获取 列信息 // int columns = m.getColumnCount();
+            if (rst.getMetaData().getColumnCount() > 0) {
+                while (rst.next()) {
+                /*
                 for (int i = 1; i <= columns; i++) {
                     tableList.add(rst.getObject(i).toString());
                 }
+                */
+                    tableList.add(rst.getObject(0).toString());
+                }
             }
+
         } catch (Exception e) {
             tableList = null;
             nLogger.logInfo(e);
@@ -1490,21 +1495,19 @@ public class Sql implements IDBManager<Sql> {
     }
 
     //获得全部表
-    public List<String> getAllTables() {
+    public String[] getAllTables() {
         List<String> rs = null;
         Connection conn = getNewConnection();
         try {
             Statement smt = conn.createStatement();
-            String sql = "show tables";
-            TransactSQLInjection(sql);
-            rs = col2list(smt.executeQuery(sql));
+            rs = col2list(smt.executeQuery(TransactSQLInjection("show tables")));
         } catch (Exception e) {
             nLogger.logInfo(e);
         } finally {
             reinit();
             _Close(conn);
         }
-        return rs;
+        return rs.toArray(new String[rs.size()]);
     }
 
     public boolean run(String cmd) {

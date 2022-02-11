@@ -1139,13 +1139,13 @@ public class Mongodb implements IDBManager<Mongodb> {
         return this;
     }
 
-    public List<String> getAllTables() {
+    public String[] getAllTables() {
         List<String> rArray = new ArrayList<>();
         MongoIterable<String> clist = mongoDatabase.listCollectionNames();
         for (String s : clist) {
             rArray.add(s);
         }
-        return rArray;
+        return rArray.toArray(new String[rArray.size()]);
     }
 
     public boolean run(String cmd) {

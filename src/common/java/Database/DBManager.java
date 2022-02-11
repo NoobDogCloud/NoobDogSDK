@@ -19,6 +19,10 @@ public class DBManager {
     }
 
     // 导出数据库
+    public void doExport(File outFile) {
+        doExport(db.getAllTables(), outFile);
+    }
+
     public void doExport(String[] tableNameArr, File outFile) {
         JSONObject builder = new JSONObject();
         for (String tableName : tableNameArr) {

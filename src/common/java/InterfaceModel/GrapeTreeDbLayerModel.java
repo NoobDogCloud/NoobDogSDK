@@ -915,9 +915,11 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         return this;
     }
 
-    public List<String> getAllTables() {
+    /*
+    public String[] getAllTables() {
         return this.db.getAllTables();
     }
+    */
 
     public boolean run(String cmd) {
         return this.db.run(cmd);

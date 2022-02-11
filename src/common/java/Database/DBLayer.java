@@ -640,7 +640,7 @@ public class DBLayer implements IDBManager<DBLayer> {
         return this;
     }
 
-    public List<String> getAllTables() {
+    public String[] getAllTables() {
         return _db.getAllTables();
     }
 

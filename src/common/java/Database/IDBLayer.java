@@ -161,8 +161,6 @@ public interface IDBLayer<T> {
 
     T setCond(List<List<Object>> conJSON);
 
-    List<String> getAllTables();
-
     String getConditionString();
 
     boolean run(String cmd);
