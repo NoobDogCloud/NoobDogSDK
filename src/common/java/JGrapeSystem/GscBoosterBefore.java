@@ -5,7 +5,7 @@ import common.java.Http.Server.HttpContext;
 import common.java.Time.TimeHelper;
 import common.java.nLogger.nLogger;
 
-public class GscBooterBefore {
+public class GscBoosterBefore {
     public static void _before(String serverName) {
         // 设置日志回调
         nLogger.setDebug(Config.debug);

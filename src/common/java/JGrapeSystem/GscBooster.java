@@ -117,7 +117,7 @@ public class GscBooster {
                 Config.port = port;
             }
             // 设置日志过滤器
-            GscBooterBefore._before(serverName);
+            GscBoosterBefore._before(serverName);
             // 载入全部服务类到内存
             if (func != null) {
                 func.run();
