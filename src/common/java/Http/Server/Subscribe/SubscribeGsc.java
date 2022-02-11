@@ -135,7 +135,13 @@ public class SubscribeGsc {
     // 获得主题数据刷新数据
     private static boolean getUpdateStatus(String topic) {
         if (distribution_subscribe != null) {
-            return distribution_subscribe.pullStatus(topic);
+            Boolean b = distribution_subscribe.pullStatus(topic);
+            if (b == null) {
+                // 如果分布式故障，清空
+                nLogger.errorInfo("分布式订阅中间件故障，回退到本地默认订阅模式");
+                distribution_subscribe = null;
+            }
+            return b;
         } else {
             return Room.getInstance(topic).getUpdateStatus();
         }
@@ -143,7 +149,10 @@ public class SubscribeGsc {
 
     private static void _onChanged(String topic, Room room) {
         if (distribution_subscribe != null) {
-            distribution_subscribe.pushStatus(topic);
+            if (distribution_subscribe.pushStatus(topic) == null) {
+                nLogger.errorInfo("分布式订阅中间件故障，回退到本地默认订阅模式");
+                distribution_subscribe = null;
+            }
         }
         room.fleshSyncUpdateTime();
     }
