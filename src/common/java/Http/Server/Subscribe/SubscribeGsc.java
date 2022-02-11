@@ -29,6 +29,8 @@ public class SubscribeGsc {
         heart_thread.scheduleAtFixedRate(() -> {
             try {
                 Room.foreach(room -> {
+                    // 需要请求时上下文
+
                     String topic = room.getTopic();
                     long n = TimeHelper.getNowTimestampByZero();
                     // 包含需要更新数据
@@ -93,7 +95,7 @@ public class SubscribeGsc {
         JSONObject header = ctx.header();
         if (header != null) {
             if (header.containsKey(HttpContext.GrapeHttpHeader.WebSocketHeader.wsTopic)) {
-                topic = header.getString(HttpContext.GrapeHttpHeader.WebSocketHeader.wsTopic);
+                topic = header.getString(HttpContext.GrapeHttpHeader.WebSocketHeader.wsTopic) + "_" + ctx.appId();
             }
         }
         //  +topic 定义 or topic 定义 并 appId

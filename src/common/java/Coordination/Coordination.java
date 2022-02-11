@@ -22,7 +22,6 @@ public class Coordination {
     private Coordination() {
     }
 
-
     public static Coordination build(JSONObject data) {
         // 必须先运行 getInstance 写入实例句柄，才可以载入（载入会用到 Coordination 自身）
         getInstance().init(data);
@@ -59,7 +58,10 @@ public class Coordination {
     public AppContext getAppContext(int appId) {
         AppContext ctx = app_context.get(appId);
         if (ctx == null) {
-            HttpContext.current().throwOut("当前应用id[" + appId + "]无效!");
+            var hCtx = HttpContext.current();
+            if (hCtx != null) {
+                hCtx.throwOut("当前应用id[" + appId + "]无效!");
+            }
         }
         return ctx;
     }
@@ -67,7 +69,10 @@ public class Coordination {
     public AppContext getAppContext(String domain) {
         Integer appId = domain_context.get(domain);
         if (appId == null) {
-            HttpContext.current().throwOut("当前域名[" + domain + "]未绑定!");
+            var hCtx = HttpContext.current();
+            if (hCtx != null) {
+                hCtx.throwOut("当前域名[" + domain + "]未绑定!");
+            }
         }
         return getAppContext(appId);
     }
@@ -77,7 +82,10 @@ public class Coordination {
         AppContext app_ctx = getAppContext(appId);
         MicroServiceContext msc_ctx = app_ctx.service(serviceName);
         if (msc_ctx == null) {
-            HttpContext.current().throwOut("当前服务[" + serviceName + "]未部署在应用[" + appId + "]!");
+            var hCtx = HttpContext.current();
+            if (hCtx != null) {
+                hCtx.throwOut("当前服务[" + serviceName + "]未部署在应用[" + appId + "]!");
+            }
         }
         return msc_ctx;
     }

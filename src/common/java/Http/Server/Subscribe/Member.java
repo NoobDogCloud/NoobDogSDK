@@ -7,8 +7,8 @@ import org.json.gsc.JSONObject;
 
 
 public class Member {
-    private ChannelHandlerContext ch;             // 通讯对象
-    private HttpContext queryTask;  // 查询任务
+    private ChannelHandlerContext ch;               // 通讯对象
+    private HttpContext queryTask;                  // 查询任务
 
     private Member(ChannelHandlerContext ch, HttpContext task) {
         this.ch = ch;
