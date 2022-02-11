@@ -2,6 +2,7 @@ package common.java.Http.Server.Subscribe;
 
 import common.java.Cache.CacheHelper;
 import common.java.Coordination.Coordination;
+import common.java.nLogger.nLogger;
 
 /**
  * 一个默认的分布式订阅类
@@ -12,7 +13,16 @@ public class DistributionSubscribe implements DistributionSubscribeInterface {
 
     private CacheHelper getCa(String topic) {
         if (ca == null) {
-            var appCfg = Coordination.getInstance().getAppContext(getAppId(topic)).config().cache();
+            var appId = getAppId(topic);
+            var ctx = Coordination.getInstance().getAppContext(appId);
+            if (ctx == null) {
+                nLogger.errorInfo("当前应用[" + appId + "]无效");
+                return null;
+            }
+            var appCfg = ctx.config().cache();
+            if (appCfg == null) {
+                nLogger.errorInfo("当前应用[" + appId + "]没有配置缓存");
+            }
             ca = CacheHelper.build(appCfg);
         }
         return ca;
