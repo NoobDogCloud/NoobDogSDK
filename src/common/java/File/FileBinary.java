@@ -11,18 +11,18 @@ import java.nio.MappedByteBuffer;
 /**
  * 不用本类时,一定要手动调用 release
  */
-public class FileBinrary extends FileHelper<FileBinrary> {
+public class FileBinary extends FileHelper<FileBinary> {
 
-    private FileBinrary(File file) {
+    private FileBinary(File file) {
         super(file);
     }
 
-    public static FileBinrary build(String filePath) {
-        return new FileBinrary(new File(filePath));
+    public static FileBinary build(String filePath) {
+        return new FileBinary(new File(filePath));
     }
 
-    public static FileBinrary build(File file) {
-        return new FileBinrary(file);
+    public static FileBinary build(File file) {
+        return new FileBinary(file);
     }
 
     public ByteBuf slice(long offset, int length) {
@@ -54,7 +54,7 @@ public class FileBinrary extends FileHelper<FileBinrary> {
         return buff;
     }
 
-    public boolean write(ByteBuf in, int length) {
+    public boolean write(ByteBuf in) {
         try {
             super.getOutputStream().write(in.array());
             return true;
@@ -64,7 +64,7 @@ public class FileBinrary extends FileHelper<FileBinrary> {
         }
     }
 
-    public FileBinrary append(ByteBuf in) {
+    public FileBinary append(ByteBuf in) {
         try (FileOutputStream fos = new FileOutputStream(this.file, true)) {
             fos.write(in.array());
             fos.flush();

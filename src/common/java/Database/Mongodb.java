@@ -1145,7 +1145,7 @@ public class Mongodb implements IDBManager<Mongodb> {
         for (String s : clist) {
             rArray.add(s);
         }
-        return rArray.toArray(new String[rArray.size()]);
+        return rArray.toArray(new String[0]);
     }
 
     public boolean run(String cmd) {
