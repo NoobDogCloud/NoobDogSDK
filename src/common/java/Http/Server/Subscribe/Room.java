@@ -27,8 +27,11 @@ public class Room {
     // 主题最后广播时间
     private final AtomicLong broadcastTime = new AtomicLong(0);
 
-    private Room(String Topic) {
+    private final int appId;
+
+    private Room(String Topic, int appId) {
         topic = Topic;
+        this.appId = appId;
         memberArr = new ConcurrentHashMap<>();
     }
 
@@ -44,18 +47,34 @@ public class Room {
         }
     }
 
-    public static Room getInstance(String Topic) {
-        if (room_pool.containsKey(Topic)) {
-            return room_pool.get(Topic);
+    public static Room getInstance(String Topic, int appId, DistributionSubscribeInterface distribution_subscribe) {
+        String _topic = getTopicWithAppID(Topic, appId);
+        if (room_pool.containsKey(_topic)) {
+            return room_pool.get(_topic);
         } else {
-            Room room = new Room(Topic);
-            room_pool.put(Topic, room);
+            Room room = new Room(Topic, appId);
+            room_pool.put(_topic, room);
+            if (distribution_subscribe != null) {
+                distribution_subscribe.pushStatus(room);
+            }
             return room;
         }
     }
 
+    public static String getTopicWithAppID(String topic, int appId) {
+        return topic + "_" + appId;
+    }
+
+    public String getTopicWithAppID() {
+        return topic + "_" + appId;
+    }
+
     public String getTopic() {
         return topic;
+    }
+
+    public int getAppId() {
+        return appId;
     }
 
     public boolean getUpdateStatus() {
@@ -123,7 +142,7 @@ public class Room {
 
     // 释放房间
     private void releaseRoom() {
-        room_pool.remove(topic);
+        room_pool.remove(getTopicWithAppID());
     }
 
     // 成员更新数据

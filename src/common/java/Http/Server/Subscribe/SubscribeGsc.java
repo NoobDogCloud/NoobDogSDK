@@ -30,14 +30,12 @@ public class SubscribeGsc {
             try {
                 Room.foreach(room -> {
                     // 需要请求时上下文
-
-                    String topic = room.getTopic();
                     long n = TimeHelper.getNowTimestampByZero();
                     // 包含需要更新数据
-                    if (getUpdateStatus(topic)) {
+                    if (getUpdateStatus(room)) {
                         // 50ms未动 or 距离上次同步超过500ms => 推送同步数据时间戳
                         if ((n - room.getUpdateTime() > 50) || (n - room.getSyncUpdateTime() > 500)) {
-                            _onChanged(topic, room);
+                            _onChanged(room);
                         }
                         // 距离上次广播数据超过1000ms
                         if (n - room.getBroadcastTime() > 1000) {
@@ -76,8 +74,9 @@ public class SubscribeGsc {
         }
         String[] arr = _path.split("/");
         HttpContext ctx = HttpContext.current();
-        int appId = ctx == null ? 0 : ctx.appId();
-        return (arr.length < (3 + offset) ? null : arr[(1 + offset)] + "#" + arr[(2 + offset)]) + "_" + appId;
+        // int appId = ctx == null ? 0 : ctx.appId();
+        // return (arr.length < (3 + offset) ? null : arr[(1 + offset)] + "#" + arr[(2 + offset)]) + "_" + appId;
+        return (arr.length < (3 + offset) ? null : arr[(1 + offset)] + "#" + arr[(2 + offset)]);
     }
 
     private static String getAutoTopic(HttpContext ctx) {
@@ -95,7 +94,7 @@ public class SubscribeGsc {
         JSONObject header = ctx.header();
         if (header != null) {
             if (header.containsKey(HttpContext.GrapeHttpHeader.WebSocketHeader.wsTopic)) {
-                topic = header.getString(HttpContext.GrapeHttpHeader.WebSocketHeader.wsTopic) + "_" + ctx.appId();
+                topic = header.getString(HttpContext.GrapeHttpHeader.WebSocketHeader.wsTopic);
             }
         }
         //  +topic 定义 or topic 定义 并 appId
@@ -109,24 +108,30 @@ public class SubscribeGsc {
         String topic = getTopic(ctx);
         if (h.containsKey("mode")) {
             String mode = h.getString("mode");
+            var appId = ctx.appId();
             switch (mode) {
-                case "subscribe" -> updateOrCreate(topic).add(ctx.channelContext(), ctx);
-                case "update" -> update(topic);
+                case "subscribe" -> updateOrCreate(topic, appId).add(ctx.channelContext(), ctx);
+                case "update" -> update(topic, appId);
                 default -> cancel(ctx.channelContext());
             }
         }
         return topic;
     }
+
     // -----------------------------------------------------------
     // 获得房间对象
-    private static Room updateOrCreate(String topic) {
-        return Room.getInstance(topic);
+    private static Room updateOrCreate(String topic, int appId) {
+        return Room.getInstance(topic, appId, distribution_subscribe);
     }
 
     // 处理主题更新
-    private static void update(String topic) {
+    private static void update(String topic, int appId) {
         // 标志有新数据,记录数据更新时间
-        updateOrCreate(topic).fleshUpdateStatus().fleshUpdateTime();
+        var room = updateOrCreate(topic, appId);
+        room.fleshUpdateStatus().fleshUpdateTime();
+        if (distribution_subscribe != null) {
+            distribution_subscribe.fleshStatus(room);
+        }
     }
 
     // 处理断开连接或者取消订阅
@@ -135,9 +140,9 @@ public class SubscribeGsc {
     }
 
     // 获得主题数据刷新数据
-    private static boolean getUpdateStatus(String topic) {
+    private static boolean getUpdateStatus(Room room) {
         if (distribution_subscribe != null) {
-            Boolean b = distribution_subscribe.pullStatus(topic);
+            Boolean b = distribution_subscribe.pullStatus(room);
             if (b == null) {
                 // 如果分布式故障，清空
                 nLogger.errorInfo("分布式订阅中间件故障，回退到本地默认订阅模式");
@@ -145,13 +150,13 @@ public class SubscribeGsc {
             }
             return b;
         } else {
-            return Room.getInstance(topic).getUpdateStatus();
+            return room.getUpdateStatus();
         }
     }
 
-    private static void _onChanged(String topic, Room room) {
+    private static void _onChanged(Room room) {
         if (distribution_subscribe != null) {
-            if (distribution_subscribe.pushStatus(topic) == null) {
+            if (distribution_subscribe.pushStatus(room) == null) {
                 nLogger.errorInfo("分布式订阅中间件故障，回退到本地默认订阅模式");
                 distribution_subscribe = null;
             }

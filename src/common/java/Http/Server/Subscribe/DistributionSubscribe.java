@@ -11,9 +11,8 @@ import common.java.nLogger.nLogger;
 public class DistributionSubscribe implements DistributionSubscribeInterface {
     private static CacheHelper ca;
 
-    private CacheHelper getCa(String topic) {
+    private CacheHelper getCa(int appId) {
         if (ca == null) {
-            var appId = getAppId(topic);
             var ctx = Coordination.getInstance().getAppContext(appId);
             if (ctx == null) {
                 nLogger.errorInfo("当前应用[" + appId + "]无效");
@@ -29,12 +28,24 @@ public class DistributionSubscribe implements DistributionSubscribeInterface {
     }
 
     // 推送 主题更新时间
-    public Boolean pushStatus(String topic) {
-        String _topic = getDistributionKey(topic);
+    public Boolean pushStatus(Room room) {
         try {
-            CacheHelper ca = getCa(topic);
-            ca.set(_topic, true);
-            ca.setExpire(_topic, 86400 * 1000);
+            String topic = getDistributionKey(room.getTopicWithAppID());
+            CacheHelper ca = getCa(room.getAppId());
+            ca.set(topic, false);
+            ca.setExpire(topic, 86400 * 1000);
+            return true;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    // 设置 主题更新状态
+    public Boolean fleshStatus(Room room) {
+        try {
+            String topic = getDistributionKey(room.getTopicWithAppID());
+            getCa(room.getAppId()).set(topic, true);
+            ca.setExpire(topic, 86400 * 1000);
             return true;
         } catch (Exception e) {
             return null;
@@ -42,9 +53,9 @@ public class DistributionSubscribe implements DistributionSubscribeInterface {
     }
 
     // 拉取 主题更新状态
-    public Boolean pullStatus(String topic) {
+    public Boolean pullStatus(Room room) {
         try {
-            return getCa(topic).getBoolean(getDistributionKey(topic));
+            return getCa(room.getAppId()).getBoolean(getDistributionKey(room.getTopicWithAppID()));
         } catch (Exception e) {
             return null;
         }
