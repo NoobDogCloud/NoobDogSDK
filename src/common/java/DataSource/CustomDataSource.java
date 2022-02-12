@@ -23,6 +23,10 @@ public class CustomDataSource {
         store = DataSourceManager.add(topic);
     }
 
+    public static CustomDataSource build() {
+        return new CustomDataSource();
+    }
+
     private String createTopic() {
         var ctx = HttpContext.current();
         String appId = StringHelper.toString(ctx == null ? 0 : ctx.appId());
