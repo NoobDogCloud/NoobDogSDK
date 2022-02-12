@@ -1,5 +1,8 @@
-package common.java.Http.Server.Subscribe;
+package common.java.Http.Server.ApiSubscribe;
 
+import common.java.DataSource.Subscribe.DistributionSubscribe;
+import common.java.DataSource.Subscribe.DistributionSubscribeInterface;
+import common.java.DataSource.Subscribe.Room;
 import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
 import common.java.Time.TimeHelper;
@@ -120,12 +123,12 @@ public class SubscribeGsc {
 
     // -----------------------------------------------------------
     // 获得房间对象
-    private static Room updateOrCreate(String topic, int appId) {
+    public static Room updateOrCreate(String topic, int appId) {
         return Room.getInstance(topic, appId, distribution_subscribe);
     }
 
     // 处理主题更新
-    private static void update(String topic, int appId) {
+    public static void update(String topic, int appId) {
         // 标志有新数据,记录数据更新时间
         var room = updateOrCreate(topic, appId);
         room.fleshUpdateStatus().fleshUpdateTime();

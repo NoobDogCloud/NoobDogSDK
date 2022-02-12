@@ -1,4 +1,4 @@
-package common.java.Http.Server.Subscribe;
+package common.java.DataSource.Subscribe;
 
 import common.java.Http.Server.HttpContext;
 import common.java.Time.TimeHelper;
@@ -13,7 +13,6 @@ import java.util.function.Consumer;
 public class Room {
     // 全局 房间池
     private static final ConcurrentHashMap<String, Room> room_pool = new ConcurrentHashMap<>();
-
     // 房间成员记录
     private final ConcurrentHashMap<ChannelId, Member> memberArr;
     // 房间主题
@@ -26,13 +25,30 @@ public class Room {
     private final AtomicLong syncUpdateTime = new AtomicLong(0);
     // 主题最后广播时间
     private final AtomicLong broadcastTime = new AtomicLong(0);
-
+    // 应用id
     private final int appId;
+    // 成员广播任务
+    private Consumer<Member> refreshFunc;
+    // 加入成员时 hook
+    private Consumer<Member> joinFunc;
+    // 离开成员时 hook
+    private Consumer<Member> leaveFunc;
 
     private Room(String Topic, int appId) {
         topic = Topic;
         this.appId = appId;
+        this.refreshFunc = null;
         memberArr = new ConcurrentHashMap<>();
+    }
+
+    public Room setJoinHook(Consumer<Member> joinFunc) {
+        this.joinFunc = joinFunc;
+        return this;
+    }
+
+    public Room setLeaveHook(Consumer<Member> leaveFunc) {
+        this.leaveFunc = leaveFunc;
+        return this;
     }
 
     public static void removeMember(ChannelId cid) {
@@ -126,7 +142,11 @@ public class Room {
         if ((memberArr.containsKey(cid))) {
             memberArr.get(cid).setQueryTask(task);
         } else {
-            memberArr.put(cid, Member.build(ch, task));
+            Member member = Member.build(ch, task).setRefreshFunc(refreshFunc);
+            memberArr.put(cid, member);
+            if (joinFunc != null) {
+                joinFunc.accept(member);
+            }
         }
         return memberArr.get(cid);
     }
@@ -134,6 +154,9 @@ public class Room {
     // 成员退出
     public Room leave(ChannelId cid) {
         memberArr.remove(cid);
+        if (leaveFunc != null) {
+            leaveFunc.accept(memberArr.get(cid));
+        }
         if (memberArr.size() == 0) {
             this.releaseRoom();
         }
@@ -151,5 +174,16 @@ public class Room {
             m.refresh();
         }
         this.fleshBroadcastTime();
+    }
+
+    // 修改成员数据更新默认方法
+    public Room updateRefreshFunc(Consumer<Member> func) {
+        if (func != null) {
+            this.refreshFunc = func;
+            for (Member m : memberArr.values()) {
+                m.setRefreshFunc(func);
+            }
+        }
+        return this;
     }
 }

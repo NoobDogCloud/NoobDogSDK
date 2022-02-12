@@ -13,6 +13,7 @@ import org.json.gsc.JSONObject;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ExecRequest {//框架内请求类
@@ -65,14 +66,37 @@ public class ExecRequest {//框架内请求类
         return r;
     }
 
+    private static boolean IsGlobalService(HttpContext ctx) {
+        return ctx.serviceName().toLowerCase(Locale.ROOT).equals("global");
+    }
+
+    private static Object CustomDataSource(HttpContext ctx) {
+        // 不是全局服务
+        if (!IsGlobalService(ctx)) {
+            return null;
+        }
+        var header = ctx.header();
+        String mode = header.getString(HttpContext.GrapeHttpHeader.WebSocketHeader.wsMode);
+        if (mode == null) {
+            return null;
+        }
+        String topic = header.getString(HttpContext.GrapeHttpHeader.WebSocketHeader.wsTopic);
+        if (topic == null) {
+            return null;
+        }
+
+    }
+
     /**
      * 全局服务
      */
     private static Object global_class_service(HttpContext ctx) {
         Object rs = null;
         try {
-            if ("@getModel".equalsIgnoreCase(ctx.className())) {
-                rs = ModelDesc(ctx);
+            switch (ctx.className()) {
+                // 获得服务模型
+                case "@getModel" -> rs = ModelDesc(ctx);
+                case "@subscribeCustomDataSource" -> rs = CustomDataSource(ctx);
             }
         } catch (Exception e) {
             rs = "系统服务[" + ctx.className() + "]异常";

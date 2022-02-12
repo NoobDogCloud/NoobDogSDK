@@ -1,4 +1,4 @@
-package common.java.Http.Server.Subscribe;
+package common.java.DataSource.Subscribe;
 
 public interface DistributionSubscribeInterface {
     String prefix = "GSC_DistributionSubscribe_";

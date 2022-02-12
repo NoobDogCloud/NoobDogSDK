@@ -1,14 +1,17 @@
-package common.java.Http.Server.Subscribe;
+package common.java.DataSource.Subscribe;
 
 import common.java.Http.Server.GrapeHttpServer;
 import common.java.Http.Server.HttpContext;
 import io.netty.channel.ChannelHandlerContext;
 import org.json.gsc.JSONObject;
 
+import java.util.function.Consumer;
+
 
 public class Member {
     private ChannelHandlerContext ch;               // 通讯对象
     private HttpContext queryTask;                  // 查询任务
+    private Consumer<Member> refreshTask;                   // 刷新任务
 
     private Member(ChannelHandlerContext ch, HttpContext task) {
         this.ch = ch;
@@ -16,10 +19,20 @@ public class Member {
         // 存留任务时，删除 mode 头字段，防止重复订阅
         h.remove("mode");
         this.queryTask = task;
+        this.refreshTask = m -> {
+            GrapeHttpServer._startService(m.ch, m.queryTask);
+        };
     }
 
     public static Member build(ChannelHandlerContext ch, HttpContext task) {
         return new Member(ch, task);
+    }
+
+    public Member setRefreshFunc(Consumer<Member> func) {
+        if (func != null) {
+            refreshTask = func;
+        }
+        return this;
     }
 
     public ChannelHandlerContext getCh() {
@@ -39,6 +52,6 @@ public class Member {
     }
 
     public void refresh() {
-        GrapeHttpServer._startService(ch, queryTask);
+        refreshTask.accept(this);
     }
 }
