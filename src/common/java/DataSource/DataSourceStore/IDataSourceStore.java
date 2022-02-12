@@ -2,21 +2,27 @@ package common.java.DataSource.DataSourceStore;
 
 import java.util.List;
 
-public interface IDataSourceStore<T> {
+public interface IDataSourceStore {
     // 添加数据
-    boolean add(T value);
+    boolean add(Object value);
 
     // 获得最新数据
-    T first();
+    Object first();
 
     // 获得最新未读数据
-    List<T> news(int start);
+    List<Object> news(int start);
 
-    List<T> all();
+    List<Object> all();
 
     // 清空数据
     void clear();
 
     // 获得数据长度
     int size();
+
+    // 创建本身类新实例
+    IDataSourceStore newInstance();
+
+    // 数据是否有更新
+    // boolean isUpdate();
 }

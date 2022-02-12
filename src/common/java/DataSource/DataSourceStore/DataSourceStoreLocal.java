@@ -3,28 +3,29 @@ package common.java.DataSource.DataSourceStore;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataSourceLocal<T> implements IDataSourceStore<T> {
-    private final List<T> dataSource;
+public class DataSourceStoreLocal implements IDataSourceStore {
+    private final List<Object> dataSource;
+    private final boolean updateStatus = false;
 
-    private DataSourceLocal() {
+    private DataSourceStoreLocal() {
         dataSource = new ArrayList<>();
     }
 
-    public static <T> DataSourceLocal<T> build() {
-        return new DataSourceLocal<>();
+    public static DataSourceStoreLocal build() {
+        return new DataSourceStoreLocal();
     }
 
-    public boolean add(T value) {
+    public boolean add(Object value) {
         return dataSource.add(value);
     }
 
-    public T first() {
+    public Object first() {
         var l = dataSource.size();
         return l > 0 ? dataSource.get(l - 1) : null;
     }
 
-    public List<T> news(int index) {
-        List<T> r = new ArrayList<>();
+    public List<Object> news(int index) {
+        List<Object> r = new ArrayList<>();
         for (int i = index, l = dataSource.size(); i < l; i++) {
             if (i < l) {
                 r.add(dataSource.get(i));
@@ -42,7 +43,11 @@ public class DataSourceLocal<T> implements IDataSourceStore<T> {
     }
 
     // 获得全部数据
-    public List<T> all() {
+    public List<Object> all() {
         return dataSource;
+    }
+
+    public DataSourceStoreLocal newInstance() {
+        return new DataSourceStoreLocal();
     }
 }

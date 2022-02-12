@@ -33,6 +33,10 @@ public class Room {
     private Consumer<Member> joinFunc;
     // 离开成员时 hook
     private Consumer<Member> leaveFunc;
+    // 房间销毁时 hook
+    private Consumer<Room> destroyFunc;
+    // 准备广播时 hook
+    private Consumer<Room> broadcastFunc;
 
     private Room(String Topic, int appId) {
         topic = Topic;
@@ -48,6 +52,16 @@ public class Room {
 
     public Room setLeaveHook(Consumer<Member> leaveFunc) {
         this.leaveFunc = leaveFunc;
+        return this;
+    }
+
+    public Room setBroadcastHook(Consumer<Room> broadcastFunc) {
+        this.broadcastFunc = broadcastFunc;
+        return this;
+    }
+
+    public Room setRoomDestroy(Consumer<Room> destroyFunc) {
+        this.destroyFunc = destroyFunc;
         return this;
     }
 
@@ -165,11 +179,17 @@ public class Room {
 
     // 释放房间
     private void releaseRoom() {
+        if (destroyFunc != null) {
+            destroyFunc.accept(this);
+        }
         room_pool.remove(getTopicWithAppID());
     }
 
     // 成员更新数据
     public void update() {
+        if (broadcastFunc != null) {
+            broadcastFunc.accept(this);
+        }
         for (Member m : memberArr.values()) {
             m.refresh();
         }

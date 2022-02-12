@@ -19,14 +19,12 @@ import java.util.concurrent.TimeUnit;
  */
 
 public class SubscribeGsc {
-
-    private static final ScheduledExecutorService heart_thread;
-
     private static DistributionSubscribeInterface distribution_subscribe = null;
 
     // 定时检测任务
     // 负责 数据新鲜度 同步监测
     // 负责 数据一致性 同步监测
+    private static final ScheduledExecutorService heart_thread;
     static {
         heart_thread = Executors.newSingleThreadScheduledExecutor();
         heart_thread.scheduleAtFixedRate(() -> {
@@ -41,7 +39,7 @@ public class SubscribeGsc {
                             _onChanged(room);
                         }
                         // 距离上次广播数据超过1000ms
-                        if (n - room.getBroadcastTime() > 1000) {
+                        if (n - room.getBroadcastTime() > 5000) {
                             // 刷新房间内所有用户数据
                             room.update();
                         }
@@ -50,7 +48,7 @@ public class SubscribeGsc {
             } catch (Exception e) {
                 nLogger.logInfo(e);
             }
-        }, 0, 50, TimeUnit.MILLISECONDS);
+        }, 50, 50, TimeUnit.MILLISECONDS);
     }
 
     /**
@@ -158,12 +156,14 @@ public class SubscribeGsc {
     }
 
     private static void _onChanged(Room room) {
+        /*
         if (distribution_subscribe != null) {
             if (distribution_subscribe.pushStatus(room) == null) {
                 nLogger.errorInfo("分布式订阅中间件故障，回退到本地默认订阅模式");
                 distribution_subscribe = null;
             }
         }
+        */
         room.fleshSyncUpdateTime();
     }
 }

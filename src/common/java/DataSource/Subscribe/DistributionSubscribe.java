@@ -2,6 +2,7 @@ package common.java.DataSource.Subscribe;
 
 import common.java.Cache.CacheHelper;
 import common.java.Coordination.Coordination;
+import common.java.Number.NumberHelper;
 import common.java.nLogger.nLogger;
 
 /**
@@ -10,6 +11,7 @@ import common.java.nLogger.nLogger;
  */
 public class DistributionSubscribe implements DistributionSubscribeInterface {
     private static CacheHelper ca;
+    private long updateLevel = 0;   // 数据是否更新权值
 
     private CacheHelper getCa(int appId) {
         if (ca == null) {
@@ -32,7 +34,7 @@ public class DistributionSubscribe implements DistributionSubscribeInterface {
         try {
             String topic = getDistributionKey(room.getTopicWithAppID());
             CacheHelper ca = getCa(room.getAppId());
-            ca.set(topic, false);
+            ca.set(topic, 0L);
             ca.setExpire(topic, 86400 * 1000);
             return true;
         } catch (Exception e) {
@@ -44,7 +46,17 @@ public class DistributionSubscribe implements DistributionSubscribeInterface {
     public Boolean fleshStatus(Room room) {
         try {
             String topic = getDistributionKey(room.getTopicWithAppID());
-            getCa(room.getAppId()).set(topic, true);
+            CacheHelper ca = getCa(room.getAppId());
+            var v = ca.get(topic);
+            if (v == null) {
+                ca.set(topic, 0L);
+                v = 0L;
+            }
+            long c = NumberHelper.number2long(v);
+            if (c > 0x7FFFFFFF) {
+                c = 0;
+            }
+            ca.set(topic, c + 1);
             ca.setExpire(topic, 86400 * 1000);
             return true;
         } catch (Exception e) {
@@ -52,10 +64,13 @@ public class DistributionSubscribe implements DistributionSubscribeInterface {
         }
     }
 
-    // 拉取 主题更新状态
+    // 获得是否更新状态
     public Boolean pullStatus(Room room) {
         try {
-            return getCa(room.getAppId()).getBoolean(getDistributionKey(room.getTopicWithAppID()));
+            // 如果当前权值小于新权值，则更新
+            long _updateLevel = updateLevel;
+            updateLevel = getCa(room.getAppId()).getLong(getDistributionKey(room.getTopicWithAppID()));
+            return updateLevel > _updateLevel;
         } catch (Exception e) {
             return null;
         }

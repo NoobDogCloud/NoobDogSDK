@@ -2,6 +2,7 @@ package common.java.Rpc;
 
 import common.java.Apps.AppContext;
 import common.java.Apps.MicroService.Model.MicroModel;
+import common.java.DataSource.CustomDataSourceSubscriber;
 import common.java.Encrypt.GscEncrypt;
 import common.java.Http.Server.HttpContext;
 import common.java.Reflect.ReflectStruct;
@@ -84,7 +85,13 @@ public class ExecRequest {//框架内请求类
         if (topic == null) {
             return null;
         }
-
+        switch (mode) {
+            case "subscribe" -> {
+                return CustomDataSourceSubscriber.build(topic).getAllData();
+            }
+            default -> CustomDataSourceSubscriber.cancel(ctx.channelContext());
+        }
+        return true;
     }
 
     /**
