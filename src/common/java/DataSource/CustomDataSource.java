@@ -43,7 +43,7 @@ public class CustomDataSource {
     /**
      * @apiNote 销毁自定义数据源
      */
-    public void Destroy(String topic) {
+    public void delete() {
         DataSourceManager.remove(topic);
     }
 
