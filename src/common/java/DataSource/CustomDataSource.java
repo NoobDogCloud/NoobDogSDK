@@ -32,7 +32,8 @@ public class CustomDataSource {
         String appId = StringHelper.toString(ctx == null ? 0 : ctx.appId());
         String key;
         do {
-            key = "CustomDataSource_" + StringHelper.shortUUID() + idx.incrementAndGet() + "_" + appId;
+            // key = "CustomDataSource_" + StringHelper.shortUUID() + idx.incrementAndGet() + "_" + appId;
+            key = "CustomDataSource_" + StringHelper.shortUUID() + idx.incrementAndGet();
             if (!DataSourceManager.contains(key)) {
                 break;
             }

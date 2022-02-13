@@ -10,7 +10,6 @@ import common.java.Number.NumberHelper;
 import common.java.Rpc.ExecRequest;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
-import common.java.nLogger.nLogger;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -83,24 +82,33 @@ public class GrapeHttpServer {
         });
     }
 
+    public static TextWebSocketFrame WebsocketResult(String topic, Object msg) {
+        // 补充Websocket结果外衣 返回结果转换成 string
+        JSONObject r;
+        if (msg == null) {
+            r = JSONObject.build();
+        } else if (msg instanceof JSONObject) {
+            r = (JSONObject) msg;
+        } else {
+            r = JSONObject.build(msg.toString());
+        }
+        r.put(HttpContext.GrapeHttpHeader.WebSocket.wsId, topic);
+        return new TextWebSocketFrame(r.toString());
+    }
+
     public static void stubLoop(HttpContext ctx) {
         Object rlt = systemCall(ctx);
-        OutResponse or = SocketContext.current().getResponse();
+        SocketContext sCtx = SocketContext.current();
+        OutResponse or = sCtx.getResponse();
         if (ctx.method() == HttpContext.Method.websocket) {
             // 响应自动订阅参数(能运行到这里说明请求代码层执行完毕)
             String topic = HttpContext.current().getRequestID();
             if (StringHelper.isInvalided(topic)) {
-                topic = SubscribeGsc.filterSubscribe(ctx);
+                topic = SubscribeGsc.filterSubscribe(sCtx);
             }
-            // 补充Websocket结果外衣 返回结果转换成 string
-            JSONObject r = rlt == null ? JSONObject.build() : JSONObject.build(rlt.toString());
-            r.put(HttpContext.GrapeHttpHeader.WebSocket.wsId, topic);
-            or.out(new TextWebSocketFrame(r.toString()));
+            or.out(WebsocketResult(topic, rlt));
         } else {
             or.out(rlt);
-            if (Config.debug) {
-                nLogger.logInfo("Response:" + StringHelper.toString(rlt));
-            }
         }
     }
 
@@ -142,7 +150,7 @@ public class GrapeHttpServer {
                 }
             }
             // 正式执行请求
-            if (!ctx.invaildGscResquest()) {
+            if (GrapeRequest[0].equals("global") || GrapeRequest[1].startsWith("@") || GrapeRequest.length >= 3) {
                 rsValue = ExecRequest._run(ctx);
             } else {
                 rsValue = rMsg.netMSG(false, "不是合法的GSC请求!");

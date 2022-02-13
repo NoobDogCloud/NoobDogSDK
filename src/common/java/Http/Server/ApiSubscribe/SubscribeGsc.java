@@ -3,6 +3,7 @@ package common.java.Http.Server.ApiSubscribe;
 import common.java.DataSource.Subscribe.DistributionSubscribe;
 import common.java.DataSource.Subscribe.DistributionSubscribeInterface;
 import common.java.DataSource.Subscribe.Room;
+import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
 import common.java.Time.TimeHelper;
@@ -104,14 +105,15 @@ public class SubscribeGsc {
     }
 
     // 订阅参数过滤
-    public static String filterSubscribe(HttpContext ctx) {
+    public static String filterSubscribe(SocketContext sCtx) {
+        HttpContext ctx = sCtx.getRequest();
         JSONObject h = ctx.header();
         String topic = getTopic(ctx);
         if (h.containsKey("mode")) {
             String mode = h.getString("mode");
             var appId = ctx.appId();
             switch (mode) {
-                case "subscribe" -> updateOrCreate(topic, appId).add(ctx.channelContext(), ctx);
+                case "subscribe" -> updateOrCreate(topic, appId).add(ctx.channelContext(), sCtx);
                 case "update" -> update(topic, appId);
                 default -> cancel(ctx.channelContext());
             }
@@ -128,7 +130,10 @@ public class SubscribeGsc {
     // 处理主题更新
     public static void update(String topic, int appId) {
         // 标志有新数据,记录数据更新时间
-        var room = updateOrCreate(topic, appId);
+        update(updateOrCreate(topic, appId));
+    }
+
+    public static void update(Room room) {
         room.fleshUpdateStatus().fleshUpdateTime();
         if (distribution_subscribe != null) {
             distribution_subscribe.fleshStatus(room);
@@ -141,7 +146,7 @@ public class SubscribeGsc {
     }
 
     // 获得主题数据刷新数据
-    private static boolean getUpdateStatus(Room room) {
+    public static boolean getUpdateStatus(Room room) {
         if (distribution_subscribe != null) {
             Boolean b = distribution_subscribe.pullStatus(room);
             if (b == null) {

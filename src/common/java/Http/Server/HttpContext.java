@@ -260,7 +260,7 @@ public class HttpContext {
         return '/' + StringHelper.build(absPath).trimFrom('/').toString();
     }
 
-    public boolean invaildGscResquest() {
+    public boolean invalidGscRequest() {
         return path().split("/").length < 4;
     }
 

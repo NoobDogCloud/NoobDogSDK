@@ -64,7 +64,7 @@ public class ExecRequest {//框架内请求类
             // 仅获得模型定义
             r.put(key, h.get(key).ruleArray().toJsonArray());
         }
-        return r;
+        return rMsg.netMSG(r);
     }
 
     private static boolean IsGlobalService(HttpContext ctx) {
@@ -87,7 +87,10 @@ public class ExecRequest {//框架内请求类
         }
         switch (mode) {
             case "subscribe" -> {
-                return CustomDataSourceSubscriber.build(topic).getAllData();
+                return rMsg.netMSG(CustomDataSourceSubscriber.build(topic).result());
+            }
+            case "select" -> {
+                return rMsg.netMSG(CustomDataSourceSubscriber.build(topic).getAllData());
             }
             default -> CustomDataSourceSubscriber.cancel(ctx.channelContext());
         }
@@ -106,7 +109,7 @@ public class ExecRequest {//框架内请求类
                 case "@subscribeCustomDataSource" -> rs = CustomDataSource(ctx);
             }
         } catch (Exception e) {
-            rs = "系统服务[" + ctx.className() + "]异常";
+            rs = RpcError.Instant(false, "系统服务[" + ctx.className() + "]异常");
         }
         return rs;
     }

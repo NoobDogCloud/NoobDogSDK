@@ -1,7 +1,7 @@
 package common.java.DataSource.Subscribe;
 
+import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.GrapeHttpServer;
-import common.java.Http.Server.HttpContext;
 import io.netty.channel.ChannelHandlerContext;
 import org.json.gsc.JSONObject;
 
@@ -10,22 +10,23 @@ import java.util.function.Consumer;
 
 public class Member {
     private ChannelHandlerContext ch;               // 通讯对象
-    private HttpContext queryTask;                  // 查询任务
+    private SocketContext socketContext;                  // 查询任务
     private Consumer<Member> refreshTask;                   // 刷新任务
 
-    private Member(ChannelHandlerContext ch, HttpContext task) {
+    private Member(ChannelHandlerContext ch, SocketContext socketContext) {
         this.ch = ch;
-        JSONObject h = task.header();
+        var ctx = socketContext.getRequest();
+        JSONObject h = ctx.header();
         // 存留任务时，删除 mode 头字段，防止重复订阅
         h.remove("mode");
-        this.queryTask = task;
+        this.socketContext = socketContext;
         this.refreshTask = m -> {
-            GrapeHttpServer._startService(m.ch, m.queryTask);
+            GrapeHttpServer._startService(m.ch, m.socketContext.getRequest());
         };
     }
 
-    public static Member build(ChannelHandlerContext ch, HttpContext task) {
-        return new Member(ch, task);
+    public static Member build(ChannelHandlerContext ch, SocketContext socketContext) {
+        return new Member(ch, socketContext);
     }
 
     public Member setRefreshFunc(Consumer<Member> func) {
@@ -43,15 +44,21 @@ public class Member {
         this.ch = ch;
     }
 
-    public HttpContext getQueryTask() {
-        return queryTask;
+    public SocketContext getSocketContext() {
+        return socketContext;
     }
 
-    public void setQueryTask(HttpContext queryTask) {
-        this.queryTask = queryTask;
+    public void setSocketContext(SocketContext socketContext) {
+        this.socketContext = socketContext;
     }
 
     public void refresh() {
         refreshTask.accept(this);
+    }
+
+    public void send(String topic, Object msg) {
+        socketContext.getResponse().out(
+                GrapeHttpServer.WebsocketResult(topic, msg)
+        );
     }
 }

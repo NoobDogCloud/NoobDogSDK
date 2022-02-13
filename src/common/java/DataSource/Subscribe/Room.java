@@ -1,6 +1,6 @@
 package common.java.DataSource.Subscribe;
 
-import common.java.Http.Server.HttpContext;
+import common.java.Http.Common.SocketContext;
 import common.java.Time.TimeHelper;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
@@ -151,12 +151,12 @@ public class Room {
     }
 
     // 加入成员
-    public Member add(ChannelHandlerContext ch, HttpContext task) {
+    public Member add(ChannelHandlerContext ch, SocketContext sCtx) {
         ChannelId cid = ch.channel().id();
         if ((memberArr.containsKey(cid))) {
-            memberArr.get(cid).setQueryTask(task);
+            memberArr.get(cid).setSocketContext(sCtx);
         } else {
-            Member member = Member.build(ch, task).setRefreshFunc(refreshFunc);
+            Member member = Member.build(ch, sCtx).setRefreshFunc(refreshFunc);
             memberArr.put(cid, member);
             if (joinFunc != null) {
                 joinFunc.accept(member);

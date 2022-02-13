@@ -1,5 +1,7 @@
 package common.java.DataSource.DataSourceStore;
 
+import common.java.Http.Server.HttpContext;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DataSourceManager {
@@ -8,10 +10,16 @@ public class DataSourceManager {
 
     // 根据数据源名称获得数据源
     public static IDataSourceStore get(String topic) {
-        return topicQueue.get(topic);
+        return topicQueue.get(getPrivateTopic(topic));
     }
 
-    //
+    // 获得真实topic
+    private static String getPrivateTopic(String topic) {
+        var ctx = HttpContext.current();
+        if (ctx == null)
+            return null;
+        return topic + "_" + ctx.appId();
+    }
 
     /**
      * @param topic 数据源名称
@@ -20,7 +28,7 @@ public class DataSourceManager {
      */
     public static IDataSourceStore add(String topic) {
         var ds = dsc.newInstance();
-        topicQueue.put(topic, ds);
+        topicQueue.put(getPrivateTopic(topic), ds);
         return ds;
     }
 
@@ -30,10 +38,10 @@ public class DataSourceManager {
     }
 
     public static boolean contains(String topic) {
-        return topicQueue.containsKey(topic);
+        return topicQueue.containsKey(getPrivateTopic(topic));
     }
 
     public static void remove(String topic) {
-        topicQueue.remove(topic);
+        topicQueue.remove(getPrivateTopic(topic));
     }
 }

@@ -11,7 +11,7 @@ import common.java.InterfaceModel.GrapeTreeDbLayerModel;
 import common.java.InterfaceModel.Type.Aggregation;
 import common.java.OAuth.oauthApi;
 import common.java.Rpc.RpcPageInfo;
-import common.java.Rpc.rMsg;
+import common.java.Rpc.rMsgString;
 import common.java.Rpc.rpc;
 import common.java.String.StringHelper;
 import org.json.gsc.JSONArray;
@@ -318,7 +318,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
                 desc.put(key, mmrn.node());
             }
         }
-        return rMsg.netMSG(true, desc);
+        return rMsgString.build().netMSG(true, desc);
     }
 
     public int _ids(String fieldName, String ids) {

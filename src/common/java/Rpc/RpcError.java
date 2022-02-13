@@ -15,6 +15,6 @@ public record RpcError(int errorCode, String msg) {
     }
 
     public String toString() {
-        return rMsg.netMSG(errorCode, msg, "");
+        return rMsg.netMSG(errorCode, msg, "").toString();
     }
 }

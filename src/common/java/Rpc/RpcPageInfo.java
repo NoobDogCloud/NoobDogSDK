@@ -9,6 +9,6 @@ public record RpcPageInfo(int idx, int max, long count, JSONArray info) {
     }
 
     public String toString() {
-        return rMsg.netPAGE(idx, max, count, info);
+        return rMsg.netPAGE(idx, max, count, info).toString();
     }
 }

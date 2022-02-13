@@ -6,6 +6,7 @@ import common.java.DataSource.DataSourceStore.IDataSourceStore;
 import common.java.DataSource.Subscribe.Room;
 import common.java.Http.Server.ApiSubscribe.SubscribeGsc;
 import common.java.Http.Server.HttpContext;
+import common.java.Rpc.rMsg;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 
@@ -32,7 +33,7 @@ public class CustomDataSourceSubscriber {
                     subscriber.freshUpdateStatus();
                 }
             }
-        }, 1, 1, TimeUnit.SECONDS);
+        }, 150, 150, TimeUnit.MILLISECONDS);
     }
 
     // 数据源房间
@@ -45,12 +46,8 @@ public class CustomDataSourceSubscriber {
     private long sendNumber = 0;
 
     // 创建/获得一个 自定义数据源
-    private CustomDataSourceSubscriber(String topic) {
-        var ctx = HttpContext.current();
-        if (ctx == null) {
-            throw new RuntimeException("需要通过Api触发，不可以直接调用");
-        }
-        room = SubscribeGsc.updateOrCreate(topic, ctx.appId())
+    private CustomDataSourceSubscriber(String topic, int appId) {
+        room = SubscribeGsc.updateOrCreate(topic, appId)
                 // 设置数据广播方法
                 .updateRefreshFunc(member -> {
                     // 更新数据源
@@ -59,9 +56,13 @@ public class CustomDataSourceSubscriber {
                         return;
                     }
                     // 从上次未读水位开始读取
-                    dataSource.news(reader.getLastUnreadWater());
+                    List<Object> lines = dataSource.news(reader.getLastUnreadWater());
                     // 更新未读水位
                     reader.setLastUnreadWater(dataSource.size());
+                    // 发送数据
+                    if (!lines.isEmpty()) {
+                        member.send(topic, rMsg.netMSG(lines));
+                    }
                 })
                 .setJoinHook(member -> {
                     // 创建读取水位管理
@@ -73,17 +74,31 @@ public class CustomDataSourceSubscriber {
                 })
                 .setRoomDestroy(room -> {
                     // 删除房间
-                    subscriber.remove(room.getTopic());
+                    subscriber.remove(room.getTopicWithAppID());
                     memberReaderMap.clear();
                 })
                 .setBroadcastHook(room -> lockUpdateStatus());
         // 从数据源管理器获得数据源
         dataSource = DataSourceManager.get(topic);
-        subscriber.put(topic, this);
+        subscriber.put(room.getTopicWithAppID(), this);
     }
 
     public static CustomDataSourceSubscriber build(String topic) {
-        return new CustomDataSourceSubscriber(topic);
+        var ctx = HttpContext.current();
+        if (ctx == null) {
+            throw new RuntimeException("需要通过Api触发，不可以直接调用");
+        }
+        var appId = ctx.appId();
+        String topicWithAppid = topic + "_" + appId;
+        if (!subscriber.containsKey(topicWithAppid)) {
+            new CustomDataSourceSubscriber(topic, appId);
+        }
+        return subscriber.get(topicWithAppid);
+    }
+
+    // 默认返回空
+    public String result() {
+        return "";
     }
 
     // 取消数据源
@@ -96,7 +111,7 @@ public class CustomDataSourceSubscriber {
     }
 
     private CustomDataSourceSubscriber freshUpdateStatus() {
-        room.fleshUpdateStatus().fleshSyncUpdateTime();
+        SubscribeGsc.update(room);
         return this;
     }
 

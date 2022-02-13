@@ -331,11 +331,13 @@ class NetEvents extends ChannelInboundHandlerAdapter {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         destroySocketContext(ctx.channel().id().asLongText());
         ctx.close();
+        /*
         try {
             super.exceptionCaught(ctx, cause);
         } catch (Exception e) {
             nLogger.debugInfo(e);
         }
+         */
     }
 
 }
