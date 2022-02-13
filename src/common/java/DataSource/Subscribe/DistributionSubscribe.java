@@ -1,9 +1,7 @@
 package common.java.DataSource.Subscribe;
 
 import common.java.Cache.CacheHelper;
-import common.java.Coordination.Coordination;
 import common.java.Number.NumberHelper;
-import common.java.nLogger.nLogger;
 
 /**
  * 一个默认的分布式订阅类
@@ -15,16 +13,7 @@ public class DistributionSubscribe implements DistributionSubscribeInterface {
 
     private CacheHelper getCa(int appId) {
         if (ca == null) {
-            var ctx = Coordination.getInstance().getAppContext(appId);
-            if (ctx == null) {
-                nLogger.errorInfo("当前应用[" + appId + "]无效");
-                return null;
-            }
-            var appCfg = ctx.config().cache();
-            if (appCfg == null) {
-                nLogger.errorInfo("当前应用[" + appId + "]没有配置缓存");
-            }
-            ca = CacheHelper.build(appCfg);
+            ca = CacheHelper.build(appId);
         }
         return ca;
     }
@@ -76,9 +65,8 @@ public class DistributionSubscribe implements DistributionSubscribeInterface {
         }
     }
 
-    // 获得是否删除状态
-    public Boolean removeStatus(Room room) {
-        long status = getCa(room.getAppId()).getLong(getDistributionKey(room.getTopicWithAppID()));
-        return status == -100;
+    // 删除状态
+    public void removeStatus(Room room) {
+        getCa(room.getAppId()).delete(getDistributionKey(room.getTopicWithAppID()));
     }
 }

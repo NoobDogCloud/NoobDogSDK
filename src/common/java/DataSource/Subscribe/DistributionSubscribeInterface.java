@@ -12,6 +12,9 @@ public interface DistributionSubscribeInterface {
     // 设置状态需要激发
     Boolean fleshStatus(Room room);
 
+    // 删除状态
+    void removeStatus(Room room);
+
     // 获得分布式时间KEY
     default String getDistributionKey(String p) {
         return prefix + p;

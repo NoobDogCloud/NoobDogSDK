@@ -2,7 +2,6 @@ package common.java.DataSource;
 
 import common.java.DataSource.DataSourceStore.DataSourceManager;
 import common.java.DataSource.DataSourceStore.IDataSourceStore;
-import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -28,11 +27,8 @@ public class CustomDataSource {
     }
 
     private String createTopic() {
-        var ctx = HttpContext.current();
-        String appId = StringHelper.toString(ctx == null ? 0 : ctx.appId());
         String key;
         do {
-            // key = "CustomDataSource_" + StringHelper.shortUUID() + idx.incrementAndGet() + "_" + appId;
             key = "CustomDataSource_" + StringHelper.shortUUID() + idx.incrementAndGet();
             if (!DataSourceManager.contains(key)) {
                 break;
@@ -47,6 +43,8 @@ public class CustomDataSource {
     public void delete() {
         // 删除主题
         DataSourceManager.remove(topic);
+        // 写入空数据
+        store.add("");
         // 关闭数据存储源
         store.close();
     }

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DataSourceStoreLocal implements IDataSourceStore {
-    private final List<Object> dataSource;
+    private final DataSourceTemplate dataSource;
     private boolean running = true;
 
     private DataSourceStoreLocal() {
-        dataSource = new ArrayList<>();
+        dataSource = DataSourceTemplate.build();
     }
 
     public static DataSourceStoreLocal build() {
@@ -16,7 +16,8 @@ public class DataSourceStoreLocal implements IDataSourceStore {
     }
 
     public boolean add(Object value) {
-        return dataSource.add(value);
+        dataSource.add(value);
+        return true;
     }
 
     public Object first() {
@@ -44,7 +45,7 @@ public class DataSourceStoreLocal implements IDataSourceStore {
 
     // 获得全部数据
     public List<Object> all() {
-        return dataSource;
+        return dataSource.toArrayList();
     }
 
     public DataSourceStoreLocal newInstance() {

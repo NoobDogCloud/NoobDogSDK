@@ -5,6 +5,8 @@ import common.java.Time.TimeHelper;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -28,40 +30,39 @@ public class Room {
     // 应用id
     private final int appId;
     // 成员广播任务
-    private Consumer<Member> refreshFunc;
+    private final List<Consumer<Member>> refreshFunc = new ArrayList<>();
     // 加入成员时 hook
-    private Consumer<Member> joinFunc;
+    private final List<Consumer<Member>> joinFunc = new ArrayList<>();
     // 离开成员时 hook
-    private Consumer<Member> leaveFunc;
+    private final List<Consumer<Member>> leaveFunc = new ArrayList<>();
     // 房间销毁时 hook
-    private Consumer<Room> destroyFunc;
+    private final List<Consumer<Room>> destroyFunc = new ArrayList<>();
     // 准备广播时 hook
-    private Consumer<Room> broadcastFunc;
+    private final List<Consumer<Room>> broadcastFunc = new ArrayList<>();
 
     private Room(String Topic, int appId) {
         topic = Topic;
         this.appId = appId;
-        this.refreshFunc = null;
         memberArr = new ConcurrentHashMap<>();
     }
 
     public Room setJoinHook(Consumer<Member> joinFunc) {
-        this.joinFunc = joinFunc;
+        this.joinFunc.add(joinFunc);
         return this;
     }
 
     public Room setLeaveHook(Consumer<Member> leaveFunc) {
-        this.leaveFunc = leaveFunc;
+        this.leaveFunc.add(leaveFunc);
         return this;
     }
 
     public Room setBroadcastHook(Consumer<Room> broadcastFunc) {
-        this.broadcastFunc = broadcastFunc;
+        this.broadcastFunc.add(broadcastFunc);
         return this;
     }
 
     public Room setRoomDestroy(Consumer<Room> destroyFunc) {
-        this.destroyFunc = destroyFunc;
+        this.destroyFunc.add(destroyFunc);
         return this;
     }
 
@@ -158,8 +159,8 @@ public class Room {
         } else {
             Member member = Member.build(ch, sCtx).setRefreshFunc(refreshFunc);
             memberArr.put(cid, member);
-            if (joinFunc != null) {
-                joinFunc.accept(member);
+            for (var func : joinFunc) {
+                func.accept(member);
             }
         }
         return memberArr.get(cid);
@@ -168,8 +169,8 @@ public class Room {
     // 成员退出
     public Room leave(ChannelId cid) {
         memberArr.remove(cid);
-        if (leaveFunc != null) {
-            leaveFunc.accept(memberArr.get(cid));
+        for (var func : leaveFunc) {
+            func.accept(memberArr.get(cid));
         }
         if (memberArr.size() == 0) {
             this.releaseRoom();
@@ -178,17 +179,17 @@ public class Room {
     }
 
     // 释放房间
-    private void releaseRoom() {
-        if (destroyFunc != null) {
-            destroyFunc.accept(this);
+    public void releaseRoom() {
+        for (var func : destroyFunc) {
+            func.accept(this);
         }
         room_pool.remove(getTopicWithAppID());
     }
 
     // 成员更新数据
     public void update() {
-        if (broadcastFunc != null) {
-            broadcastFunc.accept(this);
+        for (var func : broadcastFunc) {
+            func.accept(this);
         }
         for (Member m : memberArr.values()) {
             m.refresh();
@@ -199,7 +200,7 @@ public class Room {
     // 修改成员数据更新默认方法
     public Room updateRefreshFunc(Consumer<Member> func) {
         if (func != null) {
-            this.refreshFunc = func;
+            this.refreshFunc.add(func);
             for (Member m : memberArr.values()) {
                 m.setRefreshFunc(func);
             }

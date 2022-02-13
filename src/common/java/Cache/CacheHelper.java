@@ -1,9 +1,11 @@
 package common.java.Cache;
 
 import common.java.Cache.Common.InterfaceCache;
+import common.java.Coordination.Coordination;
 import common.java.Http.Server.HttpContext;
 import common.java.Number.NumberHelper;
 import common.java.String.StringHelper;
+import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
@@ -37,6 +39,23 @@ public class CacheHelper implements InterfaceCache {
 
     public static CacheHelper build(String configName) {
         return new CacheHelper(configName, true);
+    }
+
+    public static CacheHelper build(int appId) {
+        var ctx = Coordination.getInstance().getAppContext(appId);
+        if (ctx == null) {
+            nLogger.errorInfo("当前应用[" + appId + "]无效");
+            return null;
+        }
+        var appCfg = ctx.config().cache();
+        if (appCfg == null) {
+            nLogger.errorInfo("当前应用[" + appId + "]没有配置缓存");
+        }
+        return CacheHelper.build(appCfg);
+    }
+
+    public static CacheHelper buildForApp() {
+        return CacheHelper.build(HttpContext.current().appId());
     }
 
     public CacheHelper secondCache(boolean flag) {
@@ -189,6 +208,19 @@ public class CacheHelper implements InterfaceCache {
      */
     public long delete(String key) {
         return cache.delete(prefixHook(key));
+    }
+
+    /**
+     * 为缓存系统生成唯一随机 key
+     *
+     * @param prefix 前缀
+     */
+    public String generateUniqueKey(String prefix) {
+        String key;
+        do {
+            key = prefix + "_" + StringHelper.shortUUID();
+        } while (cache.get(key) != null);
+        return key;
     }
 
 }

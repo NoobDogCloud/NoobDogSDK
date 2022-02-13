@@ -113,7 +113,9 @@ public class SubscribeGsc {
             String mode = h.getString("mode");
             var appId = ctx.appId();
             switch (mode) {
-                case "subscribe" -> updateOrCreate(topic, appId).add(ctx.channelContext(), sCtx);
+                case "subscribe" -> {
+                    updateOrCreate(topic, appId).add(ctx.channelContext(), sCtx);
+                }
                 case "update" -> update(topic, appId);
                 case "cancel" -> cancel(ctx.channelContext());
             }

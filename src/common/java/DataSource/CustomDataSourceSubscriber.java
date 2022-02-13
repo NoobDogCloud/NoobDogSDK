@@ -59,7 +59,12 @@ public class CustomDataSourceSubscriber {
                     // 从上次未读水位开始读取
                     List<Object> lines = dataSource.news(reader.getLastUnreadWater());
                     // 更新未读水位
-                    reader.setLastUnreadWater(dataSource.size());
+                    try {
+                        reader.setLastUnreadWater(dataSource.size());
+                    } catch (Exception e) {
+                        System.out.println(e);
+                    }
+
                     // 发送数据
                     if (!lines.isEmpty()) {
                         member.send(topic, rMsg.netMSG(lines));
@@ -129,6 +134,10 @@ public class CustomDataSourceSubscriber {
 
     // 删除本节点订阅对象
     private void remove() {
+        var r = SubscribeGsc.updateOrCreate(room.getTopic(), room.getAppId());
+        if (r != null) {
+            r.releaseRoom();
+        }
         subscriber.remove(room.getTopicWithAppID());
         memberReaderMap.clear();
     }
