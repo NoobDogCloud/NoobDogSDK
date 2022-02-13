@@ -87,10 +87,12 @@ public class ExecRequest {//框架内请求类
         }
         switch (mode) {
             case "subscribe" -> {
-                return rMsg.netMSG(CustomDataSourceSubscriber.build(topic).result());
+                var cls = CustomDataSourceSubscriber.build(topic);
+                return rMsg.netMSG(cls != null ? cls.result() : "");
             }
             case "select" -> {
-                return rMsg.netMSG(CustomDataSourceSubscriber.build(topic).getAllData());
+                var cls = CustomDataSourceSubscriber.build(topic);
+                return rMsg.netMSG(cls != null ? cls.getAllData() : "");
             }
             default -> CustomDataSourceSubscriber.cancel(ctx.channelContext());
         }
