@@ -47,7 +47,7 @@ public class CustomDataSourceSubscriber {
     private long sendNumber = 0;
 
     // 创建/获得一个 自定义数据源
-    private CustomDataSourceSubscriber(String topic, int appId) {
+    private CustomDataSourceSubscriber(String topic, int appId, IDataSourceStore _dataSource) {
         room = SubscribeGsc.updateOrCreate(topic, appId)
                 // 设置数据广播方法
                 .updateRefreshFunc(member -> {
@@ -79,7 +79,7 @@ public class CustomDataSourceSubscriber {
                 })
                 .setBroadcastHook(room -> lockUpdateStatus());
         // 从数据源管理器获得数据源
-        dataSource = DataSourceManager.get(topic);
+        dataSource = _dataSource; // DataSourceManager.get(topic);
         subscriber.put(room.getTopicWithAppID(), this);
     }
 
@@ -91,7 +91,10 @@ public class CustomDataSourceSubscriber {
         var appId = ctx.appId();
         String topicWithAppid = topic + "_" + appId;
         if (!subscriber.containsKey(topicWithAppid)) {
-            new CustomDataSourceSubscriber(topic, appId);
+            var ds = DataSourceManager.get(topic);
+            if (ds != null) {
+                new CustomDataSourceSubscriber(topic, appId, ds);
+            }
         }
         return subscriber.get(topicWithAppid);
     }
