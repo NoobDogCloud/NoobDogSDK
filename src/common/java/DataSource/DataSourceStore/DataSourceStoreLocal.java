@@ -5,7 +5,7 @@ import java.util.List;
 
 public class DataSourceStoreLocal implements IDataSourceStore {
     private final List<Object> dataSource;
-    // private final boolean updateStatus = false;
+    private boolean running = true;
 
     private DataSourceStoreLocal() {
         dataSource = new ArrayList<>();
@@ -49,5 +49,14 @@ public class DataSourceStoreLocal implements IDataSourceStore {
 
     public DataSourceStoreLocal newInstance() {
         return new DataSourceStoreLocal();
+    }
+
+    public void close() {
+        running = false;
+    }
+
+    // 数据源是否失效
+    public boolean isInvalid() {
+        return running;
     }
 }

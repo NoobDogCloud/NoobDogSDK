@@ -23,6 +23,9 @@ public interface IDataSourceStore {
     // 创建本身类新实例
     IDataSourceStore newInstance();
 
-    // 数据是否有更新
-    // boolean isUpdate();
+    // 设置数据源
+    void close();
+
+    // 数据源是否无效
+    boolean isInvalid();
 }

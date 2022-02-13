@@ -75,4 +75,10 @@ public class DistributionSubscribe implements DistributionSubscribeInterface {
             return null;
         }
     }
+
+    // 获得是否删除状态
+    public Boolean removeStatus(Room room) {
+        long status = getCa(room.getAppId()).getLong(getDistributionKey(room.getTopicWithAppID()));
+        return status == -100;
+    }
 }

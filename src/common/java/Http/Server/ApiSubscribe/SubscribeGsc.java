@@ -115,7 +115,7 @@ public class SubscribeGsc {
             switch (mode) {
                 case "subscribe" -> updateOrCreate(topic, appId).add(ctx.channelContext(), sCtx);
                 case "update" -> update(topic, appId);
-                default -> cancel(ctx.channelContext());
+                case "cancel" -> cancel(ctx.channelContext());
             }
         }
         return topic;
@@ -132,7 +132,6 @@ public class SubscribeGsc {
         // 标志有新数据,记录数据更新时间
         update(updateOrCreate(topic, appId));
     }
-
     public static void update(Room room) {
         room.fleshUpdateStatus().fleshUpdateTime();
         if (distribution_subscribe != null) {

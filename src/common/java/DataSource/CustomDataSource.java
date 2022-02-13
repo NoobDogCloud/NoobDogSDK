@@ -45,7 +45,10 @@ public class CustomDataSource {
      * @apiNote 销毁自定义数据源
      */
     public void delete() {
+        // 删除主题
         DataSourceManager.remove(topic);
+        // 关闭数据存储源
+        store.close();
     }
 
     public String getTopic() {
@@ -54,6 +57,8 @@ public class CustomDataSource {
 
     // 向数据源写入数据
     public void add(Object data) {
-        store.add(data);
+        if (!store.isInvalid()) {
+            store.add(data);
+        }
     }
 }

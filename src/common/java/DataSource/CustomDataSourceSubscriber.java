@@ -74,8 +74,7 @@ public class CustomDataSourceSubscriber {
                 })
                 .setRoomDestroy(room -> {
                     // 删除房间
-                    subscriber.remove(room.getTopicWithAppID());
-                    memberReaderMap.clear();
+                    this.remove();
                 })
                 .setBroadcastHook(room -> lockUpdateStatus());
         // 从数据源管理器获得数据源
@@ -121,8 +120,19 @@ public class CustomDataSourceSubscriber {
         return this;
     }
 
+    // 删除本节点订阅对象
+    private void remove() {
+        subscriber.remove(room.getTopicWithAppID());
+        memberReaderMap.clear();
+    }
+
     // 判断数据源是否已更新
     public boolean isUpdate() {
+        // 如果数据源为空或者异常主动删除本地对应订阅对象
+        if (dataSource.isInvalid()) {
+            this.remove();
+            return false;
+        }
         return dataSource.size() > sendNumber;
     }
 }

@@ -102,7 +102,7 @@ public class GrapeHttpServer {
         OutResponse or = sCtx.getResponse();
         if (ctx.method() == HttpContext.Method.websocket) {
             // 响应自动订阅参数(能运行到这里说明请求代码层执行完毕)
-            String topic = HttpContext.current().getRequestID();
+            String topic = ctx.getRequestID();
             if (StringHelper.isInvalided(topic)) {
                 topic = SubscribeGsc.filterSubscribe(sCtx);
             }
