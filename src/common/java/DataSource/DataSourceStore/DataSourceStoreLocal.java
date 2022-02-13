@@ -57,6 +57,6 @@ public class DataSourceStoreLocal implements IDataSourceStore {
 
     // 数据源是否失效
     public boolean isInvalid() {
-        return running;
+        return !running;
     }
 }
