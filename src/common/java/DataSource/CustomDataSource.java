@@ -43,8 +43,6 @@ public class CustomDataSource {
     public void delete() {
         // 删除主题
         DataSourceManager.remove(topic);
-        // 写入空数据
-        store.add("");
         // 关闭数据存储源
         store.close();
     }

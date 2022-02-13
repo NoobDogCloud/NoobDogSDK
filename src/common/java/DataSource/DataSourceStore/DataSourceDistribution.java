@@ -18,21 +18,27 @@ public class DataSourceDistribution implements IDataSourceStore {
         return new DataSourceDistribution();
     }
 
-    private CacheHelper updateStore() {
+    private CacheHelper getCacheHelper() {
         if (ca == null) {
             ca = CacheHelper.buildForApp();
         }
         if (storeKey == null) {
             storeKey = ca.generateUniqueKey("custom_store_subscribe");
         }
-        dataSource = DataSourceTemplate.build(ca.getJson(storeKey));
         return ca;
+    }
+
+    private DataSourceTemplate updateStore() {
+        getCacheHelper();
+        var data = ca.getJson(storeKey);
+        dataSource = data != null ? DataSourceTemplate.build(data) : DataSourceTemplate.build();
+        return dataSource;
     }
 
     public boolean add(Object value) {
         try {
             dataSource.add(value);
-            ca.set(storeKey, dataSource);
+            ca.set(storeKey, dataSource.toJSON());
             return true;
         } catch (Exception e) {
             return false;
@@ -40,13 +46,13 @@ public class DataSourceDistribution implements IDataSourceStore {
     }
 
     public Object first() {
-        // updateStore();
+        updateStore();
         var l = dataSource.size();
         return l > 0 ? dataSource.get(l - 1) : null;
     }
 
     public List<Object> news(int index) {
-        // updateStore();
+        updateStore();
         List<Object> r = new ArrayList<>();
         for (int i = index, l = dataSource.size(); i < l; i++) {
             if (i < l) {
@@ -58,18 +64,16 @@ public class DataSourceDistribution implements IDataSourceStore {
 
     public void clear() {
         dataSource.clear();
-        updateStore().set(storeKey, "[]");
+        getCacheHelper().set(storeKey, DataSourceTemplate.build().toJSON());
     }
 
     public int size() {
-        updateStore();
-        return dataSource.size();
+        return updateStore().size();
     }
 
     // 获得全部数据
     public List<Object> all() {
-        // updateStore();
-        return dataSource.toArrayList();
+        return updateStore().toArrayList();
     }
 
     public DataSourceDistribution newInstance() {
@@ -80,10 +84,10 @@ public class DataSourceDistribution implements IDataSourceStore {
 
     public void close() {
         // 直接删除 key
-        updateStore().delete(storeKey);
+        getCacheHelper().delete(storeKey);
     }
 
     public boolean isInvalid() {
-        return updateStore().get(storeKey) == null;
+        return getCacheHelper().get(storeKey) == null;
     }
 }

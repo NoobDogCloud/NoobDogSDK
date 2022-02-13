@@ -78,10 +78,6 @@ public class CustomDataSourceSubscriber {
                     // 删除读取水位管理
                     memberReaderMap.remove(member.getCh().channel().id());
                 })
-                .setRoomDestroy(room -> {
-                    // 删除房间
-                    this.remove();
-                })
                 .setBroadcastHook(room -> lockUpdateStatus());
         // 从数据源管理器获得数据源
         dataSource = _dataSource; // DataSourceManager.get(topic);
