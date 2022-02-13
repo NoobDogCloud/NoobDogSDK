@@ -5,6 +5,7 @@ import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Apps.Roles.AppRoles;
 import common.java.Coordination.Coordination;
 import common.java.Http.Common.RequestSession;
+import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.HttpContext;
 import io.netty.channel.ChannelId;
 import org.json.gsc.JSONArray;
@@ -51,10 +52,18 @@ public class AppContext {
         ChannelId cid = RequestSession.buildChannelId();
         RequestSession.create(cid.asLongText()).setWorker();
         AppContext r = Coordination.getInstance().getAppContext(appId);
-        HttpContext.setNewHttpContext()
+        HttpContext h = HttpContext.setNewHttpContext()
                 .serviceName(serviceName)
                 .appId(appId);
+        SocketContext.build(cid.asLongText()).setRequest(h);
         return r;
+    }
+
+    /**
+     * 将传入socket上下文复制到本线程上下文
+     */
+    public static void cloneAppContext(SocketContext ctx) {
+        ctx.clone();
     }
 
     public MicroServiceContext service(String name) {
@@ -136,9 +145,11 @@ public class AppContext {
      * 当前上下文启动新线程
      */
     public AppContext thread(Runnable task) {
-        AppThreadContext atc = AppContext.virtualAppContext();
+        // AppThreadContext atc = AppContext.virtualAppContext();
+        SocketContext ctx = SocketContext.current();
         pool.execute(() -> {
-            AppContext.virtualAppContext(atc);
+            // AppContext.virtualAppContext(atc);
+            AppContext.cloneAppContext(ctx);
             task.run();
         });
         return this;

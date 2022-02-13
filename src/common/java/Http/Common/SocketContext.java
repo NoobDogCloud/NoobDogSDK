@@ -23,8 +23,24 @@ public class SocketContext {
         return new SocketContext(cid);
     }
 
+    public static SocketContext build(SocketContext ctx) {
+        return ctx.clone();
+    }
+
     public static SocketContext current() {
         return worker.get();
+    }
+
+    public SocketContext clone() {
+        SocketContext sCtx = new SocketContext(this.cid);
+        sCtx.setWorker()
+                .setCurrent(this.currentObj)
+                .setRequest(this.request)
+                .setResponse(this.response);
+        for (String key : this.payload.keySet()) {
+            sCtx.setValue(key, this.payload.get(key));
+        }
+        return sCtx;
     }
 
     public SocketContext setWorker() {

@@ -10,6 +10,7 @@ import common.java.Rpc.rMsg;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
@@ -106,7 +107,8 @@ public class CustomDataSourceSubscriber {
     }
 
     public List<Object> getAllData() {
-        return dataSource.all();
+        return dataSource == null ? new ArrayList<>() : dataSource.all();
+
     }
 
     private CustomDataSourceSubscriber freshUpdateStatus() {
@@ -116,7 +118,9 @@ public class CustomDataSourceSubscriber {
 
     private CustomDataSourceSubscriber lockUpdateStatus() {
         // 广播前，设置更新状态为否，表示未更新
-        sendNumber = dataSource.size();
+        if (dataSource != null) {
+            sendNumber = dataSource.size();
+        }
         return this;
     }
 
@@ -129,7 +133,7 @@ public class CustomDataSourceSubscriber {
     // 判断数据源是否已更新
     public boolean isUpdate() {
         // 如果数据源为空或者异常主动删除本地对应订阅对象
-        if (dataSource.isInvalid()) {
+        if (dataSource == null || dataSource.isInvalid()) {
             this.remove();
             return false;
         }

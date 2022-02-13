@@ -42,6 +42,7 @@ public class DataSourceManager {
     }
 
     public static void remove(String topic) {
-        topicQueue.remove(getPrivateTopic(topic));
+        String topicFull = getPrivateTopic(topic);
+        topicQueue.remove(topicFull);
     }
 }
