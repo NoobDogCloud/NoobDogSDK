@@ -132,7 +132,8 @@ public class CustomDataSourceSubscriber {
     private void remove() {
         var r = SubscribeGsc.updateOrCreate(room.getTopic(), room.getAppId());
         if (r != null) {
-            r.releaseRoom();
+            // 删除订阅源，删除房间
+            SubscribeGsc.remove(r);
         }
         subscriber.remove(room.getTopicWithAppID());
         memberReaderMap.clear();

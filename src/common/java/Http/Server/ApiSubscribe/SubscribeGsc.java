@@ -47,7 +47,8 @@ public class SubscribeGsc {
                             }
                         }
                     } catch (Exception e) {
-                        room.releaseRoom();
+                        // 删除订阅源,房间
+                        SubscribeGsc.remove(room);
                     }
                 });
 
@@ -146,6 +147,14 @@ public class SubscribeGsc {
     // 处理断开连接或者取消订阅
     private static void cancel(ChannelHandlerContext ch) {
         Room.removeMember(ch.channel().id());
+    }
+
+    // 删除数据源
+    public static void remove(Room room) {
+        if (distribution_subscribe != null) {
+            distribution_subscribe.removeStatus(room);
+        }
+        room.releaseRoom();
     }
 
     // 获得主题数据刷新数据
