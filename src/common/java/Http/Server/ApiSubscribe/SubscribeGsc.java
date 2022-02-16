@@ -6,14 +6,9 @@ import common.java.DataSource.Subscribe.Room;
 import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
-import common.java.Time.TimeHelper;
 import common.java.nLogger.nLogger;
 import io.netty.channel.ChannelHandlerContext;
 import org.json.gsc.JSONObject;
-
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 负责处理基于GSC-Websocket请求的服务数据订阅头
@@ -25,11 +20,11 @@ public class SubscribeGsc {
     // 定时检测任务
     // 负责 数据新鲜度 同步监测
     // 负责 数据一致性 同步监测
+    /*
     private static final ScheduledExecutorService heart_thread;
     static {
         heart_thread = Executors.newSingleThreadScheduledExecutor();
         heart_thread.scheduleAtFixedRate(() -> {
-
                 Room.foreach(room -> {
                     try {
                         // 需要请求时上下文
@@ -54,6 +49,7 @@ public class SubscribeGsc {
 
         }, 50, 50, TimeUnit.MILLISECONDS);
     }
+    */
 
     /**
      * 注入自定义分布式订阅组件
@@ -172,7 +168,7 @@ public class SubscribeGsc {
         }
     }
 
-    private static void _onChanged(Room room) {
+    public static void _onChanged(Room room) {
         /*
         if (distribution_subscribe != null) {
             if (distribution_subscribe.pushStatus(room) == null) {

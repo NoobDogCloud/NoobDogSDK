@@ -1,5 +1,6 @@
 package common.java.DataSource;
 
+import common.java.Concurrency.HashmapTaskRunner;
 import common.java.DataSource.DataSourceStore.DataSourceManager;
 import common.java.DataSource.DataSourceStore.DataSourceReader;
 import common.java.DataSource.DataSourceStore.IDataSourceStore;
@@ -13,19 +14,20 @@ import io.netty.channel.ChannelId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * 从服务端动态创建订阅数据源(订阅者)
  */
 public class CustomDataSourceSubscriber {
     // 所有本节点订阅数据房间
-    private static final ConcurrentHashMap<String, CustomDataSourceSubscriber> subscriber = new ConcurrentHashMap<>();
+    private static final HashmapTaskRunner<String, CustomDataSourceSubscriber> subscriber = HashmapTaskRunner.<String, CustomDataSourceSubscriber>getInstance((k, v) -> {
+        if (v.isUpdate()) {
+            v.freshUpdateStatus();
+        }
+    }).setDelay(150);
     // 定时检测数据源，如果数据源有更新，设置 room 状态为激发
+    /*
     private static final ScheduledExecutorService heart_thread;
-
     static {
         heart_thread = Executors.newSingleThreadScheduledExecutor();
         heart_thread.scheduleAtFixedRate(() -> {
@@ -36,6 +38,7 @@ public class CustomDataSourceSubscriber {
             }
         }, 150, 150, TimeUnit.MILLISECONDS);
     }
+    */
 
     // 数据源房间
     private final Room room;

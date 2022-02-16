@@ -76,8 +76,10 @@ public class GrapeHttpServer {
                 stubLoop(ctx);
             } catch (Exception e) {
                 if (Config.debug) {
-                    oResponse.out(rMsg.netMSG(false, e.getMessage()));
+                    // oResponse.out(rMsg.netMSG(false, e.getMessage()));
+                    System.out.println(e.getMessage());
                 }
+                e.printStackTrace();
             }
         });
     }
