@@ -4,9 +4,11 @@ import common.java.Apps.AppContext;
 import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.DataSource.CustomDataSourceSubscriber;
 import common.java.Encrypt.GscEncrypt;
+import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Http.Server.HttpContext;
 import common.java.Reflect.ReflectStruct;
 import common.java.Reflect._reflect;
+import common.java.ServiceTemplate.ServiceApiClass;
 import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
@@ -195,6 +197,10 @@ public class ExecRequest {//框架内请求类
         return AfterFilterObjectCache.get(name);
     }
 
+    private static String getServiceTopic(HttpContext hCtx) {
+        return "topic_service_" + hCtx.serviceName() + "_" + hCtx.className() + "_" + hCtx.actionName();
+    }
+
     /**
      * 执行当前上下文环境下的调用
      */
@@ -227,6 +233,10 @@ public class ExecRequest {//框架内请求类
                         // 调用主要类,后置类,固定返回结构
                         rs = obj._call(actionName, _objs);
                         rs = RpcResult(afterExecute(className, actionName, _objs, rs));
+                        // 如果当前请求是更新操作,尝试向所有订阅者广播更新通知
+                        if (ServiceApiClass.isUpdateAction(actionName)) {
+                            GscSubscribe.update(getServiceTopic(hCtx), hCtx.appId());
+                        }
                     } catch (Exception e) {
                         nLogger.logInfo(e, "实例化 " + _cls + " ...失败");
                     }

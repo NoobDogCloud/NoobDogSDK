@@ -3,7 +3,7 @@ package common.java.Http.Server;
 import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Config.Config;
 import common.java.Http.Common.SocketContext;
-import common.java.Http.Server.ApiSubscribe.SubscribeGsc;
+import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Http.Server.Db.HttpContextDb;
 import common.java.Number.NumberHelper;
 import common.java.Object.ObjectHelper;
@@ -141,7 +141,7 @@ public class HttpContext {
      * 获得 订阅主题
      */
     public String topic() {
-        return values.has(GrapeHttpHeader.WebSocketHeader.wsTopic) ? values.getString(GrapeHttpHeader.WebSocketHeader.wsTopic) : SubscribeGsc.computerTopic(this.path());
+        return values.has(GrapeHttpHeader.WebSocketHeader.wsTopic) ? values.getString(GrapeHttpHeader.WebSocketHeader.wsTopic) : GscSubscribe.computerTopic(this.path());
     }
 
     /**

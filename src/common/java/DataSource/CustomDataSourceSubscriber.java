@@ -5,7 +5,7 @@ import common.java.DataSource.DataSourceStore.DataSourceManager;
 import common.java.DataSource.DataSourceStore.DataSourceReader;
 import common.java.DataSource.DataSourceStore.IDataSourceStore;
 import common.java.DataSource.Subscribe.Room;
-import common.java.Http.Server.ApiSubscribe.SubscribeGsc;
+import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Http.Server.HttpContext;
 import common.java.Rpc.rMsg;
 import io.netty.channel.ChannelHandlerContext;
@@ -51,7 +51,7 @@ public class CustomDataSourceSubscriber {
 
     // 创建/获得一个 自定义数据源
     private CustomDataSourceSubscriber(String topic, int appId, IDataSourceStore _dataSource) {
-        room = SubscribeGsc.updateOrCreate(topic, appId)
+        room = GscSubscribe.updateOrCreate(topic, appId)
                 // 设置数据广播方法
                 .updateRefreshFunc(member -> {
                     // 更新数据源
@@ -119,7 +119,7 @@ public class CustomDataSourceSubscriber {
     }
 
     private CustomDataSourceSubscriber freshUpdateStatus() {
-        SubscribeGsc.update(room);
+        GscSubscribe.update(room);
         return this;
     }
 
@@ -133,10 +133,10 @@ public class CustomDataSourceSubscriber {
 
     // 删除本节点订阅对象
     private void remove() {
-        var r = SubscribeGsc.updateOrCreate(room.getTopic(), room.getAppId());
+        var r = GscSubscribe.updateOrCreate(room.getTopic(), room.getAppId());
         if (r != null) {
             // 删除订阅源，删除房间
-            SubscribeGsc.remove(r);
+            GscSubscribe.remove(r);
         }
         subscriber.remove(room.getTopicWithAppID());
         memberReaderMap.clear();

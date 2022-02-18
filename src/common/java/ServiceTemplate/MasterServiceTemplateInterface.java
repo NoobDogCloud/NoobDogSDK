@@ -1,44 +1,46 @@
 package common.java.ServiceTemplate;
 
 import common.java.InterfaceModel.Type.InterfaceType;
+import org.json.gsc.JSONArray;
+import org.json.gsc.JSONObject;
 
 public interface MasterServiceTemplateInterface {
     /**
-     * @param base64Json gsc-json
+     * @param data
      * @apiNote 新增数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    String insert(String base64Json);
+    String insert(JSONObject data);
 
     /**
-     * @param uids 主键组（不同主键值用“,”隔开）
+     * @param ids 主键组（不同主键值用“,”隔开）
      * @apiNote 删除数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    String delete(String uids);
+    String delete(String ids);
 
     /**
-     * @param cond gsc-GraphQL
+     * @param conditions gsc-GraphQL
      * @apiNote 删除数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    String deleteEx(String cond);
+    String deleteEx(JSONArray conditions);
 
     /**
-     * @param uids       主键组（不同主键值用“,”隔开）
-     * @param base64Json gsc-json
+     * @param ids        主键组（不同主键值用“,”隔开）
+     * @param updateData 更新的数据
      * @apiNote 更新数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    String update(String uids, String base64Json);
+    String update(String ids, JSONObject updateData);
 
     /**
-     * @param base64Json gsc-json
-     * @param cond       gsc-GraphQL
+     * @param updateData 更新的数据
+     * @param conditions gsc-GraphQL
      * @apiNote 更新数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    String updateEx(String base64Json, String cond);
+    String updateEx(JSONObject updateData, JSONArray conditions);
 
     /**
      * @param idx 当前页码
@@ -51,17 +53,17 @@ public interface MasterServiceTemplateInterface {
     /**
      * @param idx  当前页码
      * @param max  每页最大显示数量
-     * @param cond gsc-GraphQL
+     * @param conditions gsc-GraphQL
      * @apiNote 页方式展示数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    String pageEx(int idx, int max, String cond);
+    String pageEx(int idx, int max, JSONArray conditions);
 
     /**
      * @apiNote 获得全部数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    @InterfaceType(InterfaceType.type.OauthApi)
+    // @InterfaceType(InterfaceType.type.OauthApi)
     String select();
 
     /**
@@ -72,12 +74,12 @@ public interface MasterServiceTemplateInterface {
     String select(String appId);
 
     /**
-     * @param cond gsc-GraphQL
+     * @param conditions gsc-GraphQL
      * @apiNote 获得全部数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     @InterfaceType(InterfaceType.type.OauthApi)
-    String selectEx(String cond);
+    String selectEx(JSONArray conditions);
 
     /***
      * @apiNote 查找指定数据
@@ -85,18 +87,18 @@ public interface MasterServiceTemplateInterface {
      * @param val 查找的字段值
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    String find(String key, String val);
+    String find(String key, Object val);
 
     /***
      * @apiNote 查找指定数据, 通过指定条件
-     * @param cond gsc-GraphQL
+     * @param conditions gsc-GraphQL
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    String findEx(String cond);
+    String findEx(JSONArray conditions);
 
     /**
      * @apiNote 根据条件获得以符合条件的数据为ROOT的构造JSON-TREE
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    String tree(String cond);
+    String tree(JSONArray conditions);
 }

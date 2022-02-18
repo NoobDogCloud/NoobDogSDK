@@ -14,34 +14,34 @@ public interface MicroServiceTemplateInterface {
     Object insert(JSONObject info);
 
     /**
-     * @param uids 主键组（不同主键值用“,”隔开）
+     * @param ids 主键组（不同主键值用“,”隔开）
      * @apiNote 删除数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    int delete(String uids);
+    int delete(String ids);
 
     /**
-     * @param cond gsc-GraphQL
+     * @param conditions gsc-GraphQL
      * @apiNote 删除数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    int deleteEx(JSONArray cond);
+    int deleteEx(JSONArray conditions);
 
     /**
-     * @param uids 主键组（不同主键值用“,”隔开）
+     * @param ids  主键组（不同主键值用“,”隔开）
      * @param info gsc-json
      * @apiNote 更新数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    int update(String uids, JSONObject info);
+    int update(String ids, JSONObject info);
 
     /**
-     * @param info gsc-json
-     * @param cond gsc-GraphQL
+     * @param info       gsc-json
+     * @param conditions gsc-GraphQL
      * @apiNote 更新数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    int updateEx(JSONObject info, JSONArray cond);
+    int updateEx(JSONObject info, JSONArray conditions);
 
     /**
      * @param idx 当前页码
@@ -52,13 +52,13 @@ public interface MicroServiceTemplateInterface {
     RpcPageInfo page(int idx, int max);
 
     /**
-     * @param idx  当前页码
-     * @param max  每页最大显示数量
-     * @param cond gsc-GraphQL
+     * @param idx        当前页码
+     * @param max        每页最大显示数量
+     * @param conditions gsc-GraphQL
      * @apiNote 页方式展示数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    RpcPageInfo pageEx(int idx, int max, JSONArray cond);
+    RpcPageInfo pageEx(int idx, int max, JSONArray conditions);
 
     /**
      * @apiNote 获得全部数据
@@ -85,16 +85,16 @@ public interface MicroServiceTemplateInterface {
 
     /***
      * @apiNote 查找指定数据, 通过指定条件
-     * @param cond gsc-GraphQL
+     * @param conditions gsc-GraphQL
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    JSONObject findEx(JSONArray cond);
+    JSONObject findEx(JSONArray conditions);
 
     /**
      * @apiNote 根据条件获得以符合条件的数据为ROOT的构造JSON-TREE
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    Object tree(JSONArray cond);
+    Object tree(JSONArray conditions);
 
     /**
      * @apiNote 为特定的方法申请一次性授权

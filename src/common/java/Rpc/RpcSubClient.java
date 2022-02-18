@@ -1,7 +1,7 @@
 package common.java.Rpc;
 
 import common.java.Http.Client.WebSocketClient;
-import common.java.Http.Server.ApiSubscribe.SubscribeGsc;
+import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
 import org.json.gsc.JSONObject;
@@ -49,7 +49,7 @@ public class RpcSubClient {
     }
 
     private String _getTopic(RpcWebSocketQuery query) {
-        return StringHelper.isInvalided(dry_topic) ? SubscribeGsc.computerTopic(query.url()) : dry_topic;
+        return StringHelper.isInvalided(dry_topic) ? GscSubscribe.computerTopic(query.url()) : dry_topic;
     }
 
     // 订阅服务

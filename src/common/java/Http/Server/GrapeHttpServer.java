@@ -5,7 +5,7 @@ import common.java.Config.Config;
 import common.java.Coordination.Coordination;
 import common.java.Http.Common.RequestSession;
 import common.java.Http.Common.SocketContext;
-import common.java.Http.Server.ApiSubscribe.SubscribeGsc;
+import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Number.NumberHelper;
 import common.java.Rpc.ExecRequest;
 import common.java.Rpc.rMsg;
@@ -106,7 +106,7 @@ public class GrapeHttpServer {
             // 响应自动订阅参数(能运行到这里说明请求代码层执行完毕)
             String topic = ctx.getRequestID();
             if (StringHelper.isInvalided(topic)) {
-                topic = SubscribeGsc.filterSubscribe(sCtx);
+                topic = GscSubscribe.filterSubscribe(sCtx);
             }
             or.out(WebsocketResult(topic, rlt));
         } else {

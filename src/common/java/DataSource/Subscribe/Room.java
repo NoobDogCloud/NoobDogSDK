@@ -2,7 +2,7 @@ package common.java.DataSource.Subscribe;
 
 import common.java.Concurrency.HashmapTaskRunner;
 import common.java.Http.Common.SocketContext;
-import common.java.Http.Server.ApiSubscribe.SubscribeGsc;
+import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Time.TimeHelper;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
@@ -21,10 +21,10 @@ public class Room {
             // 需要请求时上下文
             long n = TimeHelper.getNowTimestampByZero();
             // 包含需要更新数据
-            if (SubscribeGsc.getUpdateStatus(room)) {
+            if (GscSubscribe.getUpdateStatus(room)) {
                 // 50ms未动 or 距离上次同步超过500ms => 推送同步数据时间戳
                 if ((n - room.getUpdateTime() > 50) || (n - room.getSyncUpdateTime() > 500)) {
-                    SubscribeGsc._onChanged(room);
+                    GscSubscribe._onChanged(room);
                 }
                 // 距离上次广播数据超过1000ms
                 if (n - room.getBroadcastTime() > 5000) {
@@ -34,7 +34,7 @@ public class Room {
             }
         } catch (Exception e) {
             // 删除订阅源,房间
-            SubscribeGsc.remove(room);
+            GscSubscribe.remove(room);
         }
     }).setDelay(50);
     // 房间成员记录

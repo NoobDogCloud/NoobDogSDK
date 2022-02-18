@@ -14,7 +14,7 @@ import org.json.gsc.JSONObject;
  * 负责处理基于GSC-Websocket请求的服务数据订阅头
  */
 
-public class SubscribeGsc {
+public class GscSubscribe {
     private static DistributionSubscribeInterface distribution_subscribe = null;
 
     // 定时检测任务
