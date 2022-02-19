@@ -181,7 +181,11 @@ public class Room {
         if ((memberArr.containsKey(cid))) {
             memberArr.get(cid).setSocketContext(sCtx);
         } else {
-            Member member = Member.build(ch, sCtx).setRefreshFunc(refreshFunc);
+            Member member = Member.build(ch, sCtx);
+            // 设置 member 广播行为是Room的行为
+            if (refreshFunc.size() > 0) {
+                member.setRefreshFunc(refreshFunc);
+            }
             memberArr.put(cid, member);
             for (var func : joinFunc) {
                 func.accept(member);
