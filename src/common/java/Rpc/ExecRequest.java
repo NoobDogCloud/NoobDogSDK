@@ -198,7 +198,7 @@ public class ExecRequest {//框架内请求类
     }
 
     private static String getServiceTopic(HttpContext hCtx) {
-        return "topic_service_" + hCtx.serviceName() + "_" + hCtx.className() + "_" + hCtx.actionName();
+        return "topic_service_" + hCtx.serviceName() + "_" + hCtx.className();
     }
 
     /**

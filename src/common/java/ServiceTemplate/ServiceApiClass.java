@@ -12,6 +12,7 @@ public class ServiceApiClass {
         updateApi.add("updateEx");
         updateApi.add("insert");
         updateApi.add("delete");
+        updateApi.add("deleteEx");
     }
 
     static {
