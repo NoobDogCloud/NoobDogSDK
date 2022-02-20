@@ -81,23 +81,20 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         return decoder.parameters().size() > 0 ? decoder : null;
     }
 
-    private void webSocket(ChannelHandlerContext _ctx, TextWebSocketFrame msg) {
-        /*
-         * get:{"path":"url","header":{header},"param":{postparam},}
-         * */
-        ByteBuf buf = msg.content();  //真正的数据是放在buf里面的
-        String wsData = buf.toString(StandardCharsets.UTF_8);  //将数据按照utf-8的方式转化为字符串
-        JSONObject json = JSONObject.toJSON(wsData);
-        if (JSONObject.isInvalided(json) || !json.containsKey("path") || !json.containsKey("header")) {
-            OutResponse.defaultOut(_ctx, rMsg.netMSG(false, "请求错误!"));
-        } else {
-            // 开始服务
-            GrapeHttpServer.startService(json, _ctx, null);
+    // 将请求格式是 gsc-rpc 的post转化成等同的get
+    private static String fixPostBody(String _url, String tempBody) {
+        try {
+            String appendURL = tryfixURL(tempBody);
+            if (!appendURL.equals("") && !StringHelper.isInvalided(appendURL)) {
+                _url += "/" + appendURL;
+            }
+            return _url;
+        } catch (Exception e) {
+            return null;
         }
     }
 
     private String filterURLencodeWord(String url) {
-        //return url;
         return UrlCode.decode(url);
     }
 
@@ -140,6 +137,28 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         return path;
     }
 
+    private void webSocket(ChannelHandlerContext _ctx, TextWebSocketFrame msg) {
+        ByteBuf buf = msg.content();  //真正的数据是放在buf里面的
+        String wsData = buf.toString(StandardCharsets.UTF_8);  //将数据按照utf-8的方式转化为字符串
+        JSONObject json = JSONObject.toJSON(wsData);
+        if (JSONObject.isInvalided(json) || !json.containsKey("path") || !json.containsKey("header")) {
+            OutResponse.defaultOut(_ctx, rMsg.netMSG(false, "请求错误!"));
+        } else {
+            String body = json.getString("param");
+            if (!StringHelper.isInvalided(body)) {
+                String _url = filterURLencodeWord(json.getString("path"));
+                _url = NetEvents.fixPostBody(_url, body);
+                if (_url != null) {
+                    // 重设uri地址
+                    json.put("path", _url);
+                    nLogger.debugInfo("websocket-gsc-post:" + _url);
+                }
+            }
+            // 开始服务
+            GrapeHttpServer.startService(json, _ctx, null);
+        }
+    }
+
     private void httpRequest(ChannelHandlerContext _ctx, HttpContent msg) {
         JSONObject postParam = null;
         String _url = filterURLencodeWord(_req.uri());
@@ -150,10 +169,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
             // 是gsc-post
             if (isGscPost(tempBody)) {
                 // 将请求格式是 gsc-rpc 的post转化成等同的get
-                appendURL = tryfixURL(tempBody);
-                if (!appendURL.equals("") && !StringHelper.isInvalided(appendURL)) {
-                    _url += "/" + appendURL;
-                }
+                _url = NetEvents.fixPostBody(_url, tempBody);
                 nLogger.debugInfo("gsc-post:" + _url);
             } else {
                 // 分析正常post请求参数
@@ -184,7 +200,9 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         }
         if (vaild) {
             // 重设uri地址
-            _req.setUri(_url);
+            if (_url != null) {
+                _req.setUri(_url);
+            }
             GrapeHttpServer.startService(_req, _ctx, postParam);
         }
     }
