@@ -164,7 +164,6 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         String _url = filterURLencodeWord(_req.uri());
         boolean vaild = false;
         if (_req.method().equals(HttpMethod.POST)) {
-            String appendURL;
             String tempBody = convertByteBufToString(msg.content().copy());
             // 是gsc-post
             if (isGscPost(tempBody)) {
