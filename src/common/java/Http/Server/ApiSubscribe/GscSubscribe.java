@@ -39,9 +39,6 @@ public class GscSubscribe {
             offset = 1;
         }
         String[] arr = _path.split("/");
-        HttpContext ctx = HttpContext.current();
-        // int appId = ctx == null ? 0 : ctx.appId();
-        // return (arr.length < (3 + offset) ? null : arr[(1 + offset)] + "#" + arr[(2 + offset)]) + "_" + appId;
         return (arr.length < (3 + offset) ? null : arr[(1 + offset)] + "#" + arr[(2 + offset)]);
     }
 
@@ -116,6 +113,10 @@ public class GscSubscribe {
             distribution_subscribe.removeStatus(room);
         }
         room.releaseRoom();
+    }
+
+    public static Room get(String topic, int appId) {
+        return Room.get(topic, appId);
     }
 
     // 获得主题数据刷新数据

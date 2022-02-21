@@ -110,6 +110,11 @@ public class Room {
     }
     */
 
+    public static Room get(String Topic, int appId) {
+        String _topic = getTopicWithAppID(Topic, appId);
+        return (room_pool.containsKey(_topic)) ? room_pool.get(_topic) : null;
+    }
+
     public static Room getInstance(String Topic, int appId, DistributionSubscribeInterface distribution_subscribe) {
         String _topic = getTopicWithAppID(Topic, appId);
         if (room_pool.containsKey(_topic)) {
@@ -212,7 +217,10 @@ public class Room {
             sCtx.removeSubscriber(this);
         }
         for (var func : leaveFunc) {
-            func.accept(memberArr.get(cid));
+            var m = memberArr.get(cid);
+            if (m != null) {
+                func.accept(m);
+            }
         }
         // 从房间中移除成员
         memberArr.remove(cid);

@@ -119,12 +119,15 @@ public class CustomDataSourceSubscriber {
 
     // 删除本节点订阅对象
     private void remove() {
-        var r = GscSubscribe.updateOrCreate(room.getTopic(), room.getAppId());
+        var r = GscSubscribe.get(room.getTopic(), room.getAppId());
         if (r != null) {
             // 删除订阅源，删除房间
             GscSubscribe.remove(r);
         }
-        subscriber.remove(room.getTopicWithAppID());
+        var _topic = room.getTopicWithAppID();
+        if (_topic != null) {
+            subscriber.remove(_topic);
+        }
         memberReaderMap.clear();
     }
 

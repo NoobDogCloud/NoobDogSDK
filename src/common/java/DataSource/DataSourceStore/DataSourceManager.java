@@ -10,7 +10,8 @@ public class DataSourceManager {
 
     // 根据数据源名称获得数据源
     public static IDataSourceStore get(String topic) {
-        return topicQueue.get(getPrivateTopic(topic));
+        var _topic = getPrivateTopic(topic);
+        return _topic != null ? topicQueue.get(_topic) : null;
     }
 
     // 获得真实topic
@@ -28,7 +29,10 @@ public class DataSourceManager {
      */
     public static IDataSourceStore add(String topic) {
         var ds = dsc.newInstance();
-        topicQueue.put(getPrivateTopic(topic), ds);
+        var _topic = getPrivateTopic(topic);
+        if (_topic != null) {
+            topicQueue.put(_topic, ds);
+        }
         return ds;
     }
 
@@ -38,11 +42,14 @@ public class DataSourceManager {
     }
 
     public static boolean contains(String topic) {
-        return topicQueue.containsKey(getPrivateTopic(topic));
+        var _topic = getPrivateTopic(topic);
+        return _topic != null && topicQueue.containsKey(_topic);
     }
 
     public static void remove(String topic) {
         String topicFull = getPrivateTopic(topic);
-        topicQueue.remove(topicFull);
+        if (topicFull != null) {
+            topicQueue.remove(topicFull);
+        }
     }
 }

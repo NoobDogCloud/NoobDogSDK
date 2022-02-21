@@ -25,6 +25,4 @@ public class DataSourceReader {
     public int getPosition() {
         return position;
     }
-
-
 }

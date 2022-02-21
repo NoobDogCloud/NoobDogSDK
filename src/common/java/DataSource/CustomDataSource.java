@@ -3,7 +3,7 @@ package common.java.DataSource;
 import common.java.Concurrency.ListTaskRunner;
 import common.java.DataSource.DataSourceStore.DataSourceManager;
 import common.java.DataSource.DataSourceStore.IDataSourceStore;
-import common.java.Http.Server.ApiSubscribe.GscSubscribe;
+import common.java.DataSource.Subscribe.Room;
 import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
 import common.java.Time.TimeHelper;
@@ -17,8 +17,15 @@ public class CustomDataSource {
     // 自动强制释放间隔
     private static final long freeTimeout = 3600 * 1000;
     private final int appId;    // 所有待删除的自定义数据源
+
+    private static void removeDeleteTask(CustomDataSource v) {
+        if (v != null) {
+            waitDeleteQueue.remove(v);
+        }
+    }
+
     private static final ListTaskRunner<CustomDataSource> waitDeleteQueue = ListTaskRunner.<CustomDataSource>getInstance(cds -> {
-        var r = GscSubscribe.updateOrCreate(cds.topic, cds.appId);
+        var r = Room.get(cds.topic, cds.appId);
         if (r == null) {
             cds._delete();
             CustomDataSource.removeDeleteTask(cds);
@@ -47,9 +54,6 @@ public class CustomDataSource {
         customDataSourceQueue.add(this);
     }
 
-    private static void removeDeleteTask(CustomDataSource v) {
-        waitDeleteQueue.remove(v);
-    }
 
     private void updateLiveTime() {
         lastLiveTime = TimeHelper.getNowTimestampByZero();
