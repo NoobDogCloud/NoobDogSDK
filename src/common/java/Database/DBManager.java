@@ -47,18 +47,20 @@ public class DBManager {
             // 创建表
             try {
                 db.buildTableFromMeta(tableName, tableInfo.getString("builder"));
+                nLogger.logInfo("创建表" + tableName + "成功");
             } catch (Exception e) {
                 nLogger.errorInfo("创建表失败：" + tableName);
             }
 
             // 写入数据
+            int count = 0;
             try {
                 JSONArray<JSONObject> result = tableInfo.getJsonArray("data");
                 db.form(tableName);
                 for (JSONObject item : result) {
                     db.data(item);
                 }
-                db.insert();
+                count += db.insert().size();
             } catch (Exception e) {
                 String errorInfo = """
                         表:%s
@@ -66,6 +68,7 @@ public class DBManager {
                         """.indent(0);
                 nLogger.errorInfo(String.format(errorInfo, tableName, e.getMessage()));
             }
+            nLogger.logInfo("表" + tableName + "写入数据" + count + "条");
         }
     }
 }
