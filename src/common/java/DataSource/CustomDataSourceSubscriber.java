@@ -81,7 +81,7 @@ public class CustomDataSourceSubscriber {
         var appId = ctx.appId();
         String topicWithAppid = topic + "_" + appId;
         if (!subscriber.containsKey(topicWithAppid)) {
-            var ds = DataSourceManager.get(topic);
+            var ds = DataSourceManager.get(topic, appId);
             if (ds != null) {
                 new CustomDataSourceSubscriber(topic, appId, ds);
             }

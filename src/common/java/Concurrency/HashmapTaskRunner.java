@@ -23,7 +23,7 @@ public class HashmapTaskRunner<K, V> {
     }
 
     public static <K, V> HashmapTaskRunner<K, V> getInstance(long maxWaterMark, BiConsumer<K, V> func) {
-        return new HashmapTaskRunner<K, V>(maxWaterMark, func);
+        return new HashmapTaskRunner<>(maxWaterMark, func);
     }
 
     public static <K, V> HashmapTaskRunner<K, V> getInstance(BiConsumer<K, V> func) {

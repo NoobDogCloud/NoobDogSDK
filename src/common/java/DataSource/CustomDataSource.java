@@ -11,7 +11,7 @@ import common.java.Time.TimeHelper;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * @classNote: 自定义数据源 服务端通过本类生成新的数据源，并可以向数据源写入数据
+ * 自定义数据源 服务端通过本类生成新的数据源，并可以向数据源写入数据
  */
 public class CustomDataSource {
     // 自动强制释放间隔
@@ -48,8 +48,8 @@ public class CustomDataSource {
      */
     private CustomDataSource() {
         topic = createTopic();
-        store = DataSourceManager.add(topic);
         appId = HttpContext.current().appId();
+        store = DataSourceManager.add(topic, appId);
         updateLiveTime();
         customDataSourceQueue.add(this);
     }
@@ -70,7 +70,7 @@ public class CustomDataSource {
 
     private void _delete() {
         // 删除主题
-        DataSourceManager.remove(topic);
+        DataSourceManager.remove(topic, appId);
         // 关闭数据存储源
         store.close();
     }
@@ -83,10 +83,7 @@ public class CustomDataSource {
         String key;
         do {
             key = "CustomDataSource_" + StringHelper.shortUUID() + idx.incrementAndGet();
-            if (!DataSourceManager.contains(key)) {
-                break;
-            }
-        } while (true);
+        } while (DataSourceManager.contains(key, appId));
         return key;
     }
 
