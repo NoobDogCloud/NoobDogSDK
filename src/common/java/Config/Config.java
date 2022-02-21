@@ -52,7 +52,7 @@ public class Config {
         try {
             prop.load(new FileInputStream(configPath));
         } catch (IOException e) {
-            nLogger.logInfo(e, "配置文件[" + configPath + "]不存在");
+            // 现在不一定需要配置文件
         }
         return prop;
     }
