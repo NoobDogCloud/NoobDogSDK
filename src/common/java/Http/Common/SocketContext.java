@@ -1,5 +1,6 @@
 package common.java.Http.Common;
 
+import common.java.DataSource.Subscribe.Room;
 import common.java.Http.Server.HttpContext;
 import common.java.Http.Server.OutResponse;
 import common.java.Reflect._reflect;
@@ -11,8 +12,9 @@ public class SocketContext {
     private final String cid;
     private final HashMap<String, Object> payload;
     private _reflect currentObj;
-    private HttpContext request;
-    private OutResponse response;
+    private final HashMap<String, Room> subscriber = new HashMap<>();    // 订阅对象
+    private HttpContext request;        // 请求对象
+    private OutResponse response;       // 应答对象
 
     private SocketContext(String cid) {
         this.cid = cid;
@@ -48,8 +50,27 @@ public class SocketContext {
         return this;
     }
 
+    public SocketContext putSubscriber(Room room) {
+        if (room != null) {
+            subscriber.put(room.getTopicWithAppID(), room);
+        }
+        return this;
+    }
+
+    public SocketContext removeSubscriber(Room room) {
+        if (room != null) {
+            subscriber.remove(room.getTopicWithAppID());
+        }
+        return this;
+    }
+
     // 销毁请求上下文时调用它，从线程上下文清除
     public void destroy() {
+        // 从所有已订阅房间退出
+        for (var room : subscriber.values()) {
+            room.leave(cid);
+        }
+        // 删除上下文
         worker.remove();
     }
 

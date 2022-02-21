@@ -16,41 +16,6 @@ import org.json.gsc.JSONObject;
 
 public class GscSubscribe {
     private static DistributionSubscribeInterface distribution_subscribe = null;
-
-    // 定时检测任务
-    // 负责 数据新鲜度 同步监测
-    // 负责 数据一致性 同步监测
-    /*
-    private static final ScheduledExecutorService heart_thread;
-    static {
-        heart_thread = Executors.newSingleThreadScheduledExecutor();
-        heart_thread.scheduleAtFixedRate(() -> {
-                Room.foreach(room -> {
-                    try {
-                        // 需要请求时上下文
-                        long n = TimeHelper.getNowTimestampByZero();
-                        // 包含需要更新数据
-                        if (getUpdateStatus(room)) {
-                            // 50ms未动 or 距离上次同步超过500ms => 推送同步数据时间戳
-                            if ((n - room.getUpdateTime() > 50) || (n - room.getSyncUpdateTime() > 500)) {
-                                _onChanged(room);
-                            }
-                            // 距离上次广播数据超过1000ms
-                            if (n - room.getBroadcastTime() > 5000) {
-                                // 刷新房间内所有用户数据
-                                room.update();
-                            }
-                        }
-                    } catch (Exception e) {
-                        // 删除订阅源,房间
-                        SubscribeGsc.remove(room);
-                    }
-                });
-
-        }, 50, 50, TimeUnit.MILLISECONDS);
-    }
-    */
-
     /**
      * 注入自定义分布式订阅组件
      */

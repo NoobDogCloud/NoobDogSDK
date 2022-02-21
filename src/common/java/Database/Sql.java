@@ -931,8 +931,8 @@ public class Sql implements IDBManager<Sql> {
 
     protected List<String> insertSQL() {
         List<String> sqlList = new ArrayList<>();
-        String fieldString = "", valueString = "";
         for (JSONObject _t : dataJSON) {//dataJSON可以包含多个jsonString,每一个jsonString代表一个操作
+            String fieldString = "", valueString = "";
             for (Object _j : _t.keySet()) {//为每一个jsonString构造k-v insertsql
                 fieldString = fieldString + "`" + _j.toString() + "`,";
                 valueString = valueString + sqlvalue(_t.get(_j)) + ",";

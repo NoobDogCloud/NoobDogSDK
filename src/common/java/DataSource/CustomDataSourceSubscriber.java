@@ -25,20 +25,6 @@ public class CustomDataSourceSubscriber {
             v.freshUpdateStatus();
         }
     }).setDelay(150);
-    // 定时检测数据源，如果数据源有更新，设置 room 状态为激发
-    /*
-    private static final ScheduledExecutorService heart_thread;
-    static {
-        heart_thread = Executors.newSingleThreadScheduledExecutor();
-        heart_thread.scheduleAtFixedRate(() -> {
-            for (CustomDataSourceSubscriber subscriber : subscriber.values()) {
-                if (subscriber.isUpdate()) {
-                    subscriber.freshUpdateStatus();
-                }
-            }
-        }, 150, 150, TimeUnit.MILLISECONDS);
-    }
-    */
 
     // 数据源房间
     private final Room room;

@@ -40,7 +40,7 @@ public class Room {
     // 每个房间最多人数
     private final int memberMax;
     // 房间成员记录
-    private final ConcurrentHashMap<ChannelId, Member> memberArr = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Member> memberArr = new ConcurrentHashMap<>();
     // 房间主题
     private final String topic;
     // 主题包含新数据
@@ -98,7 +98,7 @@ public class Room {
 
     public static void removeMember(ChannelId cid) {
         for (Room r : room_pool.values()) {
-            r.leave(cid);
+            r.leave(cid.asLongText());
         }
     }
 
@@ -179,13 +179,13 @@ public class Room {
 
     // 获得成员
     public Member member(ChannelHandlerContext ch) {
-        ChannelId cid = ch.channel().id();
+        String cid = ch.channel().id().asLongText();
         return memberArr.get(cid);
     }
 
     // 加入成员
     public Member add(ChannelHandlerContext ch, SocketContext sCtx) {
-        ChannelId cid = ch.channel().id();
+        String cid = ch.channel().id().asLongText();
         if ((memberArr.containsKey(cid))) {
             memberArr.get(cid).setSocketContext(sCtx);
         } else {
@@ -198,16 +198,24 @@ public class Room {
             for (var func : joinFunc) {
                 func.accept(member);
             }
+            // 绑定当前订阅房间到 socket 上下文
+            sCtx.putSubscriber(this);
         }
         return memberArr.get(cid);
     }
 
     // 成员退出
-    public Room leave(ChannelId cid) {
-        memberArr.remove(cid);
+    public Room leave(String cid) {
+        // 从socket 上下文中移除当前房间
+        var sCtx = SocketContext.current();
+        if (sCtx != null) {
+            sCtx.removeSubscriber(this);
+        }
         for (var func : leaveFunc) {
             func.accept(memberArr.get(cid));
         }
+        // 从房间中移除成员
+        memberArr.remove(cid);
         if (memberArr.size() == 0) {
             this.releaseRoom();
         }
@@ -242,5 +250,9 @@ public class Room {
             }
         }
         return this;
+    }
+
+    public int getMemberCount() {
+        return memberArr.size();
     }
 }
