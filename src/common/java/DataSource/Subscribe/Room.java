@@ -37,8 +37,10 @@ public class Room {
             GscSubscribe.remove(room);
         }
     }).setDelay(50);
+    // 每个房间最多人数
+    private final int memberMax;
     // 房间成员记录
-    private final ConcurrentHashMap<ChannelId, Member> memberArr;
+    private final ConcurrentHashMap<ChannelId, Member> memberArr = new ConcurrentHashMap<>();
     // 房间主题
     private final String topic;
     // 主题包含新数据
@@ -63,9 +65,15 @@ public class Room {
     private final List<Consumer<Room>> broadcastFunc = new ArrayList<>();
 
     private Room(String Topic, int appId) {
-        topic = Topic;
+        this.topic = Topic;
         this.appId = appId;
-        memberArr = new ConcurrentHashMap<>();
+        this.memberMax = 100;
+    }
+
+    private Room(String Topic, int appId, int memberMax) {
+        this.topic = Topic;
+        this.appId = appId;
+        this.memberMax = memberMax;
     }
 
     public Room setJoinHook(Consumer<Member> joinFunc) {

@@ -2,6 +2,7 @@ package common.java.Database;
 
 import common.java.File.FileText;
 import common.java.nLogger.nLogger;
+import io.netty.util.CharsetUtil;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
@@ -34,13 +35,13 @@ public class DBManager {
             builder.put(tableName, tableInfo);
         }
         if (!JSONObject.isInvalided(builder)) {
-            FileText.build(outFile).write(builder.toString());
+            FileText.build(outFile, CharsetUtil.UTF_8).write(builder.toString());
         }
     }
 
     // 导入数据库
     public void doImport(File inFile) {
-        JSONObject json = JSONObject.toJSON(FileText.build(inFile).readString());
+        JSONObject json = JSONObject.toJSON(FileText.build(inFile, CharsetUtil.UTF_8).readString());
         for (String tableName : json.keySet()) {
             JSONObject tableInfo = json.getJson(tableName);
             // 创建表

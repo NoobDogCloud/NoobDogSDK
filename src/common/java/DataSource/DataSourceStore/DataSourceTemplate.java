@@ -60,4 +60,12 @@ public class DataSourceTemplate {
     public List<Object> toArrayList() {
         return lines.toArrayList();
     }
+
+    public JSONArray toJSONArray() {
+        return lines;
+    }
+
+    public void remove(int idx) {
+        lines.remove(idx);
+    }
 }
