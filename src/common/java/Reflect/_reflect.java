@@ -142,10 +142,12 @@ public class _reflect {
                  * */
                 if (method.getModifiers() == Modifier.PUBLIC) {
                     String api = AnnotationMethod(method);
-                    String param = ParameterMethod(method);
-                    func.add(JSONObject.build("name", method.getName())
-                            .put("level", api)
-                            .put("param", StringHelper.isInvalided(param) ? "" : StringHelper.build(param).trimFrom(',').toString()));
+                    if (!api.contains("closeApi")) {
+                        String param = ParameterMethod(method);
+                        func.add(JSONObject.build("name", method.getName())
+                                .put("level", api)
+                                .put("param", StringHelper.isInvalided(param) ? "" : StringHelper.build(param).trimFrom(',').toString()));
+                    }
                 }
             }
             cls = cls.getSuperclass();
