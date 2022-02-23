@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -450,6 +451,11 @@ public class CheckHelper {
     public static boolean IsVersion(String str) {
         String regex = "^(([0-9]|([1-9]([0-9]*))).){2}([0-9]|([1-9]([0-9]*)))([-](([0-9A-Za-z]|([1-9A-Za-z]([0-9A-Za-z]*)))[.]){0,}([0-9A-Za-z]|([1-9A-Za-z]([0-9A-Za-z]*)))){0,1}([+](([0-9A-Za-z]{1,})[.]){0,}([0-9A-Za-z]{1,})){0,1}$";
         return match(regex, str);
+    }
+
+    public static boolean IsBoolean(String str) {
+        String lowStr = str.toLowerCase(Locale.ROOT);
+        return lowStr.equals("true") || lowStr.equals("false") || lowStr.equals("1") || lowStr.equals("0");
     }
 
     private static boolean match(String regex, String str) {

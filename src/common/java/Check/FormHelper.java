@@ -370,6 +370,8 @@ public class FormHelper {
                 return CheckHelper.IsStrictID(str, 64);
             case formdef.Version:
                 return CheckHelper.IsVersion(str);
+            case formdef.Boolean:
+                return CheckHelper.IsBoolean(str);
             default:
                 // rule不在有效范围,效验失败
                 return false;
@@ -509,5 +511,7 @@ public class FormHelper {
          * 版本号 x.y.z
          */
         public final static int Version = 31;
+
+        public final static int Boolean = 32;
     }
 }
