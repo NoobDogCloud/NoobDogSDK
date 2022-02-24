@@ -40,6 +40,10 @@ public class DBManager {
     }
 
     // 导入数据库
+    public void doImport(File inFile) {
+        doImport(inFile, true);
+    }
+
     public void doImport(File inFile, boolean isOverwrite) {
         JSONObject json = JSONObject.toJSON(FileText.build(inFile, CharsetUtil.UTF_8).readString());
         for (String tableName : json.keySet()) {
