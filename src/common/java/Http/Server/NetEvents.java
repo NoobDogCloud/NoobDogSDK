@@ -355,6 +355,10 @@ class NetEvents extends ChannelInboundHandlerAdapter {
             nLogger.debugInfo(e);
         }
          */
+        if (ctx.channel().isActive()) {
+            // sendError(ctx, INTERNAL_SERVER_ERROR);
+            nLogger.errorInfo("INTERNAL_SERVER_ERROR");
+        }
     }
 
 }

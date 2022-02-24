@@ -1,7 +1,6 @@
 package common.java.Http.Server;
 
 import common.java.Apps.AppContext;
-import common.java.Config.Config;
 import common.java.Coordination.Coordination;
 import common.java.Http.Common.RequestSession;
 import common.java.Http.Common.SocketContext;
@@ -10,6 +9,7 @@ import common.java.Number.NumberHelper;
 import common.java.Rpc.ExecRequest;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
+import common.java.nLogger.nLogger;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
@@ -19,8 +19,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class GrapeHttpServer {
-
-    private final static int bufferLen = 20480;
+    // private final static int bufferLen = 20480;
     private final static ExecutorService es = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() * 2 + 1);
     // private final static ExecutorService es = Executors.newCachedThreadPool();
 
@@ -75,11 +74,7 @@ public class GrapeHttpServer {
             try {
                 stubLoop(ctx);
             } catch (Exception e) {
-                if (Config.debug) {
-                    // oResponse.out(rMsg.netMSG(false, e.getMessage()));
-                    System.out.println(e.getMessage());
-                }
-                e.printStackTrace();
+                nLogger.errorInfo(e, e.getMessage());
             }
         });
     }
