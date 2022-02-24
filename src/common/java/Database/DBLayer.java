@@ -688,4 +688,8 @@ public class DBLayer implements IDBManager<DBLayer> {
     public boolean buildTableFromMeta(String tableName, String buildMeta) {
         return _db.buildTableFromMeta(tableName, buildMeta);
     }
+
+    public boolean removeTable(String tableName) {
+        return _db.removeTable(tableName);
+    }
 }

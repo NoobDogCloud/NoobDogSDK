@@ -282,7 +282,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
                                         }
                                     } else {
                                         try {
-                                            File newTempFile = new File(FileHelper.newTempFileName());
+                                            File newTempFile = new File(FileHelper.buildTempFile());
                                             _data.getFile().renameTo(newTempFile);
                                             fileInfo.append(newTempFile);
                                         } catch (IOException e) {

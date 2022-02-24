@@ -40,12 +40,15 @@ public class DBManager {
     }
 
     // 导入数据库
-    public void doImport(File inFile) {
+    public void doImport(File inFile, boolean isOverwrite) {
         JSONObject json = JSONObject.toJSON(FileText.build(inFile, CharsetUtil.UTF_8).readString());
         for (String tableName : json.keySet()) {
             JSONObject tableInfo = json.getJson(tableName);
             // 创建表
             try {
+                if (isOverwrite) {
+                    db.removeTable(tableName);
+                }
                 db.buildTableFromMeta(tableName, tableInfo.getString("builder"));
                 nLogger.logInfo("创建表" + tableName + "成功");
             } catch (Exception e) {

@@ -1242,4 +1242,9 @@ public class Mongodb implements IDBManager<Mongodb> {
     public boolean buildTableFromMeta(String tableName, String buildMeta) {
         return tableName.equals(buildMeta);
     }
+
+    public boolean removeTable(String tableName) {
+        mongoDatabase.getCollection(tableName).drop();
+        return true;
+    }
 }

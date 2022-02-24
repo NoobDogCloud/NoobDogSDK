@@ -50,13 +50,45 @@ public class FileBinary extends FileHelper<FileBinary> {
         } catch (Exception e) {
             error_handle();
             buff = null;
+        } finally {
+            super.closeInputStream();
         }
         return buff;
     }
 
     public boolean write(ByteBuf in) {
         try {
-            super.getOutputStream().write(in.array());
+            if (in.isDirect()) {
+                int writeLen = 5120;
+                int length = Math.min(in.capacity(), writeLen);
+                byte[] buff = new byte[length];
+                int offset = 0;
+                for (int i = 0, l = in.capacity() / writeLen; i < l; i++) {
+                    in.getBytes(offset, buff);
+                    write(buff);
+                    offset += writeLen;
+                }
+                int remain = in.capacity() % writeLen;
+                if (remain > 0) {
+                    byte[] _buff = new byte[remain];
+                    in.getBytes(offset, _buff);
+                    write(_buff);
+                }
+            } else {
+                write(in.array());
+            }
+            return true;
+        } catch (Exception e) {
+            error_handle();
+            return false;
+        } finally {
+            super.closeOutputStream();
+        }
+    }
+
+    public boolean write(byte[] in) {
+        try {
+            super.getOutputStream().write(in);
             return true;
         } catch (Exception e) {
             error_handle();

@@ -735,6 +735,21 @@ public class Sql implements IDBManager<Sql> {
         return createTable(tableName, buildMeta);
     }
 
+    public boolean removeTable(String tableName) {
+        boolean rb = false;
+        Connection conn = getNewConnection();
+        try {
+            Statement smt = conn.createStatement();
+            String sql = "drop table " + tableName;
+            rb = smt.execute(sql);
+        } catch (SQLException e) {
+            nLogger.logInfo(e);
+        } finally {
+            _Close(conn);
+        }
+        return rb;
+    }
+
     /**
      * 判断表是否存在，不存在就创建
      *
