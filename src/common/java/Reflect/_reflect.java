@@ -9,7 +9,7 @@ import common.java.OAuth.oauthApi;
 import common.java.Rpc.ExecRequest;
 import common.java.Rpc.FilterCallback;
 import common.java.Rpc.ReturnCallback;
-import common.java.Rpc.RpcError;
+import common.java.Rpc.RpcMessage;
 import common.java.Session.UserSession;
 import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
@@ -312,24 +312,24 @@ public class _reflect {
         return rs;
     }
 
-    private RpcError chkApiType(InterfaceType _at) {
-        RpcError rs = null;
+    private RpcMessage chkApiType(InterfaceType _at) {
+        RpcMessage rs = null;
         switch (_at.value()) {
             case SessionApi:
                 if (!UserSession.current().checkSession()) {//会话不存在
-                    rs = RpcError.Instant(SystemDefined.interfaceSystemErrorCode.SessionApi, "当前请求不在有效会话上下文内");
+                    rs = RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.SessionApi, "当前请求不在有效会话上下文内");
                 }
                 break;
             case OauthApi:
                 if (!oauthApi.getInstance().checkApiToken()) {
-                    rs = RpcError.Instant(SystemDefined.interfaceSystemErrorCode.OauthApi, "当前token无效或已过期");
+                    rs = RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.OauthApi, "当前token无效或已过期");
                 }
                 break;
             case CloseApi:
-                rs = RpcError.Instant(SystemDefined.interfaceSystemErrorCode.CloseApi, "非法接口");
+                rs = RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.CloseApi, "非法接口");
                 break;
             case PrivateApi:
-                rs = _superMode ? null : RpcError.Instant(SystemDefined.interfaceSystemErrorCode.PrivateApi, "内部接口");
+                rs = _superMode ? null : RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.PrivateApi, "内部接口");
                 break;
             default:
                 break;

@@ -54,11 +54,11 @@ public class ExecRequest {//框架内请求类
     private static Object ModelDesc(HttpContext ctx) {
         AppContext aCtx = AppContext.current();
         if (aCtx == null) {
-            return RpcError.Instant(false, "无效应用");
+            return RpcMessage.Instant(false, "无效应用");
         }
         var mServInfo = aCtx.microServiceInfo();
         if (mServInfo == null) {
-            return RpcError.Instant(false, "无效服务");
+            return RpcMessage.Instant(false, "无效服务");
         }
         JSONObject r = new JSONObject();
         HashMap<String, MicroModel> h = mServInfo.model();
@@ -113,7 +113,7 @@ public class ExecRequest {//框架内请求类
                 case "@subscribeCustomDataSource" -> rs = CustomDataSource(ctx);
             }
         } catch (Exception e) {
-            rs = RpcError.Instant(false, "系统服务[" + ctx.className() + "]异常");
+            rs = RpcMessage.Instant(false, "系统服务[" + ctx.className() + "]异常");
         }
         return rs;
     }
@@ -214,7 +214,7 @@ public class ExecRequest {//框架内请求类
                 // 目标类不存在
                 ReflectStruct _cls = getServiceApi(className);
                 if (_cls == null) {
-                    return RpcError.Instant(false, "请求错误 ->目标[" + className + "]不存在！");
+                    return RpcMessage.Instant(false, "请求错误 ->目标[" + className + "]不存在！");
                 }
                 // 执行转换前置类
                 Object[] _objs = convert2GscCode(hCtx.invokeParamter());
@@ -241,7 +241,7 @@ public class ExecRequest {//框架内请求类
                         nLogger.logInfo(e, "实例化 " + _cls + " ...失败");
                     }
                 } else {
-                    rs = RpcError.Instant(filterReturn);
+                    rs = RpcMessage.Instant(filterReturn);
                 }
             } catch (Exception e) {
                 nLogger.logInfo(e, "类:" + className + " : 不存在");

@@ -141,13 +141,9 @@ public class OutResponse {
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
         buildHeader(response);
         // 获得文件前 100 字节
-        byte[] bytes = new byte[100];
-        int l = 0;
+        byte[] bytes = new byte[50];
         try {
-            l = Math.min(v.available(), 100);
-            v.read(bytes, 0, l);
-            long a = v.getChannel().position();
-            System.out.println(a);
+            v.read(bytes, 0, Math.min(v.available(), 50));
             v.getChannel().position(0);
         } catch (IOException e) {
             e.printStackTrace();
