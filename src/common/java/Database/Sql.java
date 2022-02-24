@@ -740,7 +740,7 @@ public class Sql implements IDBManager<Sql> {
         Connection conn = getNewConnection();
         try {
             Statement smt = conn.createStatement();
-            String sql = "drop table " + tableName;
+            String sql = "drop table if exists " + tableName;
             rb = smt.execute(sql);
         } catch (SQLException e) {
             nLogger.logInfo(e);

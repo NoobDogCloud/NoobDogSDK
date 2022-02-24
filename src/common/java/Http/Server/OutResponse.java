@@ -148,7 +148,9 @@ public class OutResponse {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        response.headers().set(CONTENT_TYPE, Mime.getMime(bytes));
+        // application/octet-stream
+        String mineType = Mime.getMime(bytes);
+        response.headers().set(CONTENT_TYPE, mineType);
         out(v, response);
     }
 
