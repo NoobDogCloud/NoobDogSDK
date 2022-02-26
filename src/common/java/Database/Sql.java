@@ -274,7 +274,10 @@ public class Sql implements IDBManager<Sql> {
                     db.form(_formName);
                     db.setCond(condJSON);
                     JSONArray jsonArray = db.page(_index, _max);
-                    tempResult.put(_index, Objects.requireNonNull(func).apply(jsonArray));
+                    var result = func.apply(jsonArray);
+                    if (result != null) {
+                        tempResult.put(_index, result);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
