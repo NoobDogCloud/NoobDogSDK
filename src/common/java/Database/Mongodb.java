@@ -913,7 +913,10 @@ public class Mongodb implements IDBManager<Mongodb> {
                     db.form(_formName);
                     db.setCond(condJSON);
                     var jsonArr = db.page(_index, _max);
-                    tempResult.put(_index, Objects.requireNonNull(func).apply(jsonArr));
+                    var result = func.apply(jsonArr);
+                    if (result != null) {
+                        tempResult.put(_index, result);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -942,7 +945,10 @@ public class Mongodb implements IDBManager<Mongodb> {
         tempResult = new JSONArray<>();
         for (int index = 1; index <= pageNO; index++) {
             jsonArr = dirty().page(index, max);
-            tempResult.addAll(Objects.requireNonNull(func).apply(jsonArr));
+            var result = func.apply(jsonArr);
+            if (result != null) {
+                tempResult.addAll(result);
+            }
         }
         return tempResult;
     }
