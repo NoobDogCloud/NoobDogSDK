@@ -44,10 +44,13 @@ public class AsyncProgress {
     }
 
     public synchronized AsyncProgress addLog(String log) {
+        return addLog(log, 1);
+    }
+
+    public synchronized AsyncProgress addLog(String log, int stepValue) {
         if (position < total) {
             logs.add(log);
-            position++;
-            updateAndFlush();
+            position += stepValue;
         }
         return this;
     }
