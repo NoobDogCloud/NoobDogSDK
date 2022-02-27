@@ -47,11 +47,12 @@ public class AsyncProgress {
         return this;
     }
 
-    public synchronized void updateAndFlush() {
+    public synchronized AsyncProgress updateAndFlush() {
         String result = toString();
         if (result != null) {
             source.add(result);
         }
+        return this;
     }
 
     public AsyncProgress setStatus(int status) {
