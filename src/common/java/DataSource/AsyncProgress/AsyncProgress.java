@@ -22,8 +22,6 @@ public class AsyncProgress {
     private final List<String> logs;
     // 当前进度
     private int position;
-    // 开启日志时间
-    private boolean enableTimestamp;
 
     private AsyncProgress(CustomDataSource source, int total) {
         this.source = source;
@@ -31,16 +29,10 @@ public class AsyncProgress {
         this.position = 0;
         this.status = CheckModel.running;
         this.logs = new ArrayList<>();
-        this.enableTimestamp = false;
     }
 
     public static AsyncProgress build(CustomDataSource source, int total) {
         return new AsyncProgress(source, total);
-    }
-
-    public AsyncProgress setEnableTimestamp(boolean enableTimestamp) {
-        this.enableTimestamp = enableTimestamp;
-        return this;
     }
 
     public synchronized AsyncProgress addLog(String log) {
@@ -76,5 +68,10 @@ public class AsyncProgress {
                 .put("status", status)
                 .put("logs", logs.get(logs.size() - 1)).toString() :
                 null;
+    }
+
+    public void close() {
+        source.delete();
+        logs.clear();
     }
 }
