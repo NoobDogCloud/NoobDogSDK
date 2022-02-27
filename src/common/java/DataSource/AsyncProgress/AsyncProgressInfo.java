@@ -20,6 +20,14 @@ public class AsyncProgressInfo {
         return new AsyncProgressInfo(info, withTimestamp);
     }
 
+    public String getInfo() {
+        return info;
+    }
+
+    public long getTimestamp() {
+        return timestampZero;
+    }
+
     public String toString() {
         return (withTimestamp ? (timestampZero + ":") : "") + info;
     }

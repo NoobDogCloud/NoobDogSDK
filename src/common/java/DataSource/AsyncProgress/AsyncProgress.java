@@ -13,13 +13,15 @@ public class AsyncProgress {
     // 最大进度
     private final int total;
     // 当前状态
-    private final int status;
+    private int status;
     // 变化日志
     private final AsyncProgressInfo[] logs;
     // 当前进度
     private int position;
     // 开启日志时间
     private boolean enableTimestamp;
+    // 当前最新任务块
+    private AsyncProgressInfo currentInfo;
 
     private AsyncProgress(CustomDataSource source, int total) {
         this.source = source;
@@ -39,21 +41,33 @@ public class AsyncProgress {
         return this;
     }
 
-    public AsyncProgress addLog(String log) {
+    private void updateInfo(String info) {
+        currentInfo = AsyncProgressInfo.build(info, enableTimestamp);
+    }
+
+    public synchronized AsyncProgress addLog(String log) {
         if (position < logs.length) {
-            logs[position] = AsyncProgressInfo.build(log, enableTimestamp);
-            source.add(toString());
+            updateInfo(log);
+            logs[position] = currentInfo;
             position++;
+            source.add(toString());
         }
         return this;
     }
 
+    public AsyncProgress setStatus(int status) {
+        this.status = status;
+        return this;
+    }
+
     public String toString() {
+        var log = currentInfo;
         return JSONObject.build()
                 .put("progress", JSONObject.build()
                         .put("position", position)
                         .put("total", total))
+                .put("timestamp", log.getTimestamp())
                 .put("status", status)
-                .put("logs", logs[position].toString()).toString();
+                .put("logs", log.getInfo()).toString();
     }
 }
