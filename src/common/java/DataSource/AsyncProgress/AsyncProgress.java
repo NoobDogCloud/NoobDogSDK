@@ -2,7 +2,11 @@ package common.java.DataSource.AsyncProgress;
 
 import common.java.DataSource.CustomDataSource;
 import common.java.GscCommon.CheckModel;
+import common.java.Time.TimeHelper;
 import org.json.gsc.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 异步方式反馈任务进度
@@ -15,20 +19,18 @@ public class AsyncProgress {
     // 当前状态
     private int status;
     // 变化日志
-    private final AsyncProgressInfo[] logs;
+    private final List<String> logs;
     // 当前进度
     private int position;
     // 开启日志时间
     private boolean enableTimestamp;
-    // 当前最新任务块
-    private AsyncProgressInfo currentInfo;
 
     private AsyncProgress(CustomDataSource source, int total) {
         this.source = source;
         this.total = total;
         this.position = 0;
         this.status = CheckModel.running;
-        this.logs = new AsyncProgressInfo[total];
+        this.logs = new ArrayList<>();
         this.enableTimestamp = false;
     }
 
@@ -41,23 +43,20 @@ public class AsyncProgress {
         return this;
     }
 
-    private void updateInfo(String info) {
-        currentInfo = AsyncProgressInfo.build(info, enableTimestamp);
-    }
-
     public synchronized AsyncProgress addLog(String log) {
-        if (position < logs.length) {
-            updateInfo(log);
-            logs[position] = currentInfo;
+        if (position < total) {
+            logs.add(log);
             position++;
-            source.add(toString());
+            updateAndFlush();
         }
         return this;
     }
 
-    public synchronized AsyncProgress updateAndFlush() {
-        source.add(toString());
-        return this;
+    public synchronized void updateAndFlush() {
+        String result = toString();
+        if (result != null) {
+            source.add(result);
+        }
     }
 
     public AsyncProgress setStatus(int status) {
@@ -66,13 +65,13 @@ public class AsyncProgress {
     }
 
     public String toString() {
-        var log = currentInfo;
-        return JSONObject.build()
+        return logs.size() > 0 ? JSONObject.build()
                 .put("progress", JSONObject.build()
                         .put("position", position)
                         .put("total", total))
-                .put("timestamp", log.getTimestamp())
+                .put("timestamp", TimeHelper.getNowTimestampByZero())
                 .put("status", status)
-                .put("logs", log.getInfo()).toString();
+                .put("logs", logs.get(logs.size() - 1)).toString() :
+                null;
     }
 }
