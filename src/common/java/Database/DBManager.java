@@ -54,7 +54,7 @@ public class DBManager {
     public void doImport(File inFile, boolean isOverwrite) {
         try (JSONObjectStream reader = new JSONObjectStream(inFile)) {
             reader.forEach((tableName, value) -> {
-                try (var tableInfo = reader.getJsonStream(tableName)) {
+                try (var tableInfo = new JSONObjectStream(value)) {
                     // 创建表
                     try {
                         if (isOverwrite) {

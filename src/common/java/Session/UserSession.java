@@ -5,8 +5,8 @@ import common.java.Apps.MicroService.Config.ModelServiceConfig;
 import common.java.Apps.Roles.AppRolesDef;
 import common.java.Cache.CacheHelper;
 import common.java.Http.Server.HttpContext;
+import common.java.Jwt.JwtInfo;
 import common.java.Number.NumberHelper;
-import common.java.ServiceTemplate.SuperItemField;
 import common.java.String.StringHelper;
 import common.java.Time.TimeHelper;
 import common.java.nLogger.nLogger;
@@ -29,6 +29,7 @@ public class UserSession {
 
     private UserSession() {
         cacher = getCacher();
+        // sid 可能是会话id，也可能是jwt加密信息
         String sid = getRequestSID();
         this.expireTime = 1800;
         updateUserInfo(sid);
@@ -100,27 +101,17 @@ public class UserSession {
         if (exJson == null) {
             exJson = new JSONObject();
         }
-        exJson
-                .put("_GrapeFW_SID", sid)
-                .put("_GrapeFW_Expire", expire)
-                .put("_GrapeFW_NeedRefresh", (expire + TimeHelper.build().nowSecond()) / 2)
-                .put(uid + "_GrapeFW_AppInfo_", HttpContext.current().appId()).toString();//补充appid参数
+        var userInfo = UserSessionInfo.build(sid, uid, exJson);
         // 先获得上次的会话实体ID并删除
         JSONObject lastInfo = cacher.getJson(uid);
         if (lastInfo != null) {
-            String lastSID = lastInfo.getString("_GrapeFW_SID");
+            String lastSID = UserSessionInfo.build(lastInfo).getSid();
             if (lastSID != null) {
                 cacher.delete(lastSID);
             }
         }
-        // 补充角色信息到当前会话
-        String grpName = exJson.getString(SuperItemField.fatherField);  // 获得角色名称
-        if (StringHelper.isInvalided(grpName)) {
-            nLogger.errorInfo("当前用户[" + uid + "]未包含[" + SuperItemField.fatherField + "] ->字段信息,角色定义缺失!");
-        }
-        exJson.put(SuperItemField.PVField, AppContext.current().roles().getPV(grpName));
         // 更新本次会话
-        cacher.set(uid, expire, exJson.toString());//更新用户数据集
+        cacher.set(uid, expire, userInfo.toUser());//更新用户数据集
         cacher.set(sid, expire, uid);
         return new UserSession(sid, expire);
     }
@@ -255,7 +246,7 @@ public class UserSession {
     }
 
     public boolean checkSession() {
-        return sid != null && (sid.equals(everyone_key) || cacher.get(sid) != null);
+        return sid != null && (JwtInfo.buildBy(sid).isValid() || sid.equals(everyone_key) || cacher.get(sid) != null);
     }
 
     /**
@@ -403,29 +394,32 @@ public class UserSession {
         return this;
     }
 
-    //更新当前会话有关信息
+    //更新当前会话有关信息（根据sid获得当前用户信息）
     private boolean updateUserInfo(String sid) {
         boolean rb = false;
         if (sid != null) {
             this.sid = sid;
-            String uid = sid.equals(everyone_key) ? everyone_key : (String) cacher.get(sid);
-            if (uid != null && !uid.isEmpty()) {//返回了用户名
-                this.uid = uid;
-                sessionInfo = sid.equals(everyone_key) ?
-                        JSONObject.build(SuperItemField.fatherField, everyone_key)
-                                .put(SuperItemField.PVField, AppRolesDef.everyone.group_value)
-                                .put(uid + "_GrapeFW_AppInfo_", HttpContext.current().appId())
-                                .put("_GrapeFW_SID", sid)
-                                .put("_GrapeFW_Expire", expireTime)
-                                .put("_GrapeFW_NeedRefresh", (expireTime + TimeHelper.build().nowSecond()) / 2)
-                        : cacher.getJson(uid);
-                // 补充会话数据
-                if (sessionInfo != null) {
-                    this.appid = sessionInfo.getInt(uid + "_GrapeFW_AppInfo_");//获得所属appid
-                    this.expireTime = sessionInfo.getInt("_GrapeFW_Expire");
-                    this.gid = sessionInfo.getString(SuperItemField.fatherField);//获得所在组ID
-                    this.gPV = sessionInfo.getInt(SuperItemField.PVField);       //获得所在组权值
+            // 会话id => jwt
+            JwtInfo jwtInfo = JwtInfo.buildBy(sid);
+            if (jwtInfo != null && jwtInfo.isValid()) {
+                uid = jwtInfo.getUserName();
+                sessionInfo = jwtInfo.decodeJwt();
+            } else {
+                String uid = sid.equals(everyone_key) ? everyone_key : (String) cacher.get(sid);
+                if (uid != null && !uid.isEmpty()) {//返回了用户名
+                    this.uid = uid;
+                    sessionInfo = sid.equals(everyone_key) ?
+                            UserSessionInfo.build(sid, uid, JSONObject.build()).toEveryone()
+                            : cacher.getJson(uid);
                 }
+            }
+            // 补充会话数据
+            if (sessionInfo != null) {
+                UserSessionInfo userSessionInfo = UserSessionInfo.build(sid, uid, sessionInfo);
+                this.appid = userSessionInfo.getAppId();//获得所属appid
+                this.expireTime = userSessionInfo.getExpireTime();
+                this.gid = userSessionInfo.getGroupId();//获得所在组ID
+                this.gPV = userSessionInfo.getGroupWeight();//获得所在组权值
                 // 更新会话维持时间
                 refreshSession();
                 rb = true;
