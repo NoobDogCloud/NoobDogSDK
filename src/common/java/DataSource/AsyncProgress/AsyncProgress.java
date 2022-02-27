@@ -55,6 +55,11 @@ public class AsyncProgress {
         return this;
     }
 
+    public synchronized AsyncProgress updateAndFlush() {
+        source.add(toString());
+        return this;
+    }
+
     public AsyncProgress setStatus(int status) {
         this.status = status;
         return this;
