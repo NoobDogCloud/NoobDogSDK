@@ -31,6 +31,18 @@ public class AsyncProgress {
         this.logs = new ArrayList<>();
     }
 
+    public static AsyncProgress build() {
+        return new AsyncProgress(CustomDataSource.build(), 100);
+    }
+
+    public static AsyncProgress build(int total) {
+        return new AsyncProgress(CustomDataSource.build(), total);
+    }
+
+    public String getTopic() {
+        return source.getTopic();
+    }
+
     public static AsyncProgress build(CustomDataSource source) {
         return new AsyncProgress(source, 100);
     }
