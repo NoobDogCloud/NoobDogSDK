@@ -15,7 +15,7 @@ public class AsyncProgress {
     // 数据源
     private final CustomDataSource source;
     // 最大进度
-    private final int total;
+    private int total;
     // 当前状态
     private int status;
     // 变化日志
@@ -31,8 +31,16 @@ public class AsyncProgress {
         this.logs = new ArrayList<>();
     }
 
+    public static AsyncProgress build(CustomDataSource source) {
+        return new AsyncProgress(source, 100);
+    }
+
     public static AsyncProgress build(CustomDataSource source, int total) {
         return new AsyncProgress(source, total);
+    }
+
+    public void setTotal(int total) {
+        this.total = total;
     }
 
     public synchronized AsyncProgress addLog(String log) {
