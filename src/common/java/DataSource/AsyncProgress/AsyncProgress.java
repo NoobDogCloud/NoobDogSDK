@@ -49,11 +49,16 @@ public class AsyncProgress {
         return new AsyncProgress(source, total);
     }
 
-    public void setTotal(int total) {
+    public AsyncProgress setTotal(int total) {
         this.total = total;
+        return this.reset();
+    }
+
+    public AsyncProgress reset() {
         this.position = 0;
         this.logs.clear();
         this.status = CheckModel.running;
+        return this;
     }
 
     public synchronized AsyncProgress addLog(String log) {
