@@ -68,6 +68,9 @@ public class AsyncProgress {
             logs.add(ProgressInfo.build(log, type));
             position += stepValue;
         }
+        if (position == total) {
+            status = CheckModel.success;
+        }
         return this;
     }
 
