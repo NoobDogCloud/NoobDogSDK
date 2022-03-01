@@ -19,7 +19,7 @@ public class AsyncProgress {
     // 当前状态
     private int status;
     // 变化日志
-    private final List<String> logs;
+    private final List<ProgressInfo> logs;
     // 当前进度
     private int position;
 
@@ -40,8 +40,12 @@ public class AsyncProgress {
     }
 
     public synchronized AsyncProgress addLog(String log, int stepValue) {
+        return addLog(log, stepValue, ProgressInfo.InfoType.INFO);
+    }
+
+    public synchronized AsyncProgress addLog(String log, int stepValue, int type) {
         if (position < total) {
-            logs.add(log);
+            logs.add(ProgressInfo.build(log, type));
             position += stepValue;
         }
         return this;
@@ -61,13 +65,15 @@ public class AsyncProgress {
     }
 
     public String toString() {
+        var progressInfo = logs.get(logs.size() - 1);
         return logs.size() > 0 ? JSONObject.build()
-                .put("progress", JSONObject.build()
-                        .put("position", position)
-                        .put("total", total))
-                .put("timestamp", TimeHelper.getNowTimestampByZero())
-                .put("status", status)
-                .put("logs", logs.get(logs.size() - 1)).toString() :
+                .put("progress", JSONObject.build()                     // 进度块
+                        .put("position", position)                          // 当前进度
+                        .put("total", total))                               // 总进度
+                .put("timestamp", TimeHelper.getNowTimestampByZero())   // 时间戳
+                .put("status", status)                                  // 状态
+                .put("type", progressInfo.getType())                    // 类型
+                .put("logs", progressInfo.getMessage()).toString() :    // 日志
                 null;
     }
 
