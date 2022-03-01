@@ -25,10 +25,8 @@ public class AsyncProgress {
 
     private AsyncProgress(CustomDataSource source, int total) {
         this.source = source;
-        this.total = total;
-        this.position = 0;
-        this.status = CheckModel.running;
         this.logs = new ArrayList<>();
+        this.setTotal(total);
     }
 
     public static AsyncProgress build() {
@@ -53,6 +51,9 @@ public class AsyncProgress {
 
     public void setTotal(int total) {
         this.total = total;
+        this.position = 0;
+        this.logs.clear();
+        this.status = CheckModel.running;
     }
 
     public synchronized AsyncProgress addLog(String log) {
