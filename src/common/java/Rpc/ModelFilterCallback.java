@@ -6,9 +6,9 @@ import org.json.gsc.JSONObject;
 @FunctionalInterface
 public interface ModelFilterCallback {
     /**
-     * @param info   数据模型信息
-     * @param update 是否更新
+     * @param info 数据模型信息
+     * @param ids  更新是包含的id组
      * @return
      */
-    FilterReturn run(JSONObject info, boolean update);
+    FilterReturn run(JSONObject info, String[] ids);
 }
