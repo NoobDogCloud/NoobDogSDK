@@ -57,12 +57,18 @@ public class RpcBefore {
         return this;
     }
 
+    /**
+     * 所有默认输入数据的方法
+     */
     public RpcBefore input(ModelFilterCallback callback) {
         filter("insert", (func, paramArr) -> callback.run((JSONObject) paramArr[0], false))
                 .filter("update", (func, paramArr) -> callback.run((JSONObject) paramArr[1], true));
         return this;
     }
 
+    /**
+     * 所有默认输出数据的方法
+     */
     public RpcBefore delete(ModelIdsFilterCallback callback) {
         filter("delete", (func, paramArr) -> callback.run(((String) paramArr[0]).split(",")));
         return this;

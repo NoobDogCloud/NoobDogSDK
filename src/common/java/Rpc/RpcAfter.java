@@ -76,4 +76,20 @@ public class RpcAfter {
         filter("page,pageEx", (funcName, parameter, returnValue) -> callback.run((RpcPageInfo) returnValue));
         return this;
     }
+
+    public RpcAfter input(ModelInputCallback callback) {
+        filter("insert", (func, parameter, returnValue) -> callback.run(returnValue, (JSONObject) parameter[0]))
+                .filter("update", (func, parameter, returnValue) -> callback.run(returnValue, (JSONObject) parameter[1]));
+        return this;
+    }
+
+    public RpcAfter create(ModelInputCallback callback) {
+        filter("insert", (func, parameter, returnValue) -> callback.run(returnValue, (JSONObject) parameter[0]));
+        return this;
+    }
+
+    public RpcAfter update(ModelUpdateCallback callback) {
+        filter("update", (func, parameter, returnValue) -> callback.run(returnValue, ((String) parameter[0]).split(","), (JSONObject) parameter[1]));
+        return this;
+    }
 }
