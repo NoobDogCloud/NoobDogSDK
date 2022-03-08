@@ -1,13 +1,6 @@
 package common.java.DataSource.AsyncProgress;
 
-public class ProgressInfo {
-    private final String message;
-    private final int type; // 0: info, 1: error, 2: warning 3: success
-
-    private ProgressInfo(String message, int type) {
-        this.message = message;
-        this.type = type;
-    }
+public record ProgressInfo(String message, int type) {
 
     public static ProgressInfo build(String message) {
         return new ProgressInfo(message, 0);

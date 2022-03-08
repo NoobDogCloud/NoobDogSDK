@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class CustomDataSource {
     // 自动强制释放间隔
-    private static final long freeTimeout = 3600 * 1000;
+    private long freeTimeout = 3600 * 1000;
     private final int appId;    // 所有待删除的自定义数据源
 
     private static void removeDeleteTask(CustomDataSource v) {
@@ -32,9 +32,22 @@ public class CustomDataSource {
         }
     }).setDelay(1500);
     private long lastLiveTime;    // 所有当前进程的自定义数据源
+
+    /**
+     * 设置自动释放时间 单位毫秒
+     */
+    public CustomDataSource setFreeTimeout(long freeTimeout) {
+        if (freeTimeout > 0) {
+            this.freeTimeout = freeTimeout;
+        }
+        return this;
+    }
+
     private static final ListTaskRunner<CustomDataSource> customDataSourceQueue = ListTaskRunner.<CustomDataSource>getInstance(cds -> {
-        if ((TimeHelper.getNowTimestampByZero() - cds.lastLiveTime) > freeTimeout) {
-            cds.delete();
+        if (cds.freeTimeout > 0) {
+            if ((TimeHelper.getNowTimestampByZero() - cds.lastLiveTime) > cds.freeTimeout) {
+                cds.delete();
+            }
         }
         // 1min 扫描一次
     }).setDelay(1000 * 60);
@@ -58,6 +71,12 @@ public class CustomDataSource {
     private void updateLiveTime() {
         lastLiveTime = TimeHelper.getNowTimestampByZero();
     }
+
+    public CustomDataSource setPersistent() {
+        this.freeTimeout = -1;
+        return this;
+    }
+
 
     /**
      * @apiNote 销毁自定义数据源, 执行后不会立刻删除，而是等数据源对应的订阅者下线后才会删除
