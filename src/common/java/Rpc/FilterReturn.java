@@ -15,7 +15,7 @@ public record FilterReturn(boolean state, String msg) {
     }
 
     public static FilterReturn fail(String msg) {
-        return new FilterReturn(true, msg);
+        return new FilterReturn(false, msg);
     }
 
 
