@@ -119,7 +119,7 @@ public class ExecRequest {//框架内请求类
     }
 
     private static final ConcurrentHashMap<String, ReflectStruct> share_class = new ConcurrentHashMap<>();
-    public static String ExecBaseFolder = "main.java.Api";
+    public static String ExecBaseFolder = "main.java.Api.";
 
     /**
      * 遍历 api 目录下所有类
