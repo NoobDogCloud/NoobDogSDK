@@ -190,6 +190,7 @@ public class ExecRequest {//框架内请求类
             try {
                 AfterFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + name + "After")));
             } catch (Exception e) {
+                // 没有结束类
                 // nLogger.errorInfo(e);
                 return null;
             }
@@ -220,25 +221,16 @@ public class ExecRequest {//框架内请求类
                 Object[] _objs = convert2GscCode(hCtx.invokeParamter());
                 FilterReturn filterReturn = beforeExecute(className, actionName, _objs);
                 if (filterReturn.state()) {
-                    // 载入主类
-                    // ReflectStruct _cls = getServiceApi(className); // share_class.get(className);
-                    // 执行call
-                    try {
-                        // 创建类反射
-                        _reflect obj = new _reflect(_cls);
-                        // 保存反射类
-                        // RequestSession.setCurrent(obj);
-                        // 构造反射类实例
-                        obj.newInstance();
-                        // 调用主要类,后置类,固定返回结构
+                    // 通过ioc方式获取类（复用已存在实例容器提高性能）
+                    try (var obj = _reflect.build(_cls)) {
                         rs = obj._call(actionName, _objs);
-                        rs = RpcResult(afterExecute(className, actionName, _objs, rs));
-                        // 如果当前请求是更新操作,尝试向所有订阅者广播更新通知
-                        if (ServiceApiClass.isUpdateAction(actionName)) {
-                            GscSubscribe.update(getServiceTopic(hCtx), hCtx.appId());
-                        }
                     } catch (Exception e) {
                         nLogger.logInfo(e, "实例化 " + _cls + " ...失败");
+                    }
+                    rs = RpcResult(afterExecute(className, actionName, _objs, rs));
+                    // 如果当前请求是更新操作,尝试向所有订阅者广播更新通知
+                    if (ServiceApiClass.isUpdateAction(actionName)) {
+                        GscSubscribe.update(getServiceTopic(hCtx), hCtx.appId());
                     }
                 } else {
                     rs = RpcMessage.Instant(filterReturn);

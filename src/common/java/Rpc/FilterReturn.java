@@ -18,7 +18,6 @@ public record FilterReturn(boolean state, String msg) {
         return new FilterReturn(false, msg);
     }
 
-
     public boolean isSuccess() {
         return state;
     }

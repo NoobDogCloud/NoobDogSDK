@@ -7,6 +7,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiConsumer;
 
+/**
+ * 管理巨大对象，负责按指定KEY的线程数分配任务
+ */
 public class HashmapTaskRunner<K, V> {
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
     List<HashMap<K, V>> lists;          // 总任务列表

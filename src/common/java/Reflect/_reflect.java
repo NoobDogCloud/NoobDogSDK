@@ -1,5 +1,6 @@
 package common.java.Reflect;
 
+import common.java.Concurrency.ObjectPool;
 import common.java.Encrypt.GscEncrypt;
 import common.java.Http.Server.Upload.UploadFile;
 import common.java.InterfaceModel.Type.InterfaceType;
@@ -31,7 +32,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
-public class _reflect {
+public class _reflect implements AutoCloseable {
     private static final HashMap<Class<?>, Class<?>> callType;
 
     static {
@@ -61,6 +62,8 @@ public class _reflect {
         callType.put(ByteArrayOutputStream.class, null);
     }
 
+    private static final HashMap<Class<?>, ObjectPool<_reflect>> ContainerPool = new HashMap<>();
+
     private final Class<?> _Class;        //类
     private final MethodAccess _method;
     private final ReflectStruct _rf;
@@ -70,7 +73,7 @@ public class _reflect {
     private boolean _superMode;     //私有接口是否生效(是否允许调用 private 接口)
     private boolean privateMode;    //注解解析是否生效(是否按照接口注解定义控制访问)
 
-    public _reflect(ReflectStruct cls) {
+    private _reflect(ReflectStruct cls) {
         // 初始化属性
         filterCallback = new HashMap<>();
         returnCallback = new HashMap<>();
@@ -80,7 +83,18 @@ public class _reflect {
         _method = cls.getMethod();
         _rf = cls;
     }
-    // 获得class名称
+
+    public static _reflect build(ReflectStruct cls) {
+        Class<?> c = cls.getCls();
+        if (!ContainerPool.containsKey(c)) {
+            ContainerPool.put(c, ObjectPool.build(() -> (new _reflect(cls)).newInstance()));
+        }
+        return ContainerPool.get(c).get();
+    }
+
+    public void close() {
+        ContainerPool.get(_rf.getCls()).back(this);
+    }
 
     // api接口类型文本化
     private static String declApiType(InterfaceType _at) {
