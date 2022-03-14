@@ -82,9 +82,9 @@ public class GrapeHttpServer {
     }
 
     public static void _startService(ChannelHandlerContext _ctx, HttpContext ctx) {
+        OutResponse oResponse = OutResponse.build(_ctx);
         // 正常线程池
         var future = es.submit(() -> {
-            OutResponse oResponse = OutResponse.build(_ctx);
             SocketContext sc = RequestSession.get(_ctx.channel().id().asLongText());
             if (sc == null) {
                 OutResponse.defaultOut(_ctx, rMsg.netMSG(false, "请求Socket上下文丢失!"));
@@ -101,6 +101,7 @@ public class GrapeHttpServer {
             future.get();
         } catch (ExecutionException | InterruptedException ex) {
             ex.getCause().printStackTrace();
+            oResponse.out(rMsg.netMSG(false, "服务器异常[504]"));
         }
     }
 
