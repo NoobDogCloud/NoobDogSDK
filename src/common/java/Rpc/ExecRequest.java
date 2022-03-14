@@ -242,6 +242,31 @@ public class ExecRequest {//框架内请求类
         return rs;
     }
 
+    private static Object GscString2Object(Object o) {
+        if (o instanceof String v) {
+            var header = GscEncrypt.getHeader(v);
+            if (header != null) {
+                return switch (GscEncrypt.getType(header)) {
+                    case "json" -> GscEncrypt.decodeJson(v);
+                    case "jsonArray" -> GscEncrypt.decodeJsonArray(v);
+                    case "string" -> GscEncrypt.decodeString(v);
+                    default -> v;
+                };
+            }
+            return v;
+        } else if (o instanceof JSONObject m) {
+            for (var k : m.keySet()) {
+                m.put(k, GscString2Object(m.get(k)));
+            }
+            return m;
+        } else if (o instanceof JSONArray a) {
+            for (var i = 0; i < a.size(); i++) {
+                a.set(i, GscString2Object(a.get(i)));
+            }
+            return a;
+        }
+        return o;
+    }
 
     // 转换 GscJson 参数(请求层转换)
     private static Object[] convert2GscCode(Object[] objs) {
@@ -250,16 +275,7 @@ public class ExecRequest {//框架内请求类
         }
         for (int i = 0; i < objs.length; i++) {
             Object o = objs[i];
-            if (o instanceof String v) {
-                var header = GscEncrypt.getHeader(v);
-                if (header != null) {
-                    switch (GscEncrypt.getType(header)) {
-                        case "json" -> objs[i] = GscEncrypt.decodeJson(v);
-                        case "jsonArray" -> objs[i] = GscEncrypt.decodeJsonArray(v);
-                        case "string" -> objs[i] = GscEncrypt.decodeString(v);
-                    }
-                }
-            }
+            objs[i] = GscString2Object(o);
         }
         return objs;
     }
