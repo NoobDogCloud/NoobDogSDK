@@ -16,6 +16,7 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.json.gsc.JSONObject;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -82,7 +83,7 @@ public class GrapeHttpServer {
 
     public static void _startService(ChannelHandlerContext _ctx, HttpContext ctx) {
         // 正常线程池
-        es.submit(() -> {
+        var future = es.submit(() -> {
             OutResponse oResponse = OutResponse.build(_ctx);
             SocketContext sc = RequestSession.get(_ctx.channel().id().asLongText());
             if (sc == null) {
@@ -96,6 +97,11 @@ public class GrapeHttpServer {
                 nLogger.errorInfo(e, e.getMessage());
             }
         });
+        try {
+            future.get();
+        } catch (ExecutionException | InterruptedException ex) {
+            ex.getCause().printStackTrace();
+        }
     }
 
     public static TextWebSocketFrame WebsocketResult(String topic, Object msg) {
