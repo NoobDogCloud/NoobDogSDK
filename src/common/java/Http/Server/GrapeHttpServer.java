@@ -40,10 +40,17 @@ public class GrapeHttpServer {
     /**
      * 过滤恶意请求
      */
+    private static boolean filterSafeString(String str) {
+        if (str.startsWith("@")) {
+            str = str.substring(1);
+        }
+        return !CheckHelper.IsStrictID(str, 64);
+    }
+
     private static boolean filterSafeQuery(HttpContext ctx) {
-        if (!CheckHelper.IsStrictID(ctx.actionName(), 64) ||
-                !CheckHelper.IsStrictID(ctx.className(), 64) ||
-                !CheckHelper.IsStrictID(ctx.serviceName(), 64)
+        if (filterSafeString(ctx.actionName()) ||
+                filterSafeString(ctx.className()) ||
+                filterSafeString(ctx.serviceName())
         ) {
             ctx.out(rMsg.netMSG(false, "非法请求"));
             return false;
