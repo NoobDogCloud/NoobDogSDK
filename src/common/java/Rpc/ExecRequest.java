@@ -140,7 +140,7 @@ public class ExecRequest {//框架内请求类
     public static ReflectStruct getServiceApi(String name) {
         if (!share_class.containsKey(name)) {
             try {
-                share_class.put(name, ReflectStruct.build(Class.forName(ExecBaseFolder + "._Api." + name)));
+                share_class.put(name, ReflectStruct.build(Class.forName(ExecBaseFolder + name)));
             } catch (Exception e) {
                 // nLogger.errorInfo(e);
                 return null;
@@ -164,7 +164,7 @@ public class ExecRequest {//框架内请求类
     public static RpcFilterFnCache getServiceBefore(String name) {
         if (!BeforeFilterObjectCache.containsKey(name)) {
             try {
-                BeforeFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + "._Before." + name)));
+                BeforeFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + name + "Before")));
             } catch (Exception e) {
                 // nLogger.errorInfo(e);
                 return null;
@@ -188,7 +188,7 @@ public class ExecRequest {//框架内请求类
     public static RpcFilterFnCache getServiceAfter(String name) {
         if (!AfterFilterObjectCache.containsKey(name)) {
             try {
-                AfterFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + "._After." + name)));
+                AfterFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + name + "After")));
             } catch (Exception e) {
                 // nLogger.errorInfo(e);
                 return null;
