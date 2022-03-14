@@ -10,12 +10,13 @@ public class ObjectPool<T> {
     private final ConcurrentLinkedQueue<T> pool;
     private final int maxSize;
     private final Supplier<T> producer;
-    private int minSize;
-    private final int blockSize = minSize;
+    private final int minSize;
+    private final int blockSize;
 
     private ObjectPool(Supplier<T> fn, int maxSize, int minSize) {
         this.maxSize = maxSize;
         this.minSize = minSize;
+        this.blockSize = this.minSize;
         this.producer = fn;
         pool = new ConcurrentLinkedQueue<>();
     }
