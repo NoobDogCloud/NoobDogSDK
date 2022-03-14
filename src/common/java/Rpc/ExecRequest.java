@@ -166,7 +166,7 @@ public class ExecRequest {//框架内请求类
             try {
                 BeforeFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + name + "Before")));
             } catch (Exception e) {
-                // nLogger.errorInfo(e);
+                nLogger.errorInfo(e);
                 return null;
             }
         }

@@ -1,6 +1,7 @@
 package common.java.Http.Server;
 
 import common.java.Apps.AppContext;
+import common.java.Check.CheckHelper;
 import common.java.Coordination.Coordination;
 import common.java.Http.Common.RequestSession;
 import common.java.Http.Common.SocketContext;
@@ -36,6 +37,20 @@ public class GrapeHttpServer {
     }
 
     /**
+     * 过滤恶意请求
+     */
+    private static boolean filterSafeQuery(HttpContext ctx) {
+        if (!CheckHelper.IsStrictID(ctx.actionName(), 64) ||
+                !CheckHelper.IsStrictID(ctx.className(), 64) ||
+                !CheckHelper.IsStrictID(ctx.serviceName(), 64)
+        ) {
+            ctx.out(rMsg.netMSG(false, "非法请求"));
+            return false;
+        }
+        return true;
+    }
+
+    /**
      * 生成请求上下文，处理HTTP请求信息
      */
     public static void startService(Object _req, ChannelHandlerContext _ctx, JSONObject post) {
@@ -55,6 +70,10 @@ public class GrapeHttpServer {
             if (!ctx.isGscRequest()) {
                 // 自动修正appId和path
                 fixHttpContext(ctx);
+            }
+            // 恶意请求过滤
+            if (!filterSafeQuery(ctx)) {
+                return;
             }
             // 正常请求
             _startService(_ctx, ctx);
