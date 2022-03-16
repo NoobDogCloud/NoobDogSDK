@@ -163,12 +163,13 @@ public class ExecRequest {//框架内请求类
      */
     public static RpcFilterFnCache getServiceBefore(String name) {
         if (!BeforeFilterObjectCache.containsKey(name)) {
+            Class<?> cls;
             try {
-                BeforeFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + name + "Before")));
+                cls = Class.forName(ExecBaseFolder + name + "Before");
             } catch (Exception e) {
-                nLogger.errorInfo(e);
                 return null;
             }
+            BeforeFilterObjectCache.put(name, RpcFilterFnCache.build(cls));
         }
         return BeforeFilterObjectCache.get(name);
     }
@@ -187,13 +188,13 @@ public class ExecRequest {//框架内请求类
      */
     public static RpcFilterFnCache getServiceAfter(String name) {
         if (!AfterFilterObjectCache.containsKey(name)) {
+            Class<?> cls;
             try {
-                AfterFilterObjectCache.put(name, RpcFilterFnCache.build(Class.forName(ExecBaseFolder + name + "After")));
+                cls = Class.forName(ExecBaseFolder + name + "After");
             } catch (Exception e) {
-                // 没有结束类
-                // nLogger.errorInfo(e);
                 return null;
             }
+            AfterFilterObjectCache.put(name, RpcFilterFnCache.build(cls));
         }
         return AfterFilterObjectCache.get(name);
     }
