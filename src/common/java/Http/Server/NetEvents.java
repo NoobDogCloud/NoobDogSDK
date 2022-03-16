@@ -30,7 +30,11 @@ class NetEvents extends ChannelInboundHandlerAdapter {
     private HttpRequest _req;
 
     public static String tryfixURL(String content) {
-        return StringHelper.join(StringHelper.path2list(content), "/");
+        var arr = StringHelper.path2list(content);
+        for (int i = 0; i < arr.size(); i++) {
+            arr.set(i, UrlCode.encode(arr.get(i)));
+        }
+        return StringHelper.join(arr, "/");
     }
 
     public static JSONObject PostContent2JSON(String _httpContent) {

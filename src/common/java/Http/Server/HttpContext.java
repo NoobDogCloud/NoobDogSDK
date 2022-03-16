@@ -2,6 +2,7 @@ package common.java.Http.Server;
 
 import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Config.Config;
+import common.java.Encrypt.UrlCode;
 import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Http.Server.Db.HttpContextDb;
@@ -401,7 +402,7 @@ public class HttpContext {
         String svalue;
         try {
             for (int i = offset; i < urls.length; i++) {
-                svalue = urls[i];
+                svalue = UrlCode.decode(urls[i]);
                 stype = svalue.split(":");
                 int idx = i - offset;
                 if (stype.length > 0) {//包含类型信息
