@@ -86,7 +86,7 @@ public class GscBooster {
                         rpc.service("system")
                                 .setApiPublicKey()
                                 .setEndpoint(Config.masterHost + ":" + Config.masterPort)
-                                .setPath("context", "sub")
+                                .setPath("Context", "sub")
                                 .getWebSocketQueryHeader(Config.serviceName),
                         resp -> {
                             // 初始化订阅数据到全局配置对象
