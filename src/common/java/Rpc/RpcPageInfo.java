@@ -1,10 +1,11 @@
 package common.java.Rpc;
 
 import org.json.gsc.JSONArray;
+import org.json.gsc.JSONObject;
 
-public record RpcPageInfo(int idx, int max, long count, JSONArray info) {
+public record RpcPageInfo(int idx, int max, long count, JSONArray<JSONObject> info) {
 
-    public static RpcPageInfo Instant(int idx, int max, long count, JSONArray info) {
+    public static RpcPageInfo Instant(int idx, int max, long count, JSONArray<JSONObject> info) {
         return new RpcPageInfo(idx, max, count, info);
     }
 
