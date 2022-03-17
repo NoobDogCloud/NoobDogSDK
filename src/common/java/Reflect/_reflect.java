@@ -165,12 +165,17 @@ public class _reflect implements AutoCloseable {
                             String param = ParameterMethod(method);
                             String _name = method.getName();
                             String _param = StringHelper.isInvalided(param) ? "" : StringHelper.build(param).trimFrom(',').toString();
+                            boolean existing = false;
                             for (var f : func) {
-                                if (!f.getString("name").equals(_name) || f.getString("param").equals(_param)) {
-                                    func.add(JSONObject.build("name", _name)
-                                            .put("level", api)
-                                            .put("param", _param));
+                                if (f.getString("name").equals(_name) && f.getString("param").equals(_param)) {
+                                    existing = true;
+                                    break;
                                 }
+                            }
+                            if (!existing) {
+                                func.add(JSONObject.build("name", _name)
+                                        .put("level", api)
+                                        .put("param", _param));
                             }
                         }
                     }
