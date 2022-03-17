@@ -31,14 +31,18 @@ public class RpcJsonFilterHelper {
     }
 
     public RpcJsonFilterHelper filter(String key, FilterJsonCallback callback, boolean required, String nullValueMessage) {
+        return _filter(key, RpcJsonFilterBlock.build(callback, required, nullValueMessage));
+    }
+
+    public RpcJsonFilterHelper _filter(String key, RpcJsonFilterBlock block) {
         filterMap.put(key, filterMap
                 .getOrDefault(key, RpcJsonFilterBlockGroup.build())
-                .add(RpcJsonFilterBlock.build(callback, required, nullValueMessage)));
+                .add(block));
         return this;
     }
 
     public RpcJsonFilterHelper filterUnique(String key, FilterUniqueDataCallback callback) {
-        RpcJsonFilterBlock.build((json, name) -> {
+        var fn = RpcJsonFilterBlock.build((json, name) -> {
             // 数据不存在，可以使用
             var data = callback.run(json);
             // 是编辑模式
@@ -52,7 +56,7 @@ public class RpcJsonFilterHelper {
             }
             return data.size() == 0 ? FilterReturn.buildTrue() : FilterReturn.build(false, "[" + name + "]的数据已被使用");
         }, true, "缺少参数[" + key + "]");
-        return this;
+        return _filter(key, fn);
     }
 
     public RpcJsonFilterHelper check() {
