@@ -145,10 +145,11 @@ public class _reflect implements AutoCloseable {
     }
 
 
-    private static final HashMap<Class<?>, JSONArray<JSONObject>> ServDeclCache = new HashMap<>();
+    private static final HashMap<String, JSONArray<JSONObject>> ServDeclCache = new HashMap<>();
 
     private static Object ServDecl(Class<?> cls) {
-        JSONArray<JSONObject> func = ServDeclCache.get(cls);
+        String clsName = cls.getName();
+        JSONArray<JSONObject> func = ServDeclCache.get(clsName);
         if (func == null) {
             func = new JSONArray<>();
             Method[] methods;
@@ -182,7 +183,7 @@ public class _reflect implements AutoCloseable {
                 }
                 cls = cls.getSuperclass();
             } while (cls != Object.class);
-            ServDeclCache.put(cls, func);
+            ServDeclCache.put(clsName, func);
         }
         return func;
     }
