@@ -144,28 +144,41 @@ public class _reflect implements AutoCloseable {
         return ParamString.toString();
     }
 
+
+    private static final HashMap<Class<?>, JSONArray<JSONObject>> ServDeclCache = new HashMap<>();
+
     private static Object ServDecl(Class<?> cls) {
-        JSONArray func = new JSONArray();
-        Method[] methods;
-        do {
-            methods = cls.getDeclaredMethods();
-            for (Method method : methods) {
-                /* mf = 1  public
-                 * mf = 9  public static
-                 * mf = 25 public static final
-                 * */
-                if (method.getModifiers() == Modifier.PUBLIC) {
-                    String api = AnnotationMethod(method);
-                    if (!api.contains("closeApi")) {
-                        String param = ParameterMethod(method);
-                        func.add(JSONObject.build("name", method.getName())
-                                .put("level", api)
-                                .put("param", StringHelper.isInvalided(param) ? "" : StringHelper.build(param).trimFrom(',').toString()));
+        JSONArray<JSONObject> func = ServDeclCache.get(cls);
+        if (func == null) {
+            func = new JSONArray<>();
+            Method[] methods;
+            do {
+                methods = cls.getDeclaredMethods();
+                for (Method method : methods) {
+                    /* mf = 1  public
+                     * mf = 9  public static
+                     * mf = 25 public static final
+                     * */
+                    if (method.getModifiers() == Modifier.PUBLIC) {
+                        String api = AnnotationMethod(method);
+                        if (!api.contains("closeApi")) {
+                            String param = ParameterMethod(method);
+                            String _name = method.getName();
+                            String _param = StringHelper.isInvalided(param) ? "" : StringHelper.build(param).trimFrom(',').toString();
+                            for (var f : func) {
+                                if (!f.getString("name").equals(_name) || f.getString("param").equals(_param)) {
+                                    func.add(JSONObject.build("name", _name)
+                                            .put("level", api)
+                                            .put("param", _param));
+                                }
+                            }
+                        }
                     }
                 }
-            }
-            cls = cls.getSuperclass();
-        } while (cls != Object.class);
+                cls = cls.getSuperclass();
+            } while (cls != Object.class);
+            ServDeclCache.put(cls, func);
+        }
         return func;
     }
 
