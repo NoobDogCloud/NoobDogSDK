@@ -187,7 +187,7 @@ public class CheckHelper {
     }
 
     public static boolean IsStrictID(String str, int len) {
-        String check = "^[a-zA-Z][a-z0-9A-Z-]{2," + len + "}+$";
+        String check = "^[a-z][a-z0-9-]{2," + len + "}+$";
         return match(check, str);
     }
 
