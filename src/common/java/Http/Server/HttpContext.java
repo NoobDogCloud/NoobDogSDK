@@ -309,6 +309,15 @@ public class HttpContext {
         return StringHelper.build(values.getString(GrapeHttpHeader.host)).trimFrom('/').toString();
     }
 
+    public String domain() {
+        return host().split(":")[0];
+    }
+
+    public int port() {
+        String[] arr = StringHelper.build(values.getString(GrapeHttpHeader.host)).trimFrom('/').toString().split(":");
+        return arr.length == 2 ? Integer.valueOf(arr[1]) : 80;
+    }
+
     /**
      * 设置host
      */

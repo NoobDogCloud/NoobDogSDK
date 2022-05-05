@@ -147,7 +147,7 @@ public class GrapeHttpServer {
      */
     public static Object systemCall(HttpContext ctx) {
         String path = ctx.path();
-        String host = ctx.host();
+        String domain = ctx.domain();
         int appId = ctx.appId();
         AppContext appContext;
         Object rsValue = "";
@@ -159,7 +159,7 @@ public class GrapeHttpServer {
                 Coordination crd = Coordination.getInstance();
                 // appId 无效, 尝试根据域名获得 appId
                 if (appId == 0) {
-                    appContext = crd.getAppContext(host);
+                    appContext = crd.getAppContext(domain);
                     if (appContext.hasData()) {
                         appId = appContext.appId();
                         ctx.appId(appId);
