@@ -1,6 +1,7 @@
 package common.java.Rpc;
 
 import common.java.Apps.AppContext;
+import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.DataSource.CustomDataSourceSubscriber;
 import common.java.Encrypt.GscEncrypt;
@@ -8,6 +9,7 @@ import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Http.Server.HttpContext;
 import common.java.Reflect.ReflectStruct;
 import common.java.Reflect._reflect;
+import common.java.ServiceTemplate.MicroServiceTemplate;
 import common.java.ServiceTemplate.ServiceApiClass;
 import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
@@ -119,32 +121,46 @@ public class ExecRequest {//框架内请求类
     }
 
     private static final ConcurrentHashMap<String, ReflectStruct> share_class = new ConcurrentHashMap<>();
-    public static String ExecBaseFolder = "main.java.Api.";
+    public static final String ExecBaseFolder = "main.java.Api.";
 
     /**
      * 遍历 api 目录下所有类
      */
     /**
-     public static void loadServiceApi() {
-     List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Api", true);
-     // 修改每个载入的 class,增加调用方法
-     for (Class<?> cls : clsArr) {
-     share_class.put(cls.getSimpleName(), ReflectStruct.build(cls));
-     }
-     }*/
+     * public static void loadServiceApi() {
+     * List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Api", true);
+     * // 修改每个载入的 class,增加调用方法
+     * for (Class<?> cls : clsArr) {
+     * share_class.put(cls.getSimpleName(), ReflectStruct.build(cls));
+     * }
+     * }
+     */
+
+    private static ReflectStruct loadMagicServiceApiClass(String name) {
+        try {
+            return ReflectStruct.build(Class.forName(ExecBaseFolder + name));
+        } catch (Exception e) {
+            // 本地类不存在
+            if (MicroServiceContext.current().model().containsKey(name)) {
+                return ReflectStruct.build(MicroServiceTemplate.class, name);
+            }
+            return null;
+        }
+    }
+
     /**
      * 动态载入类
      *
      * @return
      */
     public static ReflectStruct getServiceApi(String name) {
+        // 增加对未知类初始化支持(有业务模型的未知类,类名称与模型名称相同)
         if (!share_class.containsKey(name)) {
-            try {
-                share_class.put(name, ReflectStruct.build(Class.forName(ExecBaseFolder + name)));
-            } catch (Exception e) {
-                // nLogger.errorInfo(e);
+            var v = loadMagicServiceApiClass(name);
+            if (v == null) {
                 return null;
             }
+            share_class.put(name, v);
         }
         return share_class.get(name);
     }
@@ -207,7 +223,6 @@ public class ExecRequest {//框架内请求类
      * 执行当前上下文环境下的调用
      */
     public static Object _run(HttpContext hCtx) {
-        // HttpContext hCtx = HttpContext.current();
         Object rs = global_class_service(hCtx);
         if (rs == null) {
             String className = hCtx.className();
@@ -256,14 +271,10 @@ public class ExecRequest {//框架内请求类
             }
             return v;
         } else if (o instanceof JSONObject m) {
-            for (var k : m.keySet()) {
-                m.put(k, GscString2Object(m.get(k)));
-            }
+            m.replaceAll((k, v) -> GscString2Object(v));
             return m;
         } else if (o instanceof JSONArray a) {
-            for (var i = 0; i < a.size(); i++) {
-                a.set(i, GscString2Object(a.get(i)));
-            }
+            a.replaceAll(ExecRequest::GscString2Object);
             return a;
         }
         return o;
@@ -316,17 +327,7 @@ public class ExecRequest {//框架内请求类
         if (o instanceof RpcPure v) {
             return v.payload();
         }
-        if (o instanceof String ||
-                o instanceof Integer ||
-                o instanceof List<?> ||
-                o instanceof HashMap<?, ?> ||
-                o instanceof Long ||
-                o instanceof Float ||
-                o instanceof Double ||
-                o instanceof Short ||
-                o instanceof Boolean ||
-                o instanceof JSONObject ||
-                o instanceof JSONArray
+        if (o instanceof String || o instanceof Integer || o instanceof List<?> || o instanceof HashMap<?, ?> || o instanceof Long || o instanceof Float || o instanceof Double || o instanceof Short || o instanceof Boolean
         ) {
             return rMsg.netMSG(o);
         }

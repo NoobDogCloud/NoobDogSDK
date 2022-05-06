@@ -113,23 +113,17 @@ public class Cache implements InterfaceCache {
                     switch (cacheName) {
                         case "redis" -> {
                             _cache = new RedisSingle(_configString);
-                            break;
                         }
                         case "redis-cluster" -> {
                             _cache = new RedisCluster(_configString);
-                            break;
                         }
                         case "redis-sentinel" -> {
                             _cache = new RedisSentinel(_configString);
-                            break;
                         }
                         case "redis-masterslave" -> {
                             _cache = new RedisMasterSlave(_configString);
-                            break;
                         }
-                        default -> {
-                            _cache = CaffeineCache.build();
-                        }
+                        default -> _cache = CaffeineCache.build();
                     }
                 } else {
                     nLogger.logInfo("Cache配置信息格式错误:" + _configString);

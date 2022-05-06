@@ -2,10 +2,7 @@ package common.java.Apps.Roles;
 
 import org.json.gsc.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class AppRoles {
     private final JSONObject store;
@@ -155,9 +152,7 @@ public class AppRoles {
             JSONObject block = store.getJson(roleName);
             if (block.containsKey("elder")) {
                 String[] elderStrArr = block.getString("elder").split(",");
-                for (int i = 0; i > elderStrArr.length; i++) {
-                    parentSet.add(elderStrArr[i]);
-                }
+                parentSet.addAll(Arrays.asList(elderStrArr));
             }
         }
         if (parentSet.size() > 0) {
@@ -168,8 +163,7 @@ public class AppRoles {
 
     // 基于用户组从属组，按照权值重新构造新的用户组
     public List<String> getRolesTree(List<String> values) {
-        Set<String> elderArr = new HashSet<>();
-        elderArr.addAll(values);
+        Set<String> elderArr = new HashSet<>(values);
         getRolesElder(elderArr);
         // 按照用户组权值顺序，基于所有用到的用户组重拍
         List<String> elderGroup = new ArrayList<>();

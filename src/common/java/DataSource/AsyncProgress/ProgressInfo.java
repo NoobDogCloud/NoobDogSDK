@@ -18,7 +18,7 @@ public record ProgressInfo(String message, int type) {
         return type;
     }
 
-    class InfoType {
+    static class InfoType {
         public static final int INFO = 0;
         public static final int ERROR = 1;
         public static final int WARNING = 2;

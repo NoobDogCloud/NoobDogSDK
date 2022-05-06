@@ -25,29 +25,21 @@ public class GscPulsarServer {
 
     // topicName 主题名， Mode 模式 0 独占，1 共享， 2 灾备
     private static Consumer getConsumer(String topicName, int Mode) {
-        //构造Pulsar client
-        PulsarClient client = null;
-        try {
-            client = PulsarClient.builder()
-                    .serviceUrl(brokerServiceurl)
-                    .build();
-        } catch (PulsarClientException e) {
-            e.printStackTrace();
-        }
-
-        SubscriptionType subscriptionType;
-        switch (Mode) {
-            case 1:
-                subscriptionType = SubscriptionType.Shared;
-                break;
-            case 2:
-                subscriptionType = SubscriptionType.Failover;
-            default:
-                subscriptionType = SubscriptionType.Exclusive;
-        }
-
         //创建consumer
-        try {
+        //构造Pulsar client
+        try (PulsarClient client = PulsarClient.builder()
+                .serviceUrl(brokerServiceurl)
+                .build()) {
+            SubscriptionType subscriptionType;
+            switch (Mode) {
+                case 1:
+                    subscriptionType = SubscriptionType.Shared;
+                    break;
+                case 2:
+                    subscriptionType = SubscriptionType.Failover;
+                default:
+                    subscriptionType = SubscriptionType.Exclusive;
+            }
             return client.newConsumer()
                     .topic(topicName)
                     .subscriptionName(topicName)

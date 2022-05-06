@@ -328,8 +328,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
         }
         String[] _ids = ids.split(",");
         if (_ids.length > 1) {
-            Set<String> idsSet = new HashSet<>();
-            idsSet.addAll(Arrays.asList(_ids));
+            Set<String> idsSet = new HashSet<>(Arrays.asList(_ids));
             for (String id : idsSet) {
                 dbf.or().eq(fieldName, id);
             }

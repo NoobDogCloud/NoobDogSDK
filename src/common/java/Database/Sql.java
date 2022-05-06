@@ -273,7 +273,7 @@ public class Sql implements IDBManager<Sql> {
                     Sql db = new Sql(_configString);
                     db.form(_formName);
                     db.setCond(condJSON);
-                    JSONArray jsonArray = db.page(_index, _max);
+                    JSONArray<JSONObject> jsonArray = db.page(_index, _max);
                     var result = func.apply(jsonArray);
                     if (result != null) {
                         tempResult.put(_index, result);
@@ -908,7 +908,7 @@ public class Sql implements IDBManager<Sql> {
 
     public JSONObject getAndUpdate() {
         try {
-            var rs = (JSONObject) (((JSONArray) _findex(false)).get(0));
+            var rs = (JSONObject) (((JSONArray<?>) _findex(false)).get(0));
             _update(false);
             return rs;
         } catch (Exception e) {
@@ -950,12 +950,13 @@ public class Sql implements IDBManager<Sql> {
     protected List<String> insertSQL() {
         List<String> sqlList = new ArrayList<>();
         for (JSONObject _t : dataJSON) {//dataJSON可以包含多个jsonString,每一个jsonString代表一个操作
-            String fieldString = "", valueString = "";
+            StringBuilder fieldString = new StringBuilder();
+            StringBuilder valueString = new StringBuilder();
             for (Object _j : _t.keySet()) {//为每一个jsonString构造k-v insertsql
-                fieldString = fieldString + "`" + _j.toString() + "`,";
-                valueString = valueString + sqlvalue(_t.get(_j)) + ",";
+                fieldString.append("`").append(_j.toString()).append("`,");
+                valueString.append(sqlvalue(_t.get(_j))).append(",");
             }
-            sqlList.add("insert into " + getFullForm() + "(" + StringHelper.build(fieldString).removeTrailingFrom().toString() + ")" + " values(" + StringHelper.build(valueString).removeTrailingFrom().toString() + ")");
+            sqlList.add("insert into " + getFullForm() + "(" + StringHelper.build(fieldString.toString()).removeTrailingFrom().toString() + ")" + " values(" + StringHelper.build(valueString.toString()).removeTrailingFrom().toString() + ")");
             //sqlList.add("insert into " + formName + " values(" + StringHelper.killlast(valueString) + ")");
         }
         return sqlList;
@@ -1038,7 +1039,7 @@ public class Sql implements IDBManager<Sql> {
 
     public JSONObject getAndDelete() {
         try {
-            var rs = (JSONObject) (((JSONArray) _findex(false)).get(0));
+            var rs = (JSONObject) (((JSONArray<?>) _findex(false)).get(0));
             _delete(false);
             return rs;
         } catch (Exception e) {

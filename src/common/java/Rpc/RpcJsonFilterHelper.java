@@ -54,7 +54,7 @@ public class RpcJsonFilterHelper {
             if (data.size() == 0) {
                 return FilterReturn.buildTrue();
             }
-            return data.size() == 0 ? FilterReturn.buildTrue() : FilterReturn.build(false, "[" + name + "]的数据已被使用");
+            return FilterReturn.build(false, "[" + name + "]的数据已被使用");
         }, true, "缺少参数[" + key + "]");
         return _filter(key, fn);
     }

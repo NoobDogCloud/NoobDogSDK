@@ -156,7 +156,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
             if (aggregationJSONArray_Out != null) {
                 Vector<JSONArray> resultArray = new Vector<>();
                 // 并发执行piper
-                JSONArray finalR = r;
+                JSONArray<JSONObject> finalR = r;
                 HttpContext hCtx = HttpContext.current();
                 pipeJSONArray_Out.parallelStream().forEach(func -> {
                     AppContext.virtualAppContext(hCtx.appId(), hCtx.serviceName());
@@ -357,7 +357,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
     // 获得下级全部子节点数据集合,一次访问数据库
     private JSONObject getAllChildren1(JSONObject json) {
         // 获得表全部数据库
-        JSONArray array = select();
+        JSONArray<JSONObject> array = select();
         if (JSONArray.isInvalided(array)) {
             System.out.println("返回集合为空");
         }

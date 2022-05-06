@@ -44,9 +44,7 @@ public class DataSourceStoreLocal implements IDataSourceStore {
     public List<Object> news(int index) {
         List<Object> r = new ArrayList<>();
         for (int i = index, l = dataSource.size(); i < l; i++) {
-            if (i < l) {
-                r.add(dataSource.get(i));
-            }
+            r.add(dataSource.get(i));
         }
         return r;
     }

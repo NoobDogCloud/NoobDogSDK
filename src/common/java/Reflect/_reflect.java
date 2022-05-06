@@ -87,7 +87,11 @@ public class _reflect implements AutoCloseable {
     public static _reflect build(ReflectStruct cls) {
         Class<?> c = cls.getCls();
         if (!ContainerPool.containsKey(c)) {
-            ContainerPool.put(c, ObjectPool.build(() -> (new _reflect(cls)).newInstance()));
+            ContainerPool.put(c, ObjectPool.build(() -> {
+                try (var r = new _reflect(cls)) {
+                    return cls.getMagicClassName() == null ? r.newInstance() : r.newInstance(cls.getMagicClassName());
+                }
+            }));
         }
         return ContainerPool.get(c).get();
     }
@@ -111,7 +115,6 @@ public class _reflect implements AutoCloseable {
     /**
      * 获得当前类全部公开方法和参数的api声明
      *
-     * @return
      */
     public static Object getServDecl(Class<?> cls) {
         return _reflect.ServDecl(cls);
@@ -224,7 +227,8 @@ public class _reflect implements AutoCloseable {
 
     public _reflect filterInterface(List<String> actionNameArray, FilterCallback cb) {
         for (String actionName : actionNameArray) {
-            filterInterface(actionName, cb);
+            try (var ignored = filterInterface(actionName, cb)) {
+            }
         }
         return this;
     }
@@ -236,7 +240,8 @@ public class _reflect implements AutoCloseable {
 
     public _reflect returnInterface(List<String> actionNameArray, ReturnCallback cb) {
         for (String actionName : actionNameArray) {
-            returnInterface(actionName, cb);
+            try (var ignored = returnInterface(actionName, cb)) {
+            }
         }
         return this;
     }
@@ -289,10 +294,7 @@ public class _reflect implements AutoCloseable {
                                     _oClass = JSONArray.class;
                                     obj = GscEncrypt.decodeJson(objStr);
                                 }
-                                case "string" -> {
-                                    _oClass = String.class;
-                                    obj = GscEncrypt.decodeString(objStr);
-                                }
+                                case "string" -> obj = GscEncrypt.decodeString(objStr);
                             }
                             // 替换参数值
                             parameters[i] = obj;
@@ -345,27 +347,35 @@ public class _reflect implements AutoCloseable {
         return rs;
     }
 
-    private RpcMessage chkApiType(InterfaceType _at) {
+    private RpcMessage chkApiType(Object _at) {
         RpcMessage rs = null;
-        switch (_at.value()) {
-            case SessionApi:
-                if (!UserSession.current().checkSession()) {//会话不存在
-                    rs = RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.SessionApi, "当前请求不在有效会话上下文内");
-                }
-                break;
-            case OauthApi:
-                if (!oauthApi.getInstance().checkApiToken()) {
-                    rs = RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.OauthApi, "当前token无效或已过期");
-                }
-                break;
-            case CloseApi:
-                rs = RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.CloseApi, "非法接口");
-                break;
-            case PrivateApi:
-                rs = _superMode ? null : RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.PrivateApi, "内部接口");
-                break;
-            default:
-                break;
+        InterfaceType.type v = null;
+        if (_at instanceof InterfaceType.type) {
+            v = (InterfaceType.type) _at;
+        } else if (_at instanceof InterfaceType at) {
+            v = at.value();
+        }
+        if (v != null) {
+            switch (v) {
+                case SessionApi:
+                    if (!UserSession.current().checkSession()) {//会话不存在
+                        rs = RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.SessionApi, "当前请求不在有效会话上下文内");
+                    }
+                    break;
+                case OauthApi:
+                    if (!oauthApi.getInstance().checkApiToken()) {
+                        rs = RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.OauthApi, "当前token无效或已过期");
+                    }
+                    break;
+                case CloseApi:
+                    rs = RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.CloseApi, "非法接口");
+                    break;
+                case PrivateApi:
+                    rs = _superMode ? null : RpcMessage.Instant(SystemDefined.interfaceSystemErrorCode.PrivateApi, "内部接口");
+                    break;
+                default:
+                    break;
+            }
         }
         return rs;
     }
@@ -376,20 +386,19 @@ public class _reflect implements AutoCloseable {
         Object rs = null;
         if (!privateMode) {
             AnnotationStruct[] ans = _rf.getMethodAnnotation(functionName);
-            if (ans == null) {
-                rs = "Interface Prop Error:[Not Exist]";
-            }
-            for (AnnotationStruct an : ans) {//遍历全部注解
-                if (an.getType() == InterfaceType.class) {
-                    rs = chkApiType(an.getVal());
-                } else if (an.getType() == InterfaceTypeArray.class) {
-                    InterfaceTypeArray atApiType = an.getVal();
-                    for (InterfaceType _at : atApiType.value()) {
-                        rs = chkApiType(_at);
-                        if (rs == null) {
-                            break;
-                        } else {
-                            rs = "Interface Error:[" + rs + "]";
+            if (ans != null) {
+                for (AnnotationStruct an : ans) {//遍历全部注解
+                    if (an.getType() == InterfaceType.class) {
+                        rs = chkApiType(an.getVal());
+                    } else if (an.getType() == InterfaceTypeArray.class) {
+                        InterfaceTypeArray atApiType = an.getVal();
+                        for (InterfaceType _at : atApiType.value()) {
+                            rs = chkApiType(_at);
+                            if (rs == null) {
+                                break;
+                            } else {
+                                rs = "Interface Error:[" + rs + "]";
+                            }
                         }
                     }
                 }
@@ -464,9 +473,9 @@ public class _reflect implements AutoCloseable {
      * 反射调用类方法
      * 补充功能，此处获得方法apiType注解信息，判断其接口属性，决定是否有返回值
      *
-     * @param functionName
-     * @param parameters
-     * @return
+     * @param functionName 方法名
+     * @param parameters   参数
+     * @return 返回值
      */
     public Object _call(String functionName, Object... parameters) {
         Object rs = global_service(functionName, parameters);

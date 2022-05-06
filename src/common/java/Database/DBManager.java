@@ -69,9 +69,7 @@ public class DBManager {
                     AtomicInteger count = new AtomicInteger(0);
                     try (JSONArrayStream<JSONObject> result = tableInfo.getJsonArrayStream("data")) {
                         db.form(tableName);
-                        result.forEach(item -> {
-                            count.addAndGet(db.data(item).insert().size());
-                        });
+                        result.forEach(item -> count.addAndGet(db.data(item).insert().size()));
                     } catch (Exception e) {
                         String errorInfo = """
                                 表:%s

@@ -23,9 +23,7 @@ public class Member {
         h.remove("mode");
         this.socketContext = socketContext;
         this.refreshTask = new ArrayList<>();
-        this.refreshTask.add(m -> {
-            GrapeHttpServer._startService(m.ch, m.socketContext.getRequest());
-        });
+        this.refreshTask.add(m -> GrapeHttpServer._startService(m.ch, m.socketContext.getRequest()));
     }
 
     public static Member build(ChannelHandlerContext ch, SocketContext socketContext) {

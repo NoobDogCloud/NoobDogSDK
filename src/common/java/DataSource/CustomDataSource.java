@@ -61,7 +61,11 @@ public class CustomDataSource {
      */
     private CustomDataSource() {
         topic = createTopic();
-        appId = HttpContext.current().appId();
+        var ctx = HttpContext.current();
+        if (ctx == null) {
+            throw new RuntimeException("HttpContext is null");
+        }
+        appId = ctx.appId();
         store = DataSourceManager.add(topic, appId);
         updateLiveTime();
         customDataSourceQueue.add(this);

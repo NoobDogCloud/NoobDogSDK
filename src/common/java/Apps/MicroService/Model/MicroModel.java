@@ -1,5 +1,6 @@
 package common.java.Apps.MicroService.Model;
 
+import common.java.Apps.MicroService.Model.Interface.MModelApiPerm;
 import common.java.Apps.MicroService.Model.RBAC.MModelPerm;
 import org.json.gsc.JSONObject;
 
@@ -11,12 +12,15 @@ public class MicroModel {
     private MModelRuleArray mmrArray;
     private MModelPerm mmps;
 
+    private MModelApiPerm apips;
+
     public MicroModel(int appId, String tableName, JSONObject modelJson) {
         this.appId = appId;
         if (modelJson != null) {
             this.tableName = tableName;
             this.mmps = new MModelPerm(appId, modelJson.getJson("perm"));
             this.mmrArray = new MModelRuleArray(modelJson.getJsonArray("rule"));
+            this.apips = new MModelApiPerm(modelJson.getJson("api"));
         }
     }
 
@@ -49,6 +53,13 @@ public class MicroModel {
     }
 
     /**
+     * 获得API权限组
+     */
+    public MModelApiPerm apiPerms() {
+        return this.apips;
+    }
+
+    /**
      * 数据JSON结构的微服务模型
      */
     public JSONObject toJson() {
@@ -56,4 +67,7 @@ public class MicroModel {
                 .put("permissions", this.mmps.toJson());
     }
 
+    public int getAppId() {
+        return this.appId;
+    }
 }

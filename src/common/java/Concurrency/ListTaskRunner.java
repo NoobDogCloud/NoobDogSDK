@@ -13,9 +13,9 @@ import java.util.function.Consumer;
  */
 public class ListTaskRunner<T> {
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
-    List<List<T>> lists;    // 总任务列表
-    long maxWaterMark;      // 每个队列最大数量
-    Consumer<T> func;       // 为每个元素运行的任务
+    final List<List<T>> lists;    // 总任务列表
+    final long maxWaterMark;      // 每个队列最大数量
+    final Consumer<T> func;       // 为每个元素运行的任务
     long delayValue = 1000;
 
     private ListTaskRunner(long maxWaterMark, Consumer<T> func) {
@@ -26,7 +26,7 @@ public class ListTaskRunner<T> {
     }
 
     public static <T> ListTaskRunner<T> getInstance(long maxWaterMark, Consumer<T> func) {
-        return new ListTaskRunner<T>(maxWaterMark, func);
+        return new ListTaskRunner<>(maxWaterMark, func);
     }
 
     public static <T> ListTaskRunner<T> getInstance(Consumer<T> func) {

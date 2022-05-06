@@ -45,10 +45,8 @@ public class GscBooster {
                     }
                 }
                 case "-p" -> Config.port = Integer.parseInt(argArr.get(key).toString());
-                case "-k" -> {
-                    // 主控才有秘钥，所以直接锁死服务名称
-                    Config.publicKey = argArr.get(key).toString();
-                }
+                case "-k" -> // 主控才有秘钥，所以直接锁死服务名称
+                        Config.publicKey = argArr.get(key).toString();
             }
         }
         start(func);

@@ -95,15 +95,21 @@ public class AsyncProgress {
 
     public String toString() {
         var progressInfo = logs.get(logs.size() - 1);
-        return logs.size() > 0 ? JSONObject.build()
+        // 进度块
+        // 当前进度
+        // 总进度
+        // 时间戳
+        // 状态
+        // 类型
+        // 日志
+        return JSONObject.build()
                 .put("progress", JSONObject.build()                     // 进度块
                         .put("position", position)                          // 当前进度
                         .put("total", total))                               // 总进度
                 .put("timestamp", TimeHelper.getNowTimestampByZero())   // 时间戳
                 .put("status", status)                                  // 状态
                 .put("type", progressInfo.getType())                    // 类型
-                .put("logs", progressInfo.getMessage()).toString() :    // 日志
-                null;
+                .put("logs", progressInfo.getMessage()).toString();
     }
 
     public void close() {

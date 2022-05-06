@@ -144,9 +144,9 @@ public class OutResponse {
         buildHeader(response);
         // 获得文件前 100 字节
         byte[] bytes = new byte[50];
-        try {
+        try (var ch = v.getChannel()) {
             v.read(bytes, 0, Math.min(v.available(), 50));
-            v.getChannel().position(0);
+            ch.position(0);
         } catch (IOException e) {
             e.printStackTrace();
         }

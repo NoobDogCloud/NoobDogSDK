@@ -11,6 +11,9 @@ public class MModelPerm {
     private final HashMap<String, MModelPermInfo> permInfo;
 
     public MModelPerm(int appId, JSONObject pInfo) {
+        if (pInfo == null) {
+            pInfo = new JSONObject();
+        }
         this.appId = appId;
         this.initPerm = pInfo;
         this.permInfo = new HashMap<>();

@@ -74,9 +74,7 @@ public class GscSubscribe {
             String mode = h.getString("mode");
             var appId = ctx.appId();
             switch (mode) {
-                case "subscribe" -> {
-                    updateOrCreate(topic, appId).add(ctx.channelContext(), sCtx);
-                }
+                case "subscribe" -> updateOrCreate(topic, appId).add(ctx.channelContext(), sCtx);
                 case "update" -> update(topic, appId);
                 case "cancel" -> cancel(ctx.channelContext());
             }
@@ -127,6 +125,7 @@ public class GscSubscribe {
                 // 如果分布式故障，清空
                 nLogger.errorInfo("分布式订阅中间件故障，回退到本地默认订阅模式");
                 distribution_subscribe = null;
+                b = false;
             }
             return b;
         } else {

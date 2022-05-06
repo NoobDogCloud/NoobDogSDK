@@ -70,9 +70,7 @@ public class DataSourceDistribution implements IDataSourceStore {
         updateStore();
         List<Object> r = new ArrayList<>();
         for (int i = index, l = dataSource.size(); i < l; i++) {
-            if (i < l) {
-                r.add(dataSource.get(i));
-            }
+            r.add(dataSource.get(i));
         }
         return r;
     }

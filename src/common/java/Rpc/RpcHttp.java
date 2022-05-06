@@ -78,19 +78,18 @@ public class RpcHttp {
         // 设置请求参数[post]
         RequestBodyEntity rBody = r.body(args != null ? ExecRequest.objects2poststring(args) : "");
         String rs = null;
-        for (int err_i = 0; err_i < max_retry; err_i++) {
+        int err_i;
+        for (err_i = 0; err_i < max_retry; err_i++) {
             try {
                 rs = rBody.asString().getBody();
                 break;
             } catch (Exception e) {
-                if (err_i >= max_retry) {
-                    nLogger.debugInfo(e, "服务:[" + path + "] ->连接失败！");
-                    rs = null;
-                } else {
-                    ThreadHelper.sleep(delay_retry);
-                    // 无意义
-                }
+                ThreadHelper.sleep(delay_retry);
             }
+        }
+        if (err_i >= max_retry) {
+            nLogger.debugInfo("服务:[" + path + "] ->连接失败！");
+            rs = null;
         }
         return RpcResponse.build(rs);
     }

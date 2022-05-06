@@ -12,7 +12,7 @@ public class AutoObjectPool<T> implements AutoCloseable {
     }
 
     public static <T> AutoObjectPool<T> build(ObjectPool<T> pool) {
-        return new AutoObjectPool<T>(pool);
+        return new AutoObjectPool<>(pool);
     }
 
     /**

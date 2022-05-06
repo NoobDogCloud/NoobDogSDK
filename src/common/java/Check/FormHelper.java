@@ -184,14 +184,12 @@ public class FormHelper {
                     if (se.checkSession()) {
                         rs = UserSession.current().getUID();
                     }
-                    break;
                 }
                 case ":group" -> {
                     UserSession se = UserSession.current();
                     if (se.checkSession()) {
                         rs = UserSession.current().getGID();
                     }
-                    break;
                 }
             }
         }

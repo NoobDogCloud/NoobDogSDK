@@ -285,8 +285,6 @@ public class CheckHelper {
             switch (_char) {
                 case "星", "期", "礼", "拜", "周" -> {
                     str = StringHelper.build(str).removeTrailingFrom().toString();
-                    state = true;
-                    break;
                 }
                 default -> state = false;
             }
@@ -322,8 +320,6 @@ public class CheckHelper {
             switch (_char) {
                 case "月", "份" -> {
                     str = StringHelper.build(str).removeTrailingFrom().toString();
-                    state = true;
-                    break;
                 }
                 default -> state = false;
             }

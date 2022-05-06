@@ -22,11 +22,11 @@ public class ObjectPool<T> {
     }
 
     public static <F> ObjectPool<F> build(Supplier<F> fn) {
-        return new ObjectPool<F>(fn, 10000, 10);
+        return new ObjectPool<>(fn, 10000, 10);
     }
 
     public static <F> ObjectPool<F> build(Supplier<F> fn, int maxSize, int minSize) {
-        return new ObjectPool<F>(fn, maxSize, minSize);
+        return new ObjectPool<>(fn, maxSize, minSize);
     }
 
     private void injectPool() {

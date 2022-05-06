@@ -12,9 +12,9 @@ import java.util.function.BiConsumer;
  */
 public class HashmapTaskRunner<K, V> {
     private static final ExecutorService executorService = Executors.newCachedThreadPool();
-    List<HashMap<K, V>> lists;          // 总任务列表
-    long maxWaterMark;                  // 每个队列最大数量
-    BiConsumer<K, V> func;          // 为每个元素运行的任务
+    final List<HashMap<K, V>> lists;          // 总任务列表
+    final long maxWaterMark;                  // 每个队列最大数量
+    final BiConsumer<K, V> func;          // 为每个元素运行的任务
     // public static Object instance;
     long delayValue = 1000;
 

@@ -16,6 +16,9 @@ public class MModelRuleArray extends MModelSuperField {
     }
 
     private void init(JSONArray<JSONObject> rules) {
+        if (rules == null) {
+            rules = new JSONArray<>();
+        }
         hashmap = new HashMap<>();
         for (JSONObject l : rules) {
             MModelRuleNode mrn = new MModelRuleNode(l);

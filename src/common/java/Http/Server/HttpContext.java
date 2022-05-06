@@ -315,7 +315,7 @@ public class HttpContext {
 
     public int port() {
         String[] arr = StringHelper.build(values.getString(GrapeHttpHeader.host)).trimFrom('/').toString().split(":");
-        return arr.length == 2 ? Integer.valueOf(arr[1]) : 80;
+        return arr.length == 2 ? Integer.parseInt(arr[1]) : 80;
     }
 
     /**

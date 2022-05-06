@@ -586,7 +586,11 @@ public class DBLayer implements IDBManager<DBLayer> {
     }
 
     public DBLayer bind() {
-        int appId = HttpContext.current().appId();
+        var ctx = HttpContext.current();
+        if (ctx == null) {
+            throw new RuntimeException("HttpContext.current() is null");
+        }
+        int appId = ctx.appId();
         if (appId != 0) {
             try {
                 ownId = StringHelper.toString(appId);

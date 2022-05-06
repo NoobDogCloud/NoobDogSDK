@@ -31,9 +31,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
 
     public static String tryfixURL(String content) {
         var arr = StringHelper.path2list(content);
-        for (int i = 0; i < arr.size(); i++) {
-            arr.set(i, UrlCode.encode(arr.get(i)));
-        }
+        arr.replaceAll(UrlCode::encode);
         return StringHelper.join(arr, "/");
     }
 
