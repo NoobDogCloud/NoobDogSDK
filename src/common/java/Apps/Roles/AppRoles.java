@@ -118,6 +118,13 @@ public class AppRoles {
         return arr;
     }
 
+    /**
+     * 获得全部角色名称
+     */
+    public Set<String> all() {
+        return store.keySet();
+    }
+
     /*
     private void updateMaxAndMin(){
         int temp_max = Integer.MIN_VALUE;
