@@ -26,4 +26,7 @@ public class Filter {
         return this;
     }
 
+    public JSONObject data() {
+        return data;
+    }
 }
