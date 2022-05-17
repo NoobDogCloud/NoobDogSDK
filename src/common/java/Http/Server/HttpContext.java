@@ -49,6 +49,8 @@ public class HttpContext {
     private HttpContextDb db_ctx;
     private JSONObject header;
 
+    private JSONObject filter_extends;
+
     private HttpContext() {
     }
 
@@ -135,7 +137,26 @@ public class HttpContext {
                 updateValue(key);
             }
         }
+        filter_extends = JSONObject.build();
         init_grape_dbCtx();
+    }
+
+    public JSONObject getFilterExtends() {
+        return filter_extends;
+    }
+
+    public HttpContext addExtends(String name, Object value) {
+        filter_extends.put(name, value);
+        return this;
+    }
+
+    public HttpContext removeExtends(String name) {
+        filter_extends.remove(name);
+        return this;
+    }
+
+    public boolean hasExtends(String name) {
+        return filter_extends.containsKey(name);
     }
 
     /**

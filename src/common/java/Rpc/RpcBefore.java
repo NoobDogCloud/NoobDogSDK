@@ -1,5 +1,6 @@
 package common.java.Rpc;
 
+import common.java.Http.Server.HttpContext;
 import org.json.gsc.JSONObject;
 
 import java.util.HashMap;
@@ -7,6 +8,10 @@ import java.util.HashMap;
 public class RpcBefore {
     // 过滤链(全局)
     public static final HashMap<String, FilterLink> filterArray = new HashMap<>();
+
+    public static JSONObject current() {
+        return HttpContext.current().getFilterExtends();
+    }
 
     public static FilterReturn filter(String className, String actionName, Object[] input) {
         FilterLink fl = filterArray.get(className);
