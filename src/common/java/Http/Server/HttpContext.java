@@ -145,16 +145,6 @@ public class HttpContext {
         return filter_extends;
     }
 
-    public HttpContext addExtends(String name, Object value) {
-        filter_extends.put(name, value);
-        return this;
-    }
-
-    public HttpContext removeExtends(String name) {
-        filter_extends.remove(name);
-        return this;
-    }
-
     public boolean hasExtends(String name) {
         return filter_extends.containsKey(name);
     }
