@@ -146,11 +146,7 @@ public class DBLayer implements IDBManager<DBLayer> {
         return _db;
     }
 
-    private String _defaultKey = "id";
 
-    public String getDefaultKey() {
-        return _defaultKey;
-    }
 
     public IDBManager getDbByConfigContent(String _configString) {
         JSONObject obj = JSONObject.toJSON(_configString);
@@ -160,7 +156,6 @@ public class DBLayer implements IDBManager<DBLayer> {
                 case "mongodb" -> {
                     _db = new Mongodb(_configString);
                     _dbName = dbType.mongodb;
-                    _defaultKey = "_id";
                     // break;
                 }
                 case "oracle" -> {
