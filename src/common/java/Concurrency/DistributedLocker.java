@@ -2,9 +2,10 @@ package common.java.Concurrency;
 
 import common.java.Cache.CacheHelper;
 import common.java.File.FileText;
+import common.java.Thread.ThreadHelper;
 import common.java.nLogger.nLogger;
 
-public class DistributedLocker {
+public class DistributedLocker implements AutoCloseable {
     private static final String logFileName = "GlobelLocker.log";
     private static final String lockerPrefix = "Grape520Locker_";
 
@@ -46,10 +47,6 @@ public class DistributedLocker {
     private void init(String lockerName, int mode) {
         this.lockerName = lockerPrefix + lockerName;
         this.globalMode = mode == distributedLockerMode.GlobalMode;
-        // 锁设置成功
-        if (getRedis().setNX(lockerPrefix + lockerName, false)) {
-            FileText.build(logFileName).appendLine(this.lockerName + "|" + mode);
-        }
     }
 
     private CacheHelper getRedis() {
@@ -60,24 +57,13 @@ public class DistributedLocker {
     }
 
     /**
-     * 返回true表示现在锁定中，否则未锁
-     *
-     * @return
+     * 锁定
      */
-    public boolean lock() {
-        String val = getRedis().getSet(lockerName, true).toString();
-        boolean rb = Boolean.parseBoolean(val);
-        return !rb;
-    }
-
-    /**
-     * 是否已经锁上
-     *
-     * @return
-     */
-    public boolean islocked() {
-        String val = getRedis().get(lockerName).toString();
-        return Boolean.parseBoolean(val);
+    public void lock() {
+        var c = getRedis();
+        while (!c.setNX(lockerName, true)) {
+            ThreadHelper.sleep(10);
+        }
     }
 
     /**
@@ -85,7 +71,7 @@ public class DistributedLocker {
      *
      * @return
      */
-    public boolean isExisting() {
+    public boolean isLocked() {
         return getRedis().get(lockerName) != null;
     }
 
@@ -94,16 +80,12 @@ public class DistributedLocker {
      *
      * @return
      */
-    public boolean unlock() {
-        String val = getRedis().getSet(lockerName, false).toString();
-        return Boolean.parseBoolean(val);
+    public void unlock() {
+        getRedis().delete(lockerName);
     }
 
-    /**
-     * 删除锁
-     */
-    public void releaseLocker() {
-        getRedis().delete(lockerName);
+    public void close() {
+        unlock();
     }
 
     public static class distributedLockerMode {
