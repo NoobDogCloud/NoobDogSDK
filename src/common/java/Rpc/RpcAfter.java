@@ -93,7 +93,7 @@ public class RpcAfter {
         return this;
     }
 
-    public RpcAfter delete(ModelUpdateCallback callback) {
+    public RpcAfter delete(ModelDeleteReturnCallback callback) {
         filter("delete", (func, parameter, returnValue) -> callback.run(returnValue, ((String) parameter[0]).split(",")));
         return this;
     }
