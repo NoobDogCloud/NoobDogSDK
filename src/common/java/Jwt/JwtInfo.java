@@ -5,7 +5,6 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import common.java.Encrypt.Md5;
-import common.java.String.StringHelper;
 import common.java.Time.TimeHelper;
 import org.json.gsc.JSONObject;
 
@@ -20,7 +19,6 @@ public class JwtInfo {
 
     private JwtInfo(String userName) {
         this.userName = userName;
-        this.token = StringHelper.randomString(64);
     }
 
     public static JwtInfo build(String userName) {
