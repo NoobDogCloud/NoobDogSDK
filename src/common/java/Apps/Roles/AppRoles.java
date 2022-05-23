@@ -28,6 +28,13 @@ public class AppRoles {
     }
 
     /**
+     * 角色名称是否有效
+     */
+    public boolean hasRole(String roleName) {
+        return getRoleBlock(roleName) != null;
+    }
+
+    /**
      * 获得角色权值
      */
     public int getPV(String roleName) {
