@@ -24,6 +24,8 @@ public class UserSession {
     private String sid;                //当前操作的会话ID
     private String gid;                //当前操作的用户组ID
     private int gPV;                   // 当前操作用户的用户组权值
+
+    private int adminLevel;            // 当前操作用户的管理员级别
     private int appid;                //当前会话所属APPID
     private int expireTime;
 
@@ -420,6 +422,7 @@ public class UserSession {
                 this.expireTime = userSessionInfo.getExpireTime();
                 this.gid = userSessionInfo.getGroupId();//获得所在组ID
                 this.gPV = userSessionInfo.getGroupWeight();//获得所在组权值
+                this.adminLevel = userSessionInfo.getAdminLevel();//获得管理员级别
                 // 更新会话维持时间
                 refreshSession();
                 rb = true;
@@ -446,5 +449,9 @@ public class UserSession {
 
     public int getAppID() {
         return this.appid;
+    }
+
+    public int getAdminLevel() {
+        return this.adminLevel;
     }
 }

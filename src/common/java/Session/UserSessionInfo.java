@@ -55,6 +55,10 @@ public class UserSessionInfo {
         return userInfo.getInt(SuperItemField.PVField);
     }
 
+    public int getAdminLevel() {
+        return userInfo.getInt(SuperItemField.AdminLevelField);
+    }
+
     public JSONObject getUserInfo() {
         return userInfo;
     }
@@ -69,7 +73,8 @@ public class UserSessionInfo {
 
     public JSONObject toEveryone() {
         userInfo.put(SuperItemField.fatherField, AppRolesDef.everyone.name)
-                .put(SuperItemField.PVField, AppRolesDef.everyone.group_value);
+                .put(SuperItemField.PVField, AppRolesDef.everyone.group_value)
+                .put(SuperItemField.AdminLevelField, AppRolesDef.everyone.admin);
         return append();
     }
 
@@ -78,7 +83,9 @@ public class UserSessionInfo {
         if (StringHelper.isInvalided(grpName)) {
             nLogger.errorInfo("当前用户[" + uid + "]未包含[" + SuperItemField.fatherField + "] ->字段信息,角色定义缺失!");
         }
-        userInfo.put(SuperItemField.PVField, AppContext.current().roles().getPV(grpName));
+        var roles = AppContext.current().roles();
+        userInfo.put(SuperItemField.PVField, roles.getPV(grpName))
+                .put(SuperItemField.AdminLevelField, roles.getAdminLevel(grpName));
         return append();
     }
 }

@@ -5,6 +5,7 @@ import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Apps.MicroService.Model.RBAC.MModelPerm;
 import common.java.Apps.MicroService.Model.RBAC.MModelPermInfo;
 import common.java.Apps.Roles.AppRoles;
+import common.java.Apps.Roles.AppRolesDef;
 import common.java.Database.DBFilter;
 import common.java.ServiceTemplate.SuperItemField;
 import common.java.Session.UserSession;
@@ -145,13 +146,17 @@ public class Permissions {
 
     // 是否是管理员
     private boolean isAdmin() {
+        UserSession se = UserSession.current();
+        if (!se.checkSession()) {  // 当前定义了管理员,但是用户未登录
+            return false;
+        }
+        // 是超级管理员,直接返回
+        if (se.getAdminLevel() == AppRolesDef.RootLevel) {
+            return true;
+        }
         MModelPermInfo perm = perms.adminPerm();
         if (perm == null) {        // 当前操作未定义权限,未定义管理员
             return false;
-        }
-        UserSession se = UserSession.current();
-        if (!se.checkSession()) {  // 当前定义了管理员,但是用户未登录
-            se = UserSession.buildEveryone();
         }
         switch (perm.type()) {
             case MModelPermDef.perm_type_user:

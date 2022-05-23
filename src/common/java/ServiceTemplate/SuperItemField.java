@@ -22,4 +22,6 @@ public class SuperItemField {
      * 内存生成树不可少字段
      */
     public final static String childrenData = "_child";
+
+    public final static String AdminLevelField = "_admin_weight";
 }

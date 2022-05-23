@@ -5,6 +5,7 @@ import org.json.gsc.JSONObject;
 import java.util.*;
 
 public class AppRoles {
+
     private final JSONObject store;
 
     private AppRoles(JSONObject info) {
@@ -32,6 +33,22 @@ public class AppRoles {
     public int getPV(String roleName) {
         var r = getRoleBlock(roleName);
         return JSONObject.isInvalided(r) ? -1 : r.getInt("weight");
+    }
+
+    /**
+     * 获得角色管理值
+     */
+    public int getAdminLevel(String roleName) {
+        var r = getRoleBlock(roleName);
+        return JSONObject.isInvalided(r) ? -1 : (r.containsKey("admin") ? r.getInt("admin") : AppRolesDef.UserLevel);
+    }
+
+    public boolean isRoot(String roleName) {
+        return getAdminLevel(roleName) == AppRolesDef.RootLevel;
+    }
+
+    public boolean isAdmin(String roleName) {
+        return getAdminLevel(roleName) == AppRolesDef.AdminLevel;
     }
 
     /**
