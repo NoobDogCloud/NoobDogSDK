@@ -27,15 +27,14 @@ public class GscServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         public void initChannel(SocketChannel ch) {
-                            ch.pipeline().addLast(new HttpRequestDecoder());
-                            ch.pipeline().addLast(new HttpResponseEncoder());
-                            ch.pipeline().addLast(new ChunkedWriteHandler());
+                            ch.pipeline().addLast("decoder", new HttpRequestDecoder());
+                            ch.pipeline().addLast("encoder", new HttpResponseEncoder());
+                            ch.pipeline().addLast("handle", new ChunkedWriteHandler());
 
-                            ch.pipeline().addLast(new HttpObjectAggregator(10 * 1024 * 1024));
-                            ch.pipeline().addLast(new WebSocketServerProtocolHandler("/"));//升级协议到websocket
+                            ch.pipeline().addLast("aggregator", new HttpObjectAggregator(10 * 1024 * 1024));
+                            ch.pipeline().addLast("handle", new WebSocketServerProtocolHandler("/"));//升级协议到websocket
 
-                            ch.pipeline().addLast(new NetEvents());//http,websocket服务
-
+                            ch.pipeline().addLast("handle", new NetEvents());//http,websocket服务
                         }
                     });
 
