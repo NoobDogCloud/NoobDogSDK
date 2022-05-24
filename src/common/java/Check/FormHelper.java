@@ -177,7 +177,8 @@ public class FormHelper {
     private Object autoValueFilter(Object nowValue) {
         Object rs = nowValue;
         if (nowValue instanceof String) {
-            switch (nowValue.toString()) {
+            String[] cmdStrArr = ((String) nowValue).split("#");
+            switch (cmdStrArr[0]) {
                 case ":timestamp" -> rs = TimeHelper.build().nowDatetime();
                 case ":user" -> {
                     UserSession se = UserSession.current();
@@ -191,6 +192,7 @@ public class FormHelper {
                         rs = UserSession.current().getGID();
                     }
                 }
+                case ":random" -> rs = StringHelper.randomString(Integer.parseInt(cmdStrArr[1]));
             }
         }
         return rs;

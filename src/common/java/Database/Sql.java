@@ -153,10 +153,9 @@ public class Sql implements IDBManager<Sql> {
             if (charName != null) {
                 extern += (splitChar + "characterEncoding=" + charName);
             }
+            // mysql 必须有
             if (obj.containsKey("timezone")) {
                 extern += (splitChar + "serverTimezone=" + obj.getString("timezone"));
-            } else {
-                extern += (splitChar + "serverTimezone=" + TimeZone.getDefault().getDisplayName());
             }
             if (obj.containsKey("database_to_upper")) {
                 extern += (splitChar + "DATABASE_TO_UPPER=" + obj.getBoolean("database_to_upper"));
