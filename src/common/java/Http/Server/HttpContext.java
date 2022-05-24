@@ -40,6 +40,10 @@ public class HttpContext {
 
     private HttpRequest request;
     private String absPath;
+    private String pathString;
+    private String serviceNameString;
+    private String classNameString;
+    private String actionNameString;
     private String wsID;
     private String svrName;
     private JSONObject parameter;
@@ -71,6 +75,7 @@ public class HttpContext {
         }
         parameter(_header.getJson(GrapeHttpHeader.WebSocket.param));
         absPath = _header.getString(GrapeHttpHeader.WebSocket.url);
+        updatePath();
         wsID = _header.containsKey(GrapeHttpHeader.WebSocket.wsId) ?
                 _header.getString(GrapeHttpHeader.WebSocket.wsId) :
                 null;
@@ -130,6 +135,7 @@ public class HttpContext {
             updateValue(key);
         }
         absPath = _header.uri().trim();
+        updatePath();
         method = (Method) methodStore.get(_header.method().name().toLowerCase());
         // 是websocket
         if (method == Method.websocket) {
@@ -190,6 +196,13 @@ public class HttpContext {
         return ctx;
     }
 
+    private void updatePath() {
+        pathString = '/' + StringHelper.build(absPath).trimFrom('/').toString();
+        serviceNameString = StringHelper.captureName(pathString.split("/")[1]);
+        classNameString = StringHelper.captureName(pathString.split("/")[2]);
+        actionNameString = StringHelper.captureName(pathString.split("/")[3]);
+    }
+
     public final HttpContext headerValues(JSONObject nheader) {
         this.values = nheader;
         return this;
@@ -232,7 +245,7 @@ public class HttpContext {
     }
 
     public final String serviceName() {
-        return this.svrName != null ? this.svrName : path().split("/")[1];
+        return this.svrName != null ? this.svrName : serviceNameString;
     }
 
     public final JSONObject getValues() {
@@ -260,6 +273,7 @@ public class HttpContext {
     public HttpContext path(String path) {
         if (path != null) {
             absPath = path;
+            updatePath();
         }
         return this;
     }
@@ -269,7 +283,7 @@ public class HttpContext {
     }
 
     public String path() {
-        return '/' + StringHelper.build(absPath).trimFrom('/').toString();
+        return pathString;
     }
 
     public boolean invalidGscRequest() {
@@ -280,14 +294,14 @@ public class HttpContext {
      * 获得类名称
      */
     public String className() {
-        return path().split("/")[2];
+        return classNameString;
     }
 
     /**
      * 获得方法名称
      */
     public String actionName() {
-        return path().split("/")[3];
+        return actionNameString;
     }
 
     public HttpContext use(ChannelHandlerContext _ctx) {
@@ -462,7 +476,7 @@ public class HttpContext {
 
 //jsonArray
                         case "ja" -> arglist[idx] = JSONArray.build(svalue.substring(3));
-                        case "jsonArray" -> arglist[idx] = JSONArray.build(svalue.substring(10));
+                        case "json_array" -> arglist[idx] = JSONArray.build(svalue.substring(10));
 
 //object
                         case "o" -> arglist[idx] = ObjectHelper.build(svalue.substring(2));
