@@ -11,6 +11,10 @@ import common.java.nLogger.nLogger;
 import org.json.gsc.JSONObject;
 
 public class UserSession {
+    public static final int JwtDriver = 0;
+    public static final int RedisDriver = 1;
+
+    private static int defaultDriver = JwtDriver;
     private static final int session_time = 86400;
     private static final String everyone_key = AppRolesDef.everyone.name;
     private UserSessionInfo sessionInfo;    //会话id控制
@@ -25,6 +29,10 @@ public class UserSession {
     private boolean jwtStatus = false;
 
     private UserSessionLayer layer;
+
+    public static void setDefaultDriver(int driver) {
+        defaultDriver = driver;
+    }
 
     private UserSession() {
         // sid 可能是会话id，也可能是jwt加密信息
@@ -83,8 +91,10 @@ public class UserSession {
     }
 
     public static UserSession createSession(String uid, JSONObject info, int expire) {
-        UserSessionLayer l = CacheUserSession.getCacher() != null ? new CacheUserSession() : new JwtUserSession();
-        return l.createSession(uid, info, expire);
+        return switch (defaultDriver) {
+            case RedisDriver -> new CacheUserSession().createSession(uid, info, expire);
+            default -> new JwtUserSession().createSession(uid, info, expire);
+        };
     }
 
     /**

@@ -51,12 +51,12 @@ public class Cache implements InterfaceCache {
                     configName = inputConfigName;
                 }
                 // 获得共享缓存配置信息
+                /*
                 if (configName == null || configName.equals("")) {
                     nLogger.logInfo("缓存配置名称为空或者未配置");
                 }
-                _cache = getCacheObject(configName);
-            } else {
-                _cache = null;
+                */
+                _cache = (configName == null || configName.equals("")) ? null : getCacheObject(configName);
             }
             // 获得内存缓存配置此案系
             _mem_cache = getMemCacheObject();
