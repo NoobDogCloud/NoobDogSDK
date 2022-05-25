@@ -43,14 +43,17 @@ public class oauthApi {
      * @param actionName  方法名称
      * @apiNote 获得接口一次性授权码(公开使用)，10分钟有效
      */
-    public void getApiTokenService(String serviceName, String className, String actionName) {
+    public String getApiTokenService(String serviceName, String className, String actionName) {
         Cache c = Cache.getInstance();
         String token_key;
+        String code;
         do {
-            token_key = "api_token_" + StringHelper.createRandomCode(8);
+            code = StringHelper.createRandomCode(8);
+            token_key = "api_token_" + code;
         } while (c.get(token_key) != null);
         log(token_key);
         c.set(token_key, 600, build_api_name(serviceName, className, actionName));
+        return code;
     }
 
     /**

@@ -26,7 +26,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     public GrapeTreeDbLayerModel db;
     private String modelName;
     private Consumer<MicroServiceTemplate> InitDB_fn;
-    // private boolean join_flag = true;
+    private ApiTokenSender apiTokenSender;
 
     public MicroServiceTemplate(String ModelName) {
         init(ModelName, null);
@@ -347,9 +347,14 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
         }
     }
 
+    // 设置验证码发送处理函数
+    protected void setApiTokenSender(ApiTokenSender sender) {
+        apiTokenSender = sender;
+    }
+
     public boolean getApiAccessOnce(String className, String action) {
         HttpContext ctx = HttpContext.current();
-        oauthApi.getInstance().getApiTokenService(ctx.serviceName(), className, action);
+        String code = oauthApi.getInstance().getApiTokenService(ctx.serviceName(), className, action);
         return true;
     }
 
