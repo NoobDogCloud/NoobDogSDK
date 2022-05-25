@@ -23,7 +23,7 @@ public class CaffeineCache implements InterfaceCache {
                 .maximumSize(500000)
                 .initialCapacity(500)
                 // .refreshAfterWrite(5, TimeUnit.SECONDS)
-                .expireAfterWrite(86400, TimeUnit.SECONDS)
+                .expireAfterWrite(3600, TimeUnit.SECONDS)
                 .build();
     }
 
