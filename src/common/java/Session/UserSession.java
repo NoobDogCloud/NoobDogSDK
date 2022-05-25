@@ -152,6 +152,10 @@ public class UserSession {
         return this;
     }
 
+    public UserSessionInfo getUserData() {
+        return sessionInfo;
+    }
+
     /**
      * 根据sid删除会话
      */

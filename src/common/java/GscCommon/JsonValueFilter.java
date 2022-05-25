@@ -12,7 +12,7 @@ public class JsonValueFilter {
     public JsonValueFilter(JSONObject in) {
         this.in = in;
         this.otherData = new JSONObject();
-        this.userSession = UserSession.current().getDatas();
+        this.userSession = UserSession.current().getUserData().getUserInfo();
     }
 
     public static JsonValueFilter build(JSONObject in) {
