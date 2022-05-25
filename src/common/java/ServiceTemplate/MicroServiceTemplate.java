@@ -28,10 +28,22 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     private Consumer<MicroServiceTemplate> InitDB_fn;
     private ApiTokenSender apiTokenSender;
 
+    public MicroServiceTemplate(Consumer<MicroServiceTemplate> fn) {
+        String ModelName = this.getClass().getSimpleName().toLowerCase();
+        init(ModelName, fn);
+    }
+
+    public MicroServiceTemplate() {
+        String ModelName = this.getClass().getSimpleName().toLowerCase();
+        init(ModelName, null);
+    }
+
+    // @Deprecated(since = "现在类名称与模型名称强制绑定(模型名称全小写),不再需要指定ModelName")
     public MicroServiceTemplate(String ModelName) {
         init(ModelName, null);
     }
 
+    // @Deprecated(since = "现在类名称与模型名称强制绑定(模型名称全小写),不再需要指定ModelName")
     public MicroServiceTemplate(String ModelName, Consumer<MicroServiceTemplate> fn) {
         init(ModelName, fn);
     }
