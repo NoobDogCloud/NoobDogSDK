@@ -74,13 +74,11 @@ public class UserSession {
      * 获得当前会话id，如果不存在返回空
      */
     public static String getRequestSID() {
-        Object temp;
-        try {
-            temp = HttpContext.current().sid();
-        } catch (Exception e) {
-            temp = null;
-        }
-        return temp == null || temp.equals("") ? null : temp.toString();
+        var ctx = HttpContext.current();
+        if (ctx == null)
+            return UserSession.everyone_key;
+        String key = ctx.sid();
+        return StringHelper.isInvalided(key) ? UserSession.everyone_key : key;
     }
 
     public static UserSession createSession(String uid, JSONObject info, int expire) {
@@ -185,21 +183,22 @@ public class UserSession {
         boolean rb = false;
         if (sid != null) {
             this.sid = sid;
-            if (Jwt.isJwt(sid)) {
-                jwtStatus = true;
-                JwtInfo jwtInfo = JwtInfo.buildBy(sid);
-                if (jwtInfo != null && jwtInfo.isValid()) {
-                    uid = jwtInfo.getUserName();
-                    sessionInfo = UserSessionInfo.build(jwtInfo.decodeJwt()).toUser();
-                }
+            if (sid.equals(everyone_key)) {
+                sessionInfo = UserSessionInfo.build(sid, uid, JSONObject.build()).toEveryone();
             } else {
-                layer = new CacheUserSession();
-                String uid = sid.equals(everyone_key) ? everyone_key : layer.getUID(sid);
-                if (uid != null && !uid.isEmpty()) {//返回了用户名
-                    this.uid = uid;
-                    sessionInfo = sid.equals(everyone_key) ?
-                            UserSessionInfo.build(sid, uid, JSONObject.build()).toEveryone()
-                            : UserSessionInfo.build(sid, uid, layer.getInfo(uid)).toUser();
+                if (Jwt.isJwt(sid)) {
+                    jwtStatus = true;
+                    JwtInfo jwtInfo = JwtInfo.buildBy(sid);
+                    if (jwtInfo != null && jwtInfo.isValid()) {
+                        uid = jwtInfo.getUserName();
+                        sessionInfo = UserSessionInfo.build(jwtInfo.decodeJwt()).toUser();
+                    }
+                } else {
+                    layer = new CacheUserSession();
+                    String uid = sid.equals(everyone_key) ? everyone_key : layer.getUID(sid);
+                    if (uid != null && !uid.isEmpty()) {//返回了用户名
+                        sessionInfo = UserSessionInfo.build(sid, uid, layer.getInfo(uid)).toUser();
+                    }
                 }
             }
             // 补充会话数据
