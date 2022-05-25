@@ -68,9 +68,15 @@ public class JwtInfo {
         return sign.equals("Jwt");
     }
 
+    private static JSONObject filterSafe(JSONObject info) {
+        info.entrySet().removeIf(v -> v.getValue() == null);
+        return info;
+    }
+
     public JwtInfo encodeJwt(JSONObject userInfo) {
         long ft = TimeHelper.build().nowMillis() + (86400 * 1000);
         userInfo.put("failure_time", ft);
+        filterSafe(userInfo);
         token = JWT.create()
                 .withHeader(new HashMap<>())
                 .withClaim("user", userInfo)
