@@ -63,22 +63,37 @@ public class UserSessionInfo {
         return userInfo;
     }
 
-    private JSONObject append() {
-        return userInfo.put("_GrapeFW_SID", sid)
+    public UserSessionInfo setUserInfo(JSONObject data) {
+        userInfo.putAll(data);
+        return this;
+    }
+
+    public UserSessionInfo setUserInfo(String key, Object value) {
+        userInfo.put(key, value);
+        return this;
+    }
+
+    public Object getUserInfo(String key) {
+        return userInfo.get(key);
+    }
+
+    private UserSessionInfo append() {
+        userInfo.put("_GrapeFW_SID", sid)
                 .put("_GrapeFW_UID", uid)
                 .put("_GrapeFW_Expire", expireTime)
                 .put("_GrapeFW_NeedRefresh", (expireTime + TimeHelper.build().nowSecond()) / 2)
                 .put(uid + "_GrapeFW_AppInfo_", HttpContext.current().appId());
+        return this;
     }
 
-    public JSONObject toEveryone() {
+    public UserSessionInfo toEveryone() {
         userInfo.put(SuperItemField.fatherField, AppRolesDef.everyone.name)
                 .put(SuperItemField.PVField, AppRolesDef.everyone.group_value)
                 .put(SuperItemField.AdminLevelField, AppRolesDef.everyone.admin);
         return append();
     }
 
-    public JSONObject toUser() {
+    public UserSessionInfo toUser() {
         String grpName = userInfo.getString(SuperItemField.fatherField);  // 获得角色名称
         if (StringHelper.isInvalided(grpName)) {
             nLogger.errorInfo("当前用户[" + uid + "]未包含[" + SuperItemField.fatherField + "] ->字段信息,角色定义缺失!");
@@ -87,5 +102,9 @@ public class UserSessionInfo {
         userInfo.put(SuperItemField.PVField, roles.getPV(grpName))
                 .put(SuperItemField.AdminLevelField, roles.getAdminLevel(grpName));
         return append();
+    }
+
+    public JSONObject getData() {
+        return userInfo;
     }
 }

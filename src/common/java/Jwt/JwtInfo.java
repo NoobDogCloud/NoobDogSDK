@@ -17,6 +17,12 @@ public class JwtInfo {
     private String token;
     private String sign;
 
+    private int expire = 86400 * 1000;
+
+    public void setExpire(int expire) {
+        this.expire = expire;
+    }
+
     private JwtInfo(String userName) {
         this.userName = userName;
     }

@@ -290,7 +290,7 @@ public class _reflect implements AutoCloseable {
                                     _oClass = JSONObject.class;
                                     obj = GscEncrypt.decodeJson(objStr);
                                 }
-                                case "jsonArray" -> {
+                                case "json_array" -> {
                                     _oClass = JSONArray.class;
                                     obj = GscEncrypt.decodeJson(objStr);
                                 }
