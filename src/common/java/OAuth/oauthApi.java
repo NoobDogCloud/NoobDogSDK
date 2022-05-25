@@ -1,8 +1,10 @@
 package common.java.OAuth;
 
+import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Cache.Cache;
 import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
+import common.java.nLogger.nLogger;
 
 public class oauthApi {
     public static oauthApi getInstance() {
@@ -11,6 +13,13 @@ public class oauthApi {
 
     private static String build_api_name(String serviceName, String className, String actionName) {
         return serviceName + "@" + className + "@" + actionName;
+    }
+
+    private void log(String token_key) {
+        var msc = MicroServiceContext.current();
+        if (msc != null && msc.isDebug()) {
+            nLogger.logInfo("oauth2->code:" + token_key);
+        }
     }
 
     /**
@@ -24,6 +33,7 @@ public class oauthApi {
             token_key = "api_token_" + StringHelper.createRandomCode(64);
         } while (c.get(token_key) != null);
         c.set(token_key, 60, api_name);
+        log(token_key);
         return token_key;
     }
 
@@ -39,6 +49,7 @@ public class oauthApi {
         do {
             token_key = "api_token_" + StringHelper.createRandomCode(8);
         } while (c.get(token_key) != null);
+        log(token_key);
         c.set(token_key, 600, build_api_name(serviceName, className, actionName));
     }
 

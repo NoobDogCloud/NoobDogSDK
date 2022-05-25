@@ -10,6 +10,8 @@ import common.java.Time.TimeHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONObject;
 
+import java.util.HashMap;
+
 public class UserSession {
     public static final int JwtDriver = 0;
     public static final int RedisDriver = 1;
@@ -62,9 +64,19 @@ public class UserSession {
         return new UserSession(sid, expireTime);
     }
 
-    private static final UserSession UserSessionEveryOne = build(everyone_key);
+    private static final HashMap<String, UserSession> UserSessionEveryOneMap = new HashMap<>();
     public static UserSession buildEveryone() {
-        return UserSessionEveryOne;
+        var ctx = HttpContext.current();
+        if (ctx == null) {
+            throw new RuntimeException("当前上下文无法访问数据! -> 权限约束类需要在请求上下文中使用");
+        }
+        String appIdStr = String.valueOf(ctx.appId());
+        UserSession us = UserSessionEveryOneMap.get(appIdStr);
+        if (us == null) {
+            us = build(everyone_key);
+            UserSessionEveryOneMap.put(appIdStr, us);
+        }
+        return us;
     }
 
     public static boolean checkSession(String sid) {

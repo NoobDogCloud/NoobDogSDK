@@ -50,7 +50,6 @@ public class Permissions {
         if (!se.checkSession()) {  // 当前定义了权限,但是用户未登录
             se = UserSession.buildEveryone();
         }
-
         switch (perm.type()) {
             case MModelPermDef.perm_type_user:
                 dbf.and().eq(SuperItemField.userIdField, se.getUID());
