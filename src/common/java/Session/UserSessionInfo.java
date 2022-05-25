@@ -78,11 +78,17 @@ public class UserSessionInfo {
     }
 
     private UserSessionInfo append() {
+        refresh();
         userInfo.put("_GrapeFW_SID", sid)
                 .put("_GrapeFW_UID", uid)
-                .put("_GrapeFW_Expire", expireTime)
-                .put("_GrapeFW_NeedRefresh", (expireTime + TimeHelper.build().nowSecond()) / 2)
                 .put(uid + "_GrapeFW_AppInfo_", HttpContext.current().appId());
+        return this;
+    }
+
+    public UserSessionInfo refresh() {
+        var t = expireTime + TimeHelper.build().nowSecond();
+        userInfo.put("_GrapeFW_Expire", t)
+                .put("_GrapeFW_NeedRefresh", t / 2);
         return this;
     }
 
@@ -106,5 +112,13 @@ public class UserSessionInfo {
 
     public JSONObject getData() {
         return userInfo;
+    }
+
+    public int getExpire() {
+        return userInfo.getInt("_GrapeFW_Expire");
+    }
+
+    public int getNeedRefresh() {
+        return userInfo.getInt("_GrapeFW_NeedRefresh");
     }
 }

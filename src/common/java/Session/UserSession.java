@@ -17,7 +17,7 @@ public class UserSession {
     public static final int RedisDriver = 1;
 
     private static int defaultDriver = JwtDriver;
-    private static final int session_time = 86400;
+    private static final int session_time = 1800;
     private static final String everyone_key = AppRolesDef.everyone.name;
     private UserSessionInfo sessionInfo;    //会话id控制
     private String uid;                //当前操作的用户名
@@ -26,7 +26,7 @@ public class UserSession {
     private int gPV;                   // 当前操作用户的用户组权值
     private int adminLevel;            // 当前操作用户的管理员级别
     private int appid;                //当前会话所属APPID
-    private int expireTime;
+    private int expireTime = 1800;
 
     private boolean jwtStatus = false;
 
@@ -39,7 +39,6 @@ public class UserSession {
     private UserSession() {
         // sid 可能是会话id，也可能是jwt加密信息
         String sid = getRequestSID();
-        this.expireTime = 1800;
         updateUserInfo(sid);
     }
 
@@ -159,7 +158,17 @@ public class UserSession {
         if (jwtStatus) {
             return JwtInfo.buildBy(sid).isValid();
         }
-        return layer.has(sid);
+        if (!layer.has(sid)) {
+            return false;
+        }
+        var t = TimeHelper.build().nowSecond();
+        if (t > sessionInfo.getExpire()) {
+            return false;
+        }
+        if (t > sessionInfo.getNeedRefresh()) {
+            refreshSession();
+        }
+        return true;
     }
 
     /**
@@ -187,15 +196,13 @@ public class UserSession {
     // 延续会话维持时间(20分钟)
     public UserSession refreshSession() {
         if (this.expireTime > 0) {
-            JSONObject info = sessionInfo.getData();
-            int need_expire_time = info.getInt("_GrapeFW_NeedRefresh");
+            int need_expire_time = sessionInfo.getNeedRefresh();
             long t = TimeHelper.build().nowSecond() + expireTime;
             if (t < need_expire_time) {
                 return this;
             }
             if (!this.sid.equals(everyone_key)) {
-                info.put("_GrapeFW_NeedRefresh", t);
-                updateUserInfo(layer.update(sessionInfo, expireTime));
+                updateUserInfo(layer.update(sessionInfo.refresh(), expireTime));
             }
         }
         return this;
