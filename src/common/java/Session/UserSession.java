@@ -54,8 +54,9 @@ public class UserSession {
         return new UserSession(sid, expireTime);
     }
 
+    private static final UserSession UserSessionEveryOne = build(everyone_key);
     public static UserSession buildEveryone() {
-        return build(everyone_key);
+        return UserSessionEveryOne;
     }
 
     public static boolean checkSession(String sid) {
