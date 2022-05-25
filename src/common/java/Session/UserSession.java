@@ -76,7 +76,7 @@ public class UserSession {
     public static String getRequestSID() {
         var ctx = HttpContext.current();
         if (ctx == null)
-            return UserSession.everyone_key;
+            return null;
         return ctx.sid();
     }
 
