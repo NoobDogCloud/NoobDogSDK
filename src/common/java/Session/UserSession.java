@@ -77,7 +77,8 @@ public class UserSession {
         var ctx = HttpContext.current();
         if (ctx == null)
             return null;
-        return ctx.sid();
+        String sid = ctx.sid();
+        return StringHelper.isInvalided(sid) ? null : sid;
     }
 
     public static UserSession createSession(String uid, JSONObject info, int expire) {
