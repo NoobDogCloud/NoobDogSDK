@@ -12,7 +12,8 @@ public class MicroModelArray {
         this.mModels = new HashMap<>();
         if (mModel != null) {
             for (String key : mModel.keySet()) {
-                this.mModels.put(key, new MicroModel(appId, key, mModel.getJson(key)));
+                String _key = key.toLowerCase();
+                this.mModels.put(_key, new MicroModel(appId, _key, mModel.getJson(_key)));
             }
         }
     }
