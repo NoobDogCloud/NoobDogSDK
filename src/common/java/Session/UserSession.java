@@ -77,8 +77,7 @@ public class UserSession {
         var ctx = HttpContext.current();
         if (ctx == null)
             return UserSession.everyone_key;
-        String key = ctx.sid();
-        return StringHelper.isInvalided(key) ? UserSession.everyone_key : key;
+        return ctx.sid();
     }
 
     public static UserSession createSession(String uid, JSONObject info, int expire) {
