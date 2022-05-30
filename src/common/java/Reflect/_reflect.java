@@ -136,7 +136,7 @@ public class _reflect implements AutoCloseable {
         return StringHelper.build(apiString.toString()).trimTrailingFrom(',').toString();
     }
 
-    private static String ParameterMethod(Method method) {
+    public static String ParameterMethod(Method method) {
         Parameter[] parameters = method.getParameters();
         StringBuilder ParamString = new StringBuilder();
         for (final Parameter parameter : parameters) {
@@ -144,7 +144,8 @@ public class _reflect implements AutoCloseable {
             // ParamString.append(ExecRequest.class2string(parameter.getType())).append(":").append(parameter.getName()).append(",");
             ParamString.append(ExecRequest.class2string(parameter.getType())).append(",");
         }
-        return ParamString.toString();
+        String param = ParamString.toString();
+        return StringHelper.isInvalided(param) ? "" : StringHelper.build(param).trimFrom(',').toString();
     }
 
 
@@ -165,10 +166,9 @@ public class _reflect implements AutoCloseable {
                      * */
                     if (method.getModifiers() == Modifier.PUBLIC) {
                         String api = AnnotationMethod(method);
-                        if (!api.contains("closeApi")) {
-                            String param = ParameterMethod(method);
+                        if (!api.contains("CloseApi")) {
+                            String _param = ParameterMethod(method);
                             String _name = method.getName();
-                            String _param = StringHelper.isInvalided(param) ? "" : StringHelper.build(param).trimFrom(',').toString();
                             boolean existing = false;
                             for (var f : func) {
                                 if (f.getString("name").equals(_name) && f.getString("param").equals(_param)) {
@@ -177,6 +177,9 @@ public class _reflect implements AutoCloseable {
                                 }
                             }
                             if (!existing) {
+                                if ("".equals(api)) {
+                                    api = "PublicApi";
+                                }
                                 func.add(JSONObject.build("name", _name)
                                         .put("level", api)
                                         .put("param", _param));

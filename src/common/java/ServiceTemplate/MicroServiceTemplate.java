@@ -9,6 +9,7 @@ import common.java.Http.Server.Db.HttpContextDb;
 import common.java.Http.Server.HttpContext;
 import common.java.InterfaceModel.GrapeTreeDbLayerModel;
 import common.java.InterfaceModel.Type.Aggregation;
+import common.java.InterfaceModel.Type.InterfaceType;
 import common.java.OAuth.oauthApi;
 import common.java.Rpc.RpcPageInfo;
 import common.java.Rpc.rMsgString;
@@ -134,6 +135,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     /**
      * 返回纯db对象
      */
+    @InterfaceType(InterfaceType.type.CloseApi)
     public DBLayer getPureDB() {
         return this.db.getPureDB();
     }
@@ -148,16 +150,19 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
         return db;
     }
 
+    @InterfaceType(InterfaceType.type.CloseApi)
     public GrapeTreeDbLayerModel reset() {
         db.clear();
         return db;
     }
 
+    @InterfaceType(InterfaceType.type.CloseApi)
     public MicroServiceTemplate addInputFilter(String fieldName, Function<Object, Object> func) {
         this.db.addFieldInPipe(fieldName, func);
         return this;
     }
 
+    @InterfaceType(InterfaceType.type.CloseApi)
     public MicroServiceTemplate addOutputFilter(String fieldName, Function<Object, Object> func) {
         this.db.addFieldOutPipe(fieldName, func);
         return this;
@@ -333,6 +338,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
         return rMsgString.build().netMSG(true, desc);
     }
 
+    @InterfaceType(InterfaceType.type.CloseApi)
     public int _ids(String fieldName, String ids) {
         DBFilter dbf = DBFilter.buildDbFilter();
         if (StringHelper.isInvalided(ids)) {
@@ -373,27 +379,32 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
         return true;
     }
 
+    @InterfaceType(InterfaceType.type.CloseApi)
     public MicroServiceTemplate outPipe(Function<JSONArray, JSONArray> func) {
         db.outPipe(func);
         return this;
     }
 
+    @InterfaceType(InterfaceType.type.CloseApi)
     public void aggregation(Aggregation func) {
         db.outAggregation(func);
     }
 
+    @InterfaceType(InterfaceType.type.CloseApi)
     public MicroServiceTemplate setAggregationKey(String aggr_key) {
         this.aggr_key[0] = aggr_key;
         this.aggr_key[1] = aggr_key;
         return this;
     }
 
+    @InterfaceType(InterfaceType.type.CloseApi)
     public MicroServiceTemplate setAggregationKey(String local_key, String foreign_key) {
         this.aggr_key[0] = local_key;
         this.aggr_key[1] = foreign_key;
         return this;
     }
 
+    @InterfaceType(InterfaceType.type.CloseApi)
     public JSONArray aggregation(JSONArray store, JSONArray result) {
         JSONObject map = store.mapsByKey(aggr_key[0]);
         for (Object _o : result) {
