@@ -103,8 +103,8 @@ public class _reflect implements AutoCloseable {
     // api接口类型文本化
     private static String declApiType(InterfaceType _at) {
         String r = switch (_at.value()) {
-            case CloseApi -> "closeApi";
-            case OauthApi -> "oauth2Api";
+            case CloseApi -> "CloseApi";
+            case OauthApi -> "OAuth2Api";
             case PrivateApi -> "LocalApi";
             case SessionApi -> "SessionApi";
             default -> "PublicApi";
