@@ -60,9 +60,11 @@ public class ReflectStruct {
                             var mapi = model.apiPerms();
                             if (mapi != null) {
                                 // 获得 api 接口名
-                                var apiPermValue = mapi.getPerm(m.getName() + "@" + _reflect.ParameterMethod(m));
-                                if (apiPermValue != 0) {
-                                    asa.add(AnnotationStruct.build(buildAnnotation(apiPermValue.intValue())));
+                                var apiPermValueArr = mapi.getPerm(m.getName() + "@" + _reflect.ParameterMethod(m));
+                                if (apiPermValueArr != null) {
+                                    for (var v : apiPermValueArr) {
+                                        asa.add(AnnotationStruct.build(buildAnnotation(v)));
+                                    }
                                 }
                             }
                         }
