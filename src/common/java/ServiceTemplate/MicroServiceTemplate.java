@@ -27,7 +27,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     public GrapeTreeDbLayerModel db;
     private String modelName;
     private Consumer<MicroServiceTemplate> InitDB_fn;
-    private ApiTokenSender apiTokenSender;
+    private static ApiTokenSender apiTokenSender;
 
     public MicroServiceTemplate(Consumer<MicroServiceTemplate> fn) {
         String ModelName = this.getClass().getSimpleName().toLowerCase();
@@ -366,7 +366,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     }
 
     // 设置验证码发送处理函数
-    protected void setApiTokenSender(ApiTokenSender sender) {
+    public static void setApiTokenSender(ApiTokenSender sender) {
         apiTokenSender = sender;
     }
 

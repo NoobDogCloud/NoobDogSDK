@@ -30,8 +30,8 @@ public class MicroServiceContext {
     private MicroServiceContext(int appId, JSONObject servInfo) {
         // 获得对应微服务信息
         this.servInfo = servInfo;
-        this.servModelInfo = new MicroModelArray(appId, this.servInfo.getJson("datamodel"));
-        this.servConfig = new ModelServiceConfig(this.servInfo.getJson("config"));
+        this.servModelInfo = new MicroModelArray(appId, servInfo.getString("name"), servInfo.getJson("datamodel"));
+        this.servConfig = new ModelServiceConfig(servInfo.getJson("config"));
     }
 
     public static MicroServiceContext build(int appId, JSONObject serviceInfo) {
