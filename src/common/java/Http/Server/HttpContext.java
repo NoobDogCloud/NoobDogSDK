@@ -479,7 +479,7 @@ public class HttpContext {
                         default -> arglist[idx] = svalue;
                     }
                 } else {
-                    arglist[i] = svalue;
+                    arglist[idx] = svalue;
                 }
             }
         } catch (Exception e) {
