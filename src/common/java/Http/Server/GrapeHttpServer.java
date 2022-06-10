@@ -43,7 +43,7 @@ public class GrapeHttpServer {
         if (str.startsWith("@")) {
             str = str.substring(1);
         }
-        return !CheckHelper.IsID(str, 64);
+        return !CheckHelper.IsID(str, 256);
     }
 
     private static boolean filterSafeQuery(HttpContext ctx) {

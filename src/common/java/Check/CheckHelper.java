@@ -186,6 +186,11 @@ public class CheckHelper {
         return match(check, str);
     }
 
+    public static boolean IsSafePath(String str, int len) {
+        String check = "^[a-zA-Z][a-z0-9A-Z_-,]{2," + len + "}+$";
+        return match(check, str);
+    }
+
     public static boolean IsStrictID(String str, int len) {
         String check = "^[a-z][a-z0-9-]{2," + len + "}+$";
         return match(check, str);
