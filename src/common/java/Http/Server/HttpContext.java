@@ -434,7 +434,7 @@ public class HttpContext {
                 svalue = UrlCode.decode(urls[i]);
                 stype = svalue.split(":");
                 int idx = i - offset;
-                if (stype.length > 0) {//包含类型信息
+                if (stype.length > 1) {//包含类型信息
                     switch (stype[0].toLowerCase()) {
 //string
                         case "s" -> arglist[idx] = svalue.substring(2);
