@@ -27,14 +27,14 @@ public class MicroServiceContext {
     private final ModelServiceConfig servConfig;
     private final MicroModelArray servModelInfo;
 
-    private MicroServiceContext(int appId, JSONObject servInfo) {
+    private MicroServiceContext(String appId, JSONObject servInfo) {
         // 获得对应微服务信息
         this.servInfo = servInfo;
         this.servModelInfo = new MicroModelArray(appId, servInfo.getString("name"), servInfo.getJson("datamodel"));
         this.servConfig = new ModelServiceConfig(servInfo.getJson("config"));
     }
 
-    public static MicroServiceContext build(int appId, JSONObject serviceInfo) {
+    public static MicroServiceContext build(String appId, JSONObject serviceInfo) {
         return new MicroServiceContext(appId, serviceInfo);
     }
 

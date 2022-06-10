@@ -36,7 +36,7 @@ public class CustomDataSourceSubscriber {
     private long sendNumber = 0;
 
     // 创建/获得一个 自定义数据源
-    private CustomDataSourceSubscriber(String topic, int appId, IDataSourceStore _dataSource) {
+    private CustomDataSourceSubscriber(String topic, String appId, IDataSourceStore _dataSource) {
         room = GscSubscribe.updateOrCreate(topic, appId)
                 // 设置数据广播方法
                 .updateRefreshFunc(member -> {

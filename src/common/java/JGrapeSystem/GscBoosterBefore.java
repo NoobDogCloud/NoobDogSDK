@@ -14,7 +14,7 @@ public class GscBoosterBefore {
             if (context == null) {
                 return;
             }
-            int appId = context.appId();
+            String appId = context.appId();
             String printInfo = "时间:[" + TimeHelper.build().nowDatetime() + "]-"
                     + "应用:[" + appId + "]-"
                     + "级别:[" + type.toString() + "]-"

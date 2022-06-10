@@ -98,7 +98,7 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
         if (JSONObject.isInvalided(info)) {
             return 0;
         }
-        if (HttpContext.current().appId() > 0) {//非管理员情况下
+        if (!StringHelper.isInvalided(HttpContext.current().appId())) {//非管理员情况下
             info.remove("appid");
         }
         if (fdb.where(cond).nullCondition()) {

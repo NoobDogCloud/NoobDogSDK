@@ -6,7 +6,6 @@ import common.java.Encrypt.UrlCode;
 import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Http.Server.Db.HttpContextDb;
-import common.java.Number.NumberHelper;
 import common.java.Object.ObjectHelper;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
@@ -395,16 +394,12 @@ public class HttpContext {
      * 获得请求所在APPID
      */
 
-    public int appId() {
-        try {
-            return NumberHelper.number2int(values.get(GrapeHttpHeader.appId, 0));
-        } catch (Exception e) {
-        }
-        return 0;
+    public String appId() {
+        return (String) values.get(GrapeHttpHeader.appId, "");
     }
 
-    public HttpContext appId(int appId) {
-        if (appId > 0) {
+    public HttpContext appId(String appId) {
+        if (!StringHelper.isInvalided(appId)) {
             values.put(GrapeHttpHeader.appId, appId);
         }
         return this;

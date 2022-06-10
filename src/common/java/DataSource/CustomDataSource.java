@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class CustomDataSource {
     // 自动强制释放间隔
     private long freeTimeout = 3600 * 1000;
-    private final int appId;    // 所有待删除的自定义数据源
+    private final String appId;    // 所有待删除的自定义数据源
 
     private static void removeDeleteTask(CustomDataSource v) {
         if (v != null) {

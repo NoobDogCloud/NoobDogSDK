@@ -52,7 +52,7 @@ public class Room {
     // 主题最后广播时间
     private final AtomicLong broadcastTime = new AtomicLong(0);
     // 应用id
-    private final int appId;
+    private final String appId;
     // 成员广播任务
     private final List<Consumer<Member>> refreshFunc = new ArrayList<>();
     // 加入成员时 hook
@@ -64,13 +64,13 @@ public class Room {
     // 准备广播时 hook
     private final List<Consumer<Room>> broadcastFunc = new ArrayList<>();
 
-    private Room(String Topic, int appId) {
+    private Room(String Topic, String appId) {
         this.topic = Topic;
         this.appId = appId;
         this.memberMax = 100;
     }
 
-    private Room(String Topic, int appId, int memberMax) {
+    private Room(String Topic, String appId, int memberMax) {
         this.topic = Topic;
         this.appId = appId;
         this.memberMax = memberMax;
@@ -110,12 +110,12 @@ public class Room {
     }
     */
 
-    public static Room get(String Topic, int appId) {
+    public static Room get(String Topic, String appId) {
         String _topic = getTopicWithAppID(Topic, appId);
         return (room_pool.containsKey(_topic)) ? room_pool.get(_topic) : null;
     }
 
-    public static Room getInstance(String Topic, int appId, DistributionSubscribeInterface distribution_subscribe) {
+    public static Room getInstance(String Topic, String appId, DistributionSubscribeInterface distribution_subscribe) {
         String _topic = getTopicWithAppID(Topic, appId);
         if (room_pool.containsKey(_topic)) {
             return room_pool.get(_topic);
@@ -129,7 +129,7 @@ public class Room {
         }
     }
 
-    public static String getTopicWithAppID(String topic, int appId) {
+    public static String getTopicWithAppID(String topic, String appId) {
         return topic + "_" + appId;
     }
 
@@ -141,7 +141,7 @@ public class Room {
         return topic;
     }
 
-    public int getAppId() {
+    public String getAppId() {
         return appId;
     }
 

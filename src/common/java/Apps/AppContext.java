@@ -19,7 +19,7 @@ import java.util.concurrent.Executors;
 public class AppContext {
     private final HashMap<String, MicroServiceContext> micro_service_context = new HashMap<>();
 
-    private final int appId;
+    private final String appId;
     private final String domain;
     private final JSONObject appInfo;
     private final ModelServiceConfig msc;
@@ -31,7 +31,7 @@ public class AppContext {
     private AppContext(JSONObject appInfo) {
         // 默认使用当前上下文 或者 0
         this.appInfo = appInfo;
-        this.appId = this.appInfo.getInt("id");
+        this.appId = this.appInfo.getString("id");
         this.domain = this.appInfo.getString("domain");
         this.roles = AppRoles.build(this.appInfo.getJson("roles"));
         this.msc = new ModelServiceConfig(this.appInfo.getJson("config"));
@@ -42,16 +42,16 @@ public class AppContext {
     }
 
     public static AppContext current() {
-        return Coordination.getInstance().getAppContext(HttpContext.current().appId());
+        return Coordination.getInstance().getAppContextByAppId(HttpContext.current().appId());
     }
 
     /**
      * 根据指定的appId创建虚拟上下文
      */
-    public static AppContext virtualAppContext(int appId, String serviceName) {
+    public static AppContext virtualAppContext(String appId, String serviceName) {
         ChannelId cid = RequestSession.buildChannelId();
         RequestSession.create(cid.asLongText()).setWorker();
-        AppContext r = Coordination.getInstance().getAppContext(appId);
+        AppContext r = Coordination.getInstance().getAppContextByAppId(appId);
         HttpContext h = HttpContext.setNewHttpContext()
                 .serviceName(serviceName)
                 .appId(appId);
@@ -88,7 +88,7 @@ public class AppContext {
     public AppContext loadPreMicroContext(JSONArray<JSONObject> service) {
         // 找到当前 appId 对应数据
         for (JSONObject v : service) {
-            if (v.getInt("appid") == appId) {
+            if (v.getString("appid").equals(appId)) {
                 micro_service_context.put(v.getString("name"), MicroServiceContext.build(appId, v));
             }
         }
@@ -123,7 +123,7 @@ public class AppContext {
     /**
      * 获得当前应用id
      */
-    public int appId() {
+    public String appId() {
         return this.appId;
     }
 

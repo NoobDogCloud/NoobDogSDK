@@ -16,8 +16,8 @@ public class Coordination {
     private final AtomicReference<JSONArray<JSONObject>> services = new AtomicReference<>();
     private final AtomicReference<JSONArray<JSONObject>> configs = new AtomicReference<>();
 
-    private final HashMap<Integer, AppContext> app_context = new HashMap<>();
-    private final HashMap<String, Integer> domain_context = new HashMap<>();
+    private final HashMap<String, AppContext> app_context = new HashMap<>();
+    private final HashMap<String, String> domain_context = new HashMap<>();
 
     private Coordination() {
     }
@@ -44,7 +44,7 @@ public class Coordination {
         JSONArray<JSONObject> appArr = apps.get();
         JSONArray<JSONObject> svcArr = services.get();
         for (JSONObject v : appArr) {
-            int appId = v.getInt("id");
+            String appId = v.getString("id");
             AppContext aCtx = AppContext.build(v);
             app_context.put(appId, aCtx);
             aCtx.loadPreMicroContext(svcArr);
@@ -55,7 +55,7 @@ public class Coordination {
         }
     }
 
-    public AppContext getAppContext(int appId) {
+    public AppContext getAppContextByAppId(String appId) {
         AppContext ctx = app_context.get(appId);
         if (ctx == null) {
             var hCtx = HttpContext.current();
@@ -67,17 +67,17 @@ public class Coordination {
     }
 
     public AppContext getAppContext(String domain) {
-        Integer appId = domain_context.get(domain);
+        String appId = domain_context.get(domain);
         if (appId == null) {
             var hCtx = HttpContext.current();
             if (hCtx != null) {
                 hCtx.throwOut("当前域名[" + domain + "]未绑定!");
             }
         }
-        return getAppContext(appId);
+        return getAppContextByAppId(appId);
     }
 
-    public MicroServiceContext getMicroServiceContext(int appId, String serviceName) {
+    public MicroServiceContext getMicroServiceContext(String appId, String serviceName) {
         // 必须先实例化 AppContext 再设置 ServiceContext
         AppContext app_ctx = getAppContext(appId);
         MicroServiceContext msc_ctx = app_ctx.service(serviceName);

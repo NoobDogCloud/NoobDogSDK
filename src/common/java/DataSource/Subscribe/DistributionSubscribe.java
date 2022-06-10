@@ -11,9 +11,9 @@ public class DistributionSubscribe implements DistributionSubscribeInterface {
     private static CacheHelper ca;
     private long updateLevel = 0;   // 数据是否更新权值
 
-    private CacheHelper getCa(int appId) {
+    private CacheHelper getCa(String appId) {
         if (ca == null) {
-            ca = CacheHelper.build(appId);
+            ca = CacheHelper.buildByAppId(appId);
         }
         return ca;
     }

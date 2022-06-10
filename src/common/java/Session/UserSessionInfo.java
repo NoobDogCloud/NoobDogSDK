@@ -39,8 +39,8 @@ public class UserSessionInfo {
         return uid;
     }
 
-    public int getAppId() {
-        return userInfo.getInt(uid + "_GrapeFW_AppInfo_");
+    public String getAppId() {
+        return userInfo.getString(uid + "_GrapeFW_AppInfo_");
     }
 
     public int getExpireTime() {

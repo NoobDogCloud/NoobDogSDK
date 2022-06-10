@@ -31,7 +31,7 @@ public class RpcPulsar {
      * 订阅主题名       服务名（部署的）_应用ID
      * pulsar连接信息   peerAddr
      */
-    private static Producer<byte[]> getProducer(int appId, String hostUrl, String serviceName) {
+    private static Producer<byte[]> getProducer(String appId, String hostUrl, String serviceName) {
         String brokerServiceUrl = "pulsar://" + hostUrl;
         String topicName = "persistent://public/default/" + serviceName + "_" + appId;
         if (!producerCache.containsKey(topicName)) {

@@ -14,11 +14,11 @@ import java.util.List;
  */
 
 public class MModelPermInfo {
-    private final int appId;
+    private final String appId;
     private final JSONObject info;
     private List<String> group_values;
 
-    private MModelPermInfo(int appId, JSONObject info) {
+    private MModelPermInfo(String appId, JSONObject info) {
         this.appId = appId;
         this.info = info;
         String typeStr = info.getString(MModelPermDef.perm_type_caption);
@@ -36,11 +36,11 @@ public class MModelPermInfo {
         }
     }
 
-    public static MModelPermInfo build(int appId, JSONObject info) {
+    public static MModelPermInfo build(String appId, JSONObject info) {
         return new MModelPermInfo(appId, info);
     }
 
-    public static MModelPermInfo build(int appId) {
+    public static MModelPermInfo build(String appId) {
         return new MModelPermInfo(appId, new JSONObject());
     }
 

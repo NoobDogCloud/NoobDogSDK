@@ -72,7 +72,7 @@ public class GscSubscribe {
         String topic = getTopic(ctx);
         if (h.containsKey("mode")) {
             String mode = h.getString("mode");
-            var appId = ctx.appId();
+            String appId = ctx.appId();
             switch (mode) {
                 case "subscribe" -> updateOrCreate(topic, appId).add(ctx.channelContext(), sCtx);
                 case "update" -> update(topic, appId);
@@ -84,15 +84,16 @@ public class GscSubscribe {
 
     // -----------------------------------------------------------
     // 获得房间对象
-    public static Room updateOrCreate(String topic, int appId) {
+    public static Room updateOrCreate(String topic, String appId) {
         return Room.getInstance(topic, appId, distribution_subscribe);
     }
 
     // 处理主题更新
-    public static void update(String topic, int appId) {
+    public static void update(String topic, String appId) {
         // 标志有新数据,记录数据更新时间
         update(updateOrCreate(topic, appId));
     }
+
     public static void update(Room room) {
         room.fleshUpdateStatus().fleshUpdateTime();
         if (distribution_subscribe != null) {
@@ -113,7 +114,7 @@ public class GscSubscribe {
         room.releaseRoom();
     }
 
-    public static Room get(String topic, int appId) {
+    public static Room get(String topic, String appId) {
         return Room.get(topic, appId);
     }
 

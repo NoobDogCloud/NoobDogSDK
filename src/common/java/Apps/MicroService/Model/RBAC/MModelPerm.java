@@ -6,11 +6,11 @@ import org.json.gsc.JSONObject;
 import java.util.HashMap;
 
 public class MModelPerm {
-    private final int appId;
+    private final String appId;
     private final JSONObject initPerm;
     private final HashMap<String, MModelPermInfo> permInfo;
 
-    public MModelPerm(int appId, JSONObject pInfo) {
+    public MModelPerm(String appId, JSONObject pInfo) {
         if (pInfo == null) {
             pInfo = new JSONObject();
         }

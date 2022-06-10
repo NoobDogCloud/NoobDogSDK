@@ -6,7 +6,6 @@ import common.java.Coordination.Coordination;
 import common.java.Http.Common.RequestSession;
 import common.java.Http.Common.SocketContext;
 import common.java.Http.Server.ApiSubscribe.GscSubscribe;
-import common.java.Number.NumberHelper;
 import common.java.Rpc.ExecRequest;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
@@ -28,8 +27,8 @@ public class GrapeHttpServer {
     private static void fixHttpContext(HttpContext ctx) {
         String path = ctx.path();
         String[] blocks = path.split("/");
-        int appId = blocks.length > 1 ? NumberHelper.number2int(blocks[1]) : 0;
-        if (appId > 0) {
+        String appId = blocks.length > 1 ? blocks[1] : null;
+        if (!StringHelper.isInvalided(appId)) {
             // 自动补充appId
             ctx.appId(appId);
             // 自动修正path
@@ -148,7 +147,7 @@ public class GrapeHttpServer {
     public static Object systemCall(HttpContext ctx) {
         String path = ctx.path();
         String domain = ctx.domain();
-        int appId = ctx.appId();
+        String appId = ctx.appId();
         AppContext appContext;
         Object rsValue = "";
 
@@ -158,7 +157,7 @@ public class GrapeHttpServer {
             if (StringHelper.isInvalided(ctx.publicKey())) {
                 Coordination crd = Coordination.getInstance();
                 // appId 无效, 尝试根据域名获得 appId
-                if (appId == 0) {
+                if (StringHelper.isInvalided(appId)) {
                     appContext = crd.getAppContext(domain);
                     if (appContext.hasData()) {
                         appId = appContext.appId();

@@ -7,14 +7,14 @@ import org.json.gsc.JSONObject;
 import java.util.HashMap;
 
 public class MicroModel {
-    private final int appId;
+    private final String appId;
     private String tableName;
     private MModelRuleArray mmrArray;
     private MModelPerm mmps;
 
     private MModelApiPerm apips;
 
-    public MicroModel(int appId, String tableName, JSONObject modelJson) {
+    public MicroModel(String appId, String tableName, JSONObject modelJson) {
         this.appId = appId;
         if (modelJson != null) {
             this.tableName = tableName;
@@ -67,7 +67,7 @@ public class MicroModel {
                 .put("permissions", this.mmps.toJson());
     }
 
-    public int getAppId() {
+    public String getAppId() {
         return this.appId;
     }
 }

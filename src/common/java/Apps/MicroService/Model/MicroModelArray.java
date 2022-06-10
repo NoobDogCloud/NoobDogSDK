@@ -8,7 +8,7 @@ import java.util.function.BiConsumer;
 public class MicroModelArray {
     private final HashMap<String, MicroModel> mModels;
 
-    public MicroModelArray(int appId, String name, JSONObject mModel) {
+    public MicroModelArray(String appId, String name, JSONObject mModel) {
         this.mModels = new HashMap<>();
         if (mModel != null) {
             for (String key : mModel.keySet()) {

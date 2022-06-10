@@ -25,7 +25,7 @@ public class UserSession {
     private String gid;                //当前操作的用户组ID
     private int gPV;                   // 当前操作用户的用户组权值
     private int adminLevel;            // 当前操作用户的管理员级别
-    private int appid;                //当前会话所属APPID
+    private String appid;                //当前会话所属APPID
     private int expireTime = 1800;
 
     private boolean jwtStatus = false;
@@ -69,7 +69,7 @@ public class UserSession {
         if (ctx == null) {
             throw new RuntimeException("当前上下文无法访问数据! -> 权限约束类需要在请求上下文中使用");
         }
-        String appIdStr = String.valueOf(ctx.appId());
+        String appIdStr = ctx.appId();
         UserSession us = UserSessionEveryOneMap.get(appIdStr);
         if (us == null) {
             us = build(everyone_key);
@@ -265,7 +265,7 @@ public class UserSession {
         return this.gPV;
     }
 
-    public int getAppID() {
+    public String getAppID() {
         return this.appid;
     }
 

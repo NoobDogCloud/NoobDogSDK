@@ -41,8 +41,8 @@ public class CacheHelper implements InterfaceCache {
         return new CacheHelper(configName, true);
     }
 
-    public static CacheHelper build(int appId) {
-        var ctx = Coordination.getInstance().getAppContext(appId);
+    public static CacheHelper buildByAppId(String appId) {
+        var ctx = Coordination.getInstance().getAppContextByAppId(appId);
         if (ctx == null) {
             nLogger.errorInfo("当前应用[" + appId + "]无效");
             return null;
@@ -55,7 +55,7 @@ public class CacheHelper implements InterfaceCache {
     }
 
     public static CacheHelper buildForApp() {
-        return CacheHelper.build(HttpContext.current().appId());
+        return CacheHelper.buildByAppId(HttpContext.current().appId());
     }
 
     public CacheHelper secondCache(boolean flag) {
@@ -68,8 +68,8 @@ public class CacheHelper implements InterfaceCache {
         if (!flag) {
             HttpContext hCtx = HttpContext.current();
             if (hCtx != null) {
-                int appID = hCtx.appId();
-                appPrefix = appID > 0 ? "_" + appID : "";
+                String appID = hCtx.appId();
+                appPrefix = StringHelper.isInvalided(appID) ? "" : "_" + appID;
             }
         }
         return this;
