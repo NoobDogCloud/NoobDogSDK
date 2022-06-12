@@ -50,7 +50,7 @@ public class OutResponse {
     // -------------------------------------------------------------------
     public static void defaultOut(ChannelHandlerContext ctx, Object v) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-        response.headers().set("Access-Control-Allow-Origin", "*").set("Access-Control-Allow-Headers", AccessControlAllowHeaders);
+        response.headers().set("Access-Control-Allow-Origin", "*").set("Access-Control-Max-Age", "86400").set("Access-Control-Allow-Headers", AccessControlAllowHeaders);
         response.content().writeBytes(v.toString().getBytes());
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
@@ -88,6 +88,7 @@ public class OutResponse {
             }
         }
         httpHeader.set("Access-Control-Allow-Origin", "*")
+                .set("Access-Control-Max-Age", "86400")
                 .set("Access-Control-Allow-Headers", AccessControlAllowHeaders);
     }
 

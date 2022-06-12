@@ -330,7 +330,8 @@ public class HttpContext {
      * 获得host
      */
     public String host() {
-        return StringHelper.build(values.getString(GrapeHttpHeader.host)).trimFrom('/').toString();
+        String host = values.getString(GrapeHttpHeader.host);
+        return StringHelper.isInvalided(host) ? "127.0.0.1" : StringHelper.build(host).trimFrom('/').toString();
     }
 
     public String domain() {
