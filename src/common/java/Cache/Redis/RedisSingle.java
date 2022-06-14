@@ -21,7 +21,8 @@ import java.math.BigInteger;
  * *  * 	"maxIdle": 60000,
  * *  * 	"maxTotal": 1000,
  * *  * 	"maxWaitMillis": 10000,
- * "ssl":true
+ * "ssl":true,
+ * "idx":0,
  * 单机模式
  * "single":"123.57.213.15:7000"
  * }

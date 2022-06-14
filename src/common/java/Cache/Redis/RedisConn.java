@@ -83,7 +83,8 @@ public class RedisConn {
             uriValues.add(String.valueOf(RedisURI.DEFAULT_REDIS_PORT));
         }
         RedisURI.Builder redisBuilder = RedisURI.Builder.redis(uriValues.get(0), Integer.parseInt(uriValues.get(1)));
-        redisBuilder.withDatabase(0);
+        int idx = configs.containsKey("idx") ? configs.getInt("idx") : 0;
+        redisBuilder.withDatabase(idx);
         if (configs.containsKey("password")) {
             redisBuilder.withPassword(configs.getString("password").toCharArray());
         }
@@ -115,6 +116,8 @@ public class RedisConn {
         if (configs.containsKey("ssl")) {
             redisBuilder.withSsl(configs.getBoolean("ssl"));
         }
+        int idx = configs.containsKey("idx") ? configs.getInt("idx") : 0;
+        redisBuilder.withDatabase(idx);
         RedisClient client = RedisClient.create(redisBuilder.build());
         client.setOptions(
                 ClientOptions.builder()
@@ -146,8 +149,9 @@ public class RedisConn {
         if (configs.containsKey("ssl")) {
             redisBuilder.withSsl(configs.getBoolean("ssl"));
         }
+        int idx = configs.containsKey("idx") ? configs.getInt("idx") : 0;
+        redisBuilder.withDatabase(idx);
         RedisURI rURI = redisBuilder.build();
-
         StatefulRedisMasterReplicaConnection<String, String> conn = MasterReplica.connect(redisClient, StringCodec.UTF8, rURI);
         conn.setReadFrom(ReadFrom.MASTER_PREFERRED);
         return conn;
@@ -157,13 +161,14 @@ public class RedisConn {
         String uris = configs.getString("cluster");
         String[] uriArray = uris.split(",");
         List<RedisURI> links = new ArrayList<>();
+        int idx = configs.containsKey("idx") ? configs.getInt("idx") : 0;
         for (String uriString : uriArray) {
             List<String> uriValues = Arrays.asList(uriString.split(":"));
             if (uriValues.size() == 1) {
                 uriValues.add(String.valueOf(RedisURI.DEFAULT_REDIS_PORT));
             }
             RedisURI.Builder redisBuilder = RedisURI.Builder.redis(uriValues.get(0), Integer.parseInt(uriValues.get(1)));
-            redisBuilder.withDatabase(0);
+            redisBuilder.withDatabase(idx);
             if (configs.containsKey("password")) {
                 redisBuilder.withPassword(configs.getString("password").toCharArray());
             }
