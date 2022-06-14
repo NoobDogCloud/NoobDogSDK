@@ -17,6 +17,8 @@ import io.lettuce.core.masterreplica.MasterReplica;
 import io.lettuce.core.masterreplica.StatefulRedisMasterReplicaConnection;
 import org.json.gsc.JSONObject;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,7 +88,12 @@ public class RedisConn {
         int idx = configs.containsKey("idx") ? configs.getInt("idx") : 0;
         redisBuilder.withDatabase(idx);
         if (configs.containsKey("password")) {
-            redisBuilder.withPassword(configs.getString("password").toCharArray());
+            try {
+                String password = URLEncoder.encode(configs.getString("password"), StandardCharsets.UTF_8);
+                redisBuilder.withPassword(password.toCharArray());
+            } catch (Exception e) {
+                redisBuilder.withPassword(configs.getString("password").toCharArray());
+            }
         }
         if (configs.containsKey("ssl")) {
             redisBuilder.withSsl(configs.getBoolean("ssl"));
@@ -111,7 +118,12 @@ public class RedisConn {
             redisBuilder.withSentinel(_uriValues.get(0), Integer.parseInt(_uriValues.get(1)));
         }
         if (configs.containsKey("password")) {
-            redisBuilder.withPassword(configs.getString("password").toCharArray());
+            try {
+                String password = URLEncoder.encode(configs.getString("password"), StandardCharsets.UTF_8);
+                redisBuilder.withPassword(password.toCharArray());
+            } catch (Exception e) {
+                redisBuilder.withPassword(configs.getString("password").toCharArray());
+            }
         }
         if (configs.containsKey("ssl")) {
             redisBuilder.withSsl(configs.getBoolean("ssl"));
@@ -144,7 +156,12 @@ public class RedisConn {
             }
         }
         if (configs.containsKey("password")) {
-            redisBuilder.withPassword(configs.getString("password").toCharArray());
+            try {
+                String password = URLEncoder.encode(configs.getString("password"), StandardCharsets.UTF_8);
+                redisBuilder.withPassword(password.toCharArray());
+            } catch (Exception e) {
+                redisBuilder.withPassword(configs.getString("password").toCharArray());
+            }
         }
         if (configs.containsKey("ssl")) {
             redisBuilder.withSsl(configs.getBoolean("ssl"));
@@ -170,7 +187,12 @@ public class RedisConn {
             RedisURI.Builder redisBuilder = RedisURI.Builder.redis(uriValues.get(0), Integer.parseInt(uriValues.get(1)));
             redisBuilder.withDatabase(idx);
             if (configs.containsKey("password")) {
-                redisBuilder.withPassword(configs.getString("password").toCharArray());
+                try {
+                    String password = URLEncoder.encode(configs.getString("password"), StandardCharsets.UTF_8);
+                    redisBuilder.withPassword(password.toCharArray());
+                } catch (Exception e) {
+                    redisBuilder.withPassword(configs.getString("password").toCharArray());
+                }
             }
             if (configs.containsKey("ssl")) {
                 redisBuilder.withSsl(configs.getBoolean("ssl"));

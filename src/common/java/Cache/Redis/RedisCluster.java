@@ -42,7 +42,6 @@ public class RedisCluster implements InterfaceCache {
         var conn = ((StatefulRedisClusterConnection<String, String>) RedisConn.build(config).getConnect());
         conn.setReadFrom(ReadFrom.MASTER_PREFERRED);
         this.command = conn.async();
-
     }
 
     @Override
