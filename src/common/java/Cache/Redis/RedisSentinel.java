@@ -38,7 +38,9 @@ public class RedisSentinel implements InterfaceCache {
     }
 
     private void init(String config) {
-        this.command = ((StatefulRedisConnection<String, Object>) RedisConn.build(config).getConnect()).async();
+        var conn = ((StatefulRedisConnection<String, Object>) RedisConn.build(config).getConnect());
+        conn.setAutoFlushCommands(true);
+        this.command = conn.async();
     }
 
     @Override

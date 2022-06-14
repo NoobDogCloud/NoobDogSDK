@@ -5,6 +5,7 @@ import common.java.Cache.Common.InterfaceCache;
 import common.java.Config.Config;
 import common.java.Number.NumberHelper;
 import common.java.String.StringHelper;
+import io.lettuce.core.ReadFrom;
 import io.lettuce.core.cluster.api.StatefulRedisClusterConnection;
 import io.lettuce.core.cluster.api.async.RedisAdvancedClusterAsyncCommands;
 import org.json.gsc.JSONArray;
@@ -38,7 +39,10 @@ public class RedisCluster implements InterfaceCache {
     }
 
     private void init(String config) {
-        this.command = ((StatefulRedisClusterConnection<String, String>) RedisConn.build(config).getConnect()).async();
+        var conn = ((StatefulRedisClusterConnection<String, String>) RedisConn.build(config).getConnect());
+        conn.setReadFrom(ReadFrom.MASTER_PREFERRED);
+        this.command = conn.async();
+
     }
 
     @Override

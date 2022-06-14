@@ -5,6 +5,7 @@ import common.java.Cache.Common.InterfaceCache;
 import common.java.Config.Config;
 import common.java.Number.NumberHelper;
 import common.java.String.StringHelper;
+import io.lettuce.core.ReadFrom;
 import io.lettuce.core.api.async.RedisAsyncCommands;
 import io.lettuce.core.masterreplica.StatefulRedisMasterReplicaConnection;
 import org.json.gsc.JSONArray;
@@ -38,7 +39,10 @@ public class RedisMasterSlave implements InterfaceCache {
     }
 
     private void init(String config) {
-        this.command = ((StatefulRedisMasterReplicaConnection<String, Object>) RedisConn.build(config).getConnect()).async();
+        var conn = ((StatefulRedisMasterReplicaConnection<String, Object>) RedisConn.build(config).getConnect());
+        conn.setReadFrom(ReadFrom.MASTER_PREFERRED);
+        this.command = conn.async();
+
     }
 
     @Override
