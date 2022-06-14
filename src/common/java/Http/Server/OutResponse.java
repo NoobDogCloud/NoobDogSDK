@@ -18,8 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-import static io.netty.handler.codec.http.HttpHeaderNames.CONTENT_TYPE;
-import static io.netty.handler.codec.http.HttpHeaderNames.LOCATION;
+import static io.netty.handler.codec.http.HttpHeaderNames.*;
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpVersion.HTTP_1_1;
 
@@ -32,7 +31,7 @@ public class OutResponse {
             HttpContextDb.fields + " ," +
             HttpContextDb.sorts + " ," +
             HttpContextDb.options + "," +
-            "Content-Type";
+            CONTENT_TYPE;
     private final ChannelHandlerContext ctx;
     private JSONObject header;
     // private HttpResponse response;
@@ -50,7 +49,10 @@ public class OutResponse {
     // -------------------------------------------------------------------
     public static void defaultOut(ChannelHandlerContext ctx, Object v) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-        response.headers().set("Access-Control-Allow-Origin", "*").set("Access-Control-Max-Age", "86400").set("Access-Control-Allow-Headers", AccessControlAllowHeaders);
+        response.headers()
+                .set(ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .set(ACCESS_CONTROL_MAX_AGE, "86400")
+                .set(ACCESS_CONTROL_ALLOW_HEADERS, AccessControlAllowHeaders);
         response.content().writeBytes(v.toString().getBytes());
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
@@ -65,10 +67,11 @@ public class OutResponse {
 
     public static void defaultOptions(ChannelHandlerContext ctx) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
-        response.headers().set("Access-Control-Allow-Methods", "GET,POST")
-                .set("Access-Control-Max-Age", "86400")
-                .set("Access-Control-Allow-Origin", "*")
-                .set("Access-Control-Allow-Headers", AccessControlAllowHeaders);
+        response.headers()
+                .set(ACCESS_CONTROL_ALLOW_METHODS, "GET,POST")
+                .set(ACCESS_CONTROL_MAX_AGE, "86400")
+                .set(ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .set(ACCESS_CONTROL_ALLOW_HEADERS, AccessControlAllowHeaders);
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
@@ -80,16 +83,18 @@ public class OutResponse {
         this.header = header;
     }
 
-    private void buildHeader(HttpResponse response) {
+    private void buildHeader(HttpResponse response, int length) {
         HttpHeaders httpHeader = response.headers();
         if (header != null) {
             for (String key : header.keySet()) {
                 httpHeader.set(key, header.getString(key));
             }
         }
-        httpHeader.set("Access-Control-Allow-Origin", "*")
-                .set("Access-Control-Max-Age", "86400")
-                .set("Access-Control-Allow-Headers", AccessControlAllowHeaders);
+        httpHeader
+                .set(CONTENT_LENGTH, length)
+                .set(ACCESS_CONTROL_ALLOW_ORIGIN, "*")
+                .set(ACCESS_CONTROL_MAX_AGE, "86400")
+                .set(ACCESS_CONTROL_ALLOW_HEADERS, AccessControlAllowHeaders);
     }
 
     public void redirect(String url) {
@@ -135,26 +140,30 @@ public class OutResponse {
 
     public void out(ByteArrayInputStream v) {
         HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-        buildHeader(response);
+        buildHeader(response, v.available());
         response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
         out(v, response);
     }
 
     public void out(FileInputStream v) {
-        HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
-        buildHeader(response);
-        // 获得文件前 100 字节
-        byte[] bytes = new byte[50];
         try (var ch = v.getChannel()) {
-            v.read(bytes, 0, Math.min(v.available(), 50));
+            HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
+            int length = (int) ch.size();
+            buildHeader(response, length);
+
+            // 获得文件前 50 字节
+            byte[] bytes = new byte[50];
+            v.read(bytes, 0, Math.min(length, 50));
             ch.position(0);
+
+            // application/octet-stream
+            String mineType = Mime.getMime(bytes);
+            response.headers().set(CONTENT_TYPE, mineType);
+            out(v, response);
         } catch (IOException e) {
             e.printStackTrace();
+            defaultZero(ctx);
         }
-        // application/octet-stream
-        String mineType = Mime.getMime(bytes);
-        response.headers().set(CONTENT_TYPE, mineType);
-        out(v, response);
     }
 
     public void out(File v) {
@@ -168,7 +177,7 @@ public class OutResponse {
     public void out(RpcLocation v) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
         response.setStatus(HttpResponseStatus.FOUND);
-        buildHeader(response);
+        buildHeader(response, 0);
         response.headers().set(LOCATION, v.url());
         response.content().writeBytes("".getBytes());
         out(response);
@@ -233,7 +242,7 @@ public class OutResponse {
     public void out(byte[] v) {
         FullHttpResponse response = new DefaultFullHttpResponse(HTTP_1_1, OK);
         response.headers().set(CONTENT_TYPE, "text/plain; charset=UTF-8");
-        buildHeader(response);
+        buildHeader(response, v.length);
         response.content().writeBytes(v);
         ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
@@ -279,6 +288,4 @@ public class OutResponse {
             out(StringHelper.toString(v));
         }
     }
-
-
 }
