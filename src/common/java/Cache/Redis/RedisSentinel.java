@@ -17,6 +17,7 @@ import java.math.BigInteger;
  * * {
  * * 	"cacheName": "RedisSingle",
  * * 	"password": "admins",
+ * * 	"username": "root",
  * * 	"maxIdle": 60000,
  * * 	"maxTotal": 1000,
  * * 	"maxWaitMillis": 10000,

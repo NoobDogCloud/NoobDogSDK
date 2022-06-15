@@ -76,6 +76,29 @@ public class RedisConn {
         return uriValues;
     }
 
+    private RedisURI.Builder preload(JSONObject configs, RedisURI.Builder redisBuilder) {
+        int idx = configs.containsKey("idx") ? configs.getInt("idx") : 0;
+        redisBuilder.withDatabase(idx);
+        char[] password = null;
+        if (configs.containsKey("password")) {
+            try {
+                password = URLEncoder.encode(configs.getString("password"), StandardCharsets.UTF_8).toCharArray();
+            } catch (Exception e) {
+            }
+        }
+        if (configs.containsKey("username")) {
+            redisBuilder.withAuthentication(configs.getString("username"), password);
+        } else {
+            if (password.length > 0) {
+                redisBuilder.withPassword(password);
+            }
+        }
+        if (configs.containsKey("ssl")) {
+            redisBuilder.withSsl(configs.getBoolean("ssl"));
+        }
+        return redisBuilder;
+    }
+
     private StatefulRedisConnection<String, String> connSingle(JSONObject configs) {
         String uri = configs.getString("single");
         String[] uris = uri.split(":");
@@ -85,20 +108,7 @@ public class RedisConn {
             uriValues.add(String.valueOf(RedisURI.DEFAULT_REDIS_PORT));
         }
         RedisURI.Builder redisBuilder = RedisURI.Builder.redis(uriValues.get(0), Integer.parseInt(uriValues.get(1)));
-        int idx = configs.containsKey("idx") ? configs.getInt("idx") : 0;
-        redisBuilder.withDatabase(idx);
-        if (configs.containsKey("password")) {
-            try {
-                String password = URLEncoder.encode(configs.getString("password"), StandardCharsets.UTF_8);
-                redisBuilder.withPassword(password.toCharArray());
-            } catch (Exception e) {
-                redisBuilder.withPassword(configs.getString("password").toCharArray());
-            }
-        }
-        if (configs.containsKey("ssl")) {
-            redisBuilder.withSsl(configs.getBoolean("ssl"));
-        }
-        RedisClient client = RedisClient.create(redisBuilder.build());
+        RedisClient client = RedisClient.create(preload(configs, redisBuilder).build());
         client.setOptions(
                 ClientOptions.builder()
                         .autoReconnect(true)
@@ -117,20 +127,7 @@ public class RedisConn {
             List<String> _uriValues = fixRedisURI(uriArray.get(0));
             redisBuilder.withSentinel(_uriValues.get(0), Integer.parseInt(_uriValues.get(1)));
         }
-        if (configs.containsKey("password")) {
-            try {
-                String password = URLEncoder.encode(configs.getString("password"), StandardCharsets.UTF_8);
-                redisBuilder.withPassword(password.toCharArray());
-            } catch (Exception e) {
-                redisBuilder.withPassword(configs.getString("password").toCharArray());
-            }
-        }
-        if (configs.containsKey("ssl")) {
-            redisBuilder.withSsl(configs.getBoolean("ssl"));
-        }
-        int idx = configs.containsKey("idx") ? configs.getInt("idx") : 0;
-        redisBuilder.withDatabase(idx);
-        RedisClient client = RedisClient.create(redisBuilder.build());
+        RedisClient client = RedisClient.create(preload(configs, redisBuilder).build());
         client.setOptions(
                 ClientOptions.builder()
                         .autoReconnect(true)
@@ -155,20 +152,7 @@ public class RedisConn {
                 redisBuilder.withSentinel(_uriValues.get(0), Integer.parseInt(_uriValues.get(1)));
             }
         }
-        if (configs.containsKey("password")) {
-            try {
-                String password = URLEncoder.encode(configs.getString("password"), StandardCharsets.UTF_8);
-                redisBuilder.withPassword(password.toCharArray());
-            } catch (Exception e) {
-                redisBuilder.withPassword(configs.getString("password").toCharArray());
-            }
-        }
-        if (configs.containsKey("ssl")) {
-            redisBuilder.withSsl(configs.getBoolean("ssl"));
-        }
-        int idx = configs.containsKey("idx") ? configs.getInt("idx") : 0;
-        redisBuilder.withDatabase(idx);
-        RedisURI rURI = redisBuilder.build();
+        RedisURI rURI = preload(configs, redisBuilder).build();
         StatefulRedisMasterReplicaConnection<String, String> conn = MasterReplica.connect(redisClient, StringCodec.UTF8, rURI);
         conn.setReadFrom(ReadFrom.MASTER_PREFERRED);
         return conn;
@@ -178,26 +162,13 @@ public class RedisConn {
         String uris = configs.getString("cluster");
         String[] uriArray = uris.split(",");
         List<RedisURI> links = new ArrayList<>();
-        int idx = configs.containsKey("idx") ? configs.getInt("idx") : 0;
         for (String uriString : uriArray) {
             List<String> uriValues = Arrays.asList(uriString.split(":"));
             if (uriValues.size() == 1) {
                 uriValues.add(String.valueOf(RedisURI.DEFAULT_REDIS_PORT));
             }
             RedisURI.Builder redisBuilder = RedisURI.Builder.redis(uriValues.get(0), Integer.parseInt(uriValues.get(1)));
-            redisBuilder.withDatabase(idx);
-            if (configs.containsKey("password")) {
-                try {
-                    String password = URLEncoder.encode(configs.getString("password"), StandardCharsets.UTF_8);
-                    redisBuilder.withPassword(password.toCharArray());
-                } catch (Exception e) {
-                    redisBuilder.withPassword(configs.getString("password").toCharArray());
-                }
-            }
-            if (configs.containsKey("ssl")) {
-                redisBuilder.withSsl(configs.getBoolean("ssl"));
-            }
-            links.add(redisBuilder.build());
+            links.add(preload(configs, redisBuilder).build());
         }
         RedisClusterClient jdc = RedisClusterClient.create(links);
         //GenericObjectPool<StatefulRedisClusterConnection<String, String>> pool = ConnectionPoolSupport.createGenericObjectPool(() -> jdc.connect(), new GenericObjectPoolConfig());
