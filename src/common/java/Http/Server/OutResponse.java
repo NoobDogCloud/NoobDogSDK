@@ -91,7 +91,7 @@ public class OutResponse {
             }
         }
         httpHeader
-                .set(CONTENT_LENGTH, length)
+                // .set(CONTENT_LENGTH, length)
                 .set(ACCESS_CONTROL_ALLOW_ORIGIN, "*")
                 .set(ACCESS_CONTROL_MAX_AGE, "86400")
                 .set(ACCESS_CONTROL_ALLOW_HEADERS, AccessControlAllowHeaders);
