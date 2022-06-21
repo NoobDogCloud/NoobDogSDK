@@ -2,33 +2,31 @@ package common.java.Apps.MicroService.Model.Interface;
 
 import org.json.gsc.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class MModelApiPerm {
-    private final HashMap<String, String> permInfo;
+    private final HashMap<String, Integer[]> permInfo = new HashMap<String, Integer[]>();
 
     public MModelApiPerm(JSONObject apiPerm) {
-        permInfo = apiPerm == null ?
-                new HashMap<>() :
-                apiPerm.toHashMap();
+        if (apiPerm != null) {
+            var h = apiPerm.toHashMap();
+            for (var k : h.keySet()) {
+                var v_arr = h.get(k).toString().split("#");
+                var perm_arr = v_arr[0].split(",");
+                var perm_arr_int = new Integer[perm_arr.length];
+                for (var i = 0; i < perm_arr.length; i++) {
+                    perm_arr_int[i] = Integer.parseInt(perm_arr[i]);
+                }
+                apiPerm.put(k, perm_arr_int);
+            }
+        }
     }
 
-    public List<Integer> getPerm(String apiName) {
-        var str = permInfo.get(apiName);
-        if (str == null) {
-            return null;
-        }
-        String[] strArr = str.split(",");
-        List<Integer> r = new ArrayList<>(strArr.length);
-        for (String s : strArr) {
-            r.add(Integer.parseInt(s));
-        }
-        return r;
+    public Integer[] getPerm(String apiName) {
+        return permInfo.getOrDefault(apiName, null);
     }
 
-    public HashMap<String, String> getPermArray() {
+    public HashMap<String, Integer[]> getPermArray() {
         return permInfo;
     }
 }
