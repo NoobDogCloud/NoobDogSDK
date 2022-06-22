@@ -83,6 +83,7 @@
             <artifactId>gfwHttpClient</artifactId>
             <version>3.0.0</version>
         </dependency>
+
         <dependency>
             <groupId>gfw</groupId>
             <artifactId>gfwJson</artifactId>
