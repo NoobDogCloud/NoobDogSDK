@@ -30,7 +30,7 @@ public class MicroServiceContext {
     private MicroServiceContext(String appId, JSONObject servInfo) {
         // 获得对应微服务信息
         this.servInfo = servInfo;
-        this.servModelInfo = new MicroModelArray(appId, servInfo.getString("name"), servInfo.getJson("datamodel"));
+        this.servModelInfo = new MicroModelArray(appId, servInfo.getJson("datamodel"));
         this.servConfig = new ModelServiceConfig(servInfo.getJson("config"));
     }
 
@@ -64,7 +64,7 @@ public class MicroServiceContext {
      * 获得最佳服务节点
      */
     public String bestServer() {
-        String[] servers = servInfo.getString("peeraddr").split(",");
+        String[] servers = servInfo.getString("subaddr").split(",");
         currentNo++;
         return servers[currentNo % servers.length];
     }
@@ -80,7 +80,8 @@ public class MicroServiceContext {
      * 获得订阅服务通讯协议
      */
     public String bestSubscribe() {
-        String[] servers = this.servInfo.getString("subaddr").split(",");
+        // peeraddr 字段需要填充MQ队列连接地址
+        String[] servers = this.servInfo.getString("peeraddr").split(",");
         currentNo++;
         return servers[currentNo % servers.length];
     }

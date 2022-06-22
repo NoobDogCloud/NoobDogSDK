@@ -46,7 +46,7 @@ public class MModelPermInfo {
 
     // 按照用户组权值排序
     private void updateSortRole() {
-        var appRoles = Coordination.getInstance().getAppContext(appId).roles();
+        var appRoles = Coordination.getInstance().getAppContextByAppId(appId).roles();
         String[] roleArr = Arrays.stream(this.info.getString(MModelPermDef.perm_value_caption).split(","))
                 .distinct()
                 .map(v -> Role.build(v, appRoles.getPV(v), appRoles.getElder(v)))

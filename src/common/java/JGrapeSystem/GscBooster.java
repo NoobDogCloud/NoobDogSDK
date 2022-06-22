@@ -104,11 +104,17 @@ public class GscBooster {
                     return;
                 }
             }
-            JSONObject currentService = JSONArray.isInvalided(serviceArr) ?
-                    JSONObject.build("debug", true)
-                            .put("port", 0)
-                            .put("transfer", MicroServiceContext.TransferKeyName.Http) :
-                    serviceArr.get(0);
+            JSONObject currentService = JSONObject.build("debug", true)
+                    .put("port", 0)
+                    .put("transfer", MicroServiceContext.TransferKeyName.Http);
+            if (!JSONArray.isInvalided(serviceArr)) {
+                var serviceData = serviceArr.mapsByKey("name");
+                if (!serviceData.containsKey(serverName)) {
+                    throw new RuntimeException("当前部署服务:" + serverName + " 未注册!");
+                }
+                currentService = serviceData.getJson(serverName);
+            }
+
             // 根据当前服务调试设置，设置调试模式
             Config.debug = currentService.getBoolean("debug");
             // 根据当前服务端口设置，设置调试模式

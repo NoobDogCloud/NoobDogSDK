@@ -79,7 +79,7 @@ public class Coordination {
 
     public MicroServiceContext getMicroServiceContext(String appId, String serviceName) {
         // 必须先实例化 AppContext 再设置 ServiceContext
-        AppContext app_ctx = getAppContext(appId);
+        AppContext app_ctx = getAppContextByAppId(appId);
         MicroServiceContext msc_ctx = app_ctx.service(serviceName);
         if (msc_ctx == null) {
             var hCtx = HttpContext.current();

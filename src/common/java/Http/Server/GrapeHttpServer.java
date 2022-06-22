@@ -170,7 +170,7 @@ public class GrapeHttpServer {
                         ctx.appId(appId);
                     }
                 } else {
-                    appContext = crd.getAppContext(appId);
+                    appContext = crd.getAppContextByAppId(appId);
                 }
                 appContext.service(GrapeRequest[0]);
             }
