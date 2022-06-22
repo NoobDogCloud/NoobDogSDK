@@ -8,7 +8,6 @@ import common.java.Http.Server.GscServer;
 import common.java.MasterProxy.MasterActor;
 import common.java.MessageServer.GscPulsarServer;
 import common.java.Rpc.rpc;
-import common.java.String.StringHelper;
 import common.java.Thread.ThreadHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
@@ -50,9 +49,8 @@ public class GscBooster {
                 case "-k" -> // 主控才有秘钥，所以直接锁死服务名称
                         Config.publicKey = argArr.get(key).toString();
             }
-            String pureKey = StringHelper.build(key).trimLeadingFrom('-').toString();
-            BoosterArgs.put(pureKey, argArr.get(key));
         }
+        BoosterArgs.putAll(argArr);
         start(func);
     }
 
