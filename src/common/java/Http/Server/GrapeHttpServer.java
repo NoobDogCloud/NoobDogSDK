@@ -29,10 +29,16 @@ public class GrapeHttpServer {
         String[] blocks = path.split("/");
         String appId = blocks.length > 1 ? blocks[1] : null;
         if (!StringHelper.isInvalided(appId)) {
-            // 自动补充appId
-            ctx.appId(appId);
-            // 自动修正path
-            ctx.path(StringHelper.join(blocks, "/", 2, -1));
+            // 是特殊请求
+            if (appId.equals("system")) {
+                ctx.appId("0");
+                ctx.path(StringHelper.join(blocks, "/", 1, -1));
+            } else {
+                // 自动补充appId
+                ctx.appId(appId);
+                // 自动修正path
+                ctx.path(StringHelper.join(blocks, "/", 2, -1));
+            }
         }
     }
 

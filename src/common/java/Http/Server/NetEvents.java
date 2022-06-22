@@ -140,7 +140,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
     }
 
     private void webSocket(ChannelHandlerContext _ctx, TextWebSocketFrame msg) {
-        ByteBuf buf = msg.content();  //真正的数据是放在buf里面的
+        ByteBuf buf = msg.content().copy();  //真正的数据是放在buf里面的
         String wsData = buf.toString(StandardCharsets.UTF_8);  //将数据按照utf-8的方式转化为字符串
         JSONObject json = JSONObject.toJSON(wsData);
         if (JSONObject.isInvalided(json) || !json.containsKey("path") || !json.containsKey("header")) {
@@ -209,7 +209,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext _ctx, Object msg) {
+    public void channelRead(ChannelHandlerContext _ctx, Object msg) throws Exception {
         //Connection: Upgrade
         if (msg instanceof HttpRequest) {
             _req = (HttpRequest) msg;
@@ -246,6 +246,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         }
         if (msg instanceof TextWebSocketFrame) {//文本ws
             webSocket(_ctx, (TextWebSocketFrame) msg);
+            // super.channelRead(_ctx, msg);
         }
     }
 

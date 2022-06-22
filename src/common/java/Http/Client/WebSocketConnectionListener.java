@@ -14,7 +14,7 @@ public record WebSocketConnectionListener(
         if (!channelFuture.isSuccess()) {
             System.out.println("Reconnect Gsc Center Server ...");
             final EventLoop loop = channelFuture.channel().eventLoop();
-            loop.schedule(() -> wsc.reConnect(loop), 10L, TimeUnit.SECONDS);
+            loop.schedule(() -> wsc.reConnect(loop, null), 10L, TimeUnit.SECONDS);
         }
     }
 }

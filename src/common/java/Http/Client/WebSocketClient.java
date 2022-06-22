@@ -74,10 +74,13 @@ public class WebSocketClient {
         return port;
     }
 
-    public void reConnect(EventLoopGroup loop) {
+    public void reConnect(EventLoopGroup loop, Runnable reCallback) {
         connect_status.set(false);
         // 不能退出，断开重连
         if (!canQuit) {
+            if (reCallback != null) {
+                reCallback.run();
+            }
             this.connect(loop);
         } else {
             // 确定断开连接
@@ -98,10 +101,7 @@ public class WebSocketClient {
             handler.setOnAccept(ctx -> {
                 // 获得新连接通道
                 ch = handler.handshakeFuture().channel();
-                // 处理重连接回调
-                if (onReconnected != null) {
-                    onReconnected.accept(ctx);
-                }
+
                 // 恢复接收回调
                 if (onReceive != null) {
                     handler.setOnReceive(onReceive);
@@ -110,7 +110,12 @@ public class WebSocketClient {
                 connect_status.set(true);
             });
             // 网络中断回调
-            handler.setOnDisconnected(ctx -> this.reConnect(ctx.channel().eventLoop()));
+            handler.setOnDisconnected(ctx -> this.reConnect(ctx.channel().eventLoop(), () -> {
+                // 处理重连接回调
+                if (onReconnected != null) {
+                    onReconnected.accept(ctx);
+                }
+            }));
             // 连接服务器
             _connect(uri, handler, loop);
         } catch (Exception e) {
