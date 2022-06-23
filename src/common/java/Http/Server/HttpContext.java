@@ -195,6 +195,20 @@ public class HttpContext {
         return ctx;
     }
 
+    /*
+    public String toString(){
+        System.out.println("请求头=====================");
+        System.out.println("serviceName:" + this.svrName);
+        System.out.println("absPath:" + this.absPath);
+        System.out.println("method:" + this.method);
+        System.out.println("parameter:" + this.parameter);
+        System.out.println("header:{");
+        this.headerValues().forEach( (k,v )-> System.out.println("k:" + v.toString()));
+        System.out.println("}");
+        System.out.println("==========================");
+    }
+     */
+
     private void updatePath() {
         pathString = '/' + StringHelper.build(absPath).trimFrom('/').toString();
         serviceNameString = pathString.split("/")[1];
