@@ -1155,7 +1155,7 @@ public class Mongodb implements IDBManager<Mongodb> {
     }
 
     public boolean run(String cmd) {
-        System.out.println("不支持:" + cmd);
+        nLogger.errorInfo("不支持:" + cmd);
         return false;
     }
 

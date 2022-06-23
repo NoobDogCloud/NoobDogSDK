@@ -29,12 +29,12 @@ public class GscBoosterBefore {
             */
         };
         // 获得端口
-        System.out.println("节点号:[" + Config.getNodeID() + "]");
-        System.out.println("微服务:[" + serverName + "] ...启动完毕");
-        System.out.println("监听:" + Config.bindIP + ":" + Config.port + " ...成功");
+        nLogger.logInfo("节点号:[" + Config.getNodeID() + "]");
+        nLogger.logInfo("微服务:[" + serverName + "] ...启动完毕");
+        nLogger.logInfo("监听:" + Config.bindIP + ":" + Config.port + " ...成功");
 
         if (Config.debug) {
-            System.out.println("调试模式:开启");
+            nLogger.logInfo("调试模式:开启");
         }
     }
 }

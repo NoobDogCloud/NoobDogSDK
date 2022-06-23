@@ -8,6 +8,7 @@ import common.java.DataSource.Subscribe.Room;
 import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Http.Server.HttpContext;
 import common.java.Rpc.rMsg;
+import common.java.nLogger.nLogger;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelId;
 
@@ -51,7 +52,7 @@ public class CustomDataSourceSubscriber {
                     try {
                         reader.setLastUnreadWater(dataSource.size());
                     } catch (Exception e) {
-                        System.out.println(e);
+                        nLogger.errorInfo(e);
                     }
 
                     // 发送数据

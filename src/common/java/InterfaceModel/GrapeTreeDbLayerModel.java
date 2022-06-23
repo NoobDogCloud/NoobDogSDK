@@ -12,6 +12,7 @@ import common.java.InterfaceModel.Type.Aggregation;
 import common.java.ServiceTemplate.SuperItemField;
 import common.java.Session.UserSession;
 import common.java.String.StringHelper;
+import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
@@ -359,7 +360,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         // 获得表全部数据库
         JSONArray<JSONObject> array = select();
         if (JSONArray.isInvalided(array)) {
-            System.out.println("返回集合为空");
+            nLogger.warnInfo("返回集合为空");
         }
         // 根据根数据构造树
         getChildren(json, array, true);
