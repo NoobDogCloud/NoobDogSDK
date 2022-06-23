@@ -92,6 +92,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
             }
             return _url;
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }
@@ -241,12 +242,12 @@ class NetEvents extends ChannelInboundHandlerAdapter {
                 return;
             }
         }
+        System.out.println("in----------");
         if (msg instanceof HttpContent) {
             httpRequest(_ctx, (HttpContent) msg);
         }
         if (msg instanceof TextWebSocketFrame) {//文本ws
             webSocket(_ctx, (TextWebSocketFrame) msg);
-            // super.channelRead(_ctx, msg);
         }
     }
 

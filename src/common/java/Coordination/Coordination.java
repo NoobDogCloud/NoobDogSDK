@@ -2,6 +2,7 @@ package common.java.Coordination;
 
 import common.java.Apps.AppContext;
 import common.java.Apps.MicroService.MicroServiceContext;
+import common.java.Config.Config;
 import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
 import org.json.gsc.JSONArray;
@@ -71,7 +72,7 @@ public class Coordination {
         if (appId == null) {
             var hCtx = HttpContext.current();
             if (hCtx != null) {
-                hCtx.throwOut("当前域名[" + domain + "]未绑定!");
+                hCtx.throwOut("服务:" + Config.serviceName + "->当前域名[" + domain + "]未绑定!");
             }
         }
         return getAppContextByAppId(appId);

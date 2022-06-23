@@ -79,9 +79,6 @@ public class GrapeHttpServer {
         if (ctx != null) {
             ctx.use(_ctx);
             ctx.parameter(post);
-
-            System.out.println(ctx);
-
             // 是普通http请求
             if (!ctx.isGscRequest()) {
                 // 自动修正appId和path
