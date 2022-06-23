@@ -81,7 +81,7 @@ public class Config {
         serviceName = prop.getProperty("name", "system");
         // 可选项
         masterHost = prop.getProperty("MasterHost", "127.0.0.1");//read master host url
-        masterPort = Integer.parseInt(prop.getProperty("MasterPort", "80"));
+        masterPort = Integer.parseInt(prop.getProperty("MasterPort", "805"));
         bindIP = prop.getProperty("bindIP", "0.0.0.0");//本地服务节点通信Ip
         debug = Boolean.parseBoolean(prop.getProperty("Debug", "true"));
         publicKey = prop.getProperty("publicKey", "grapeSoft@");
