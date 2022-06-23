@@ -76,12 +76,12 @@ public class Config {
     public static void updateConfig() {
         Properties prop = loadProps();
         // 必选项
-        port = Integer.parseInt(prop.getProperty("port", "80"));
+        port = Integer.parseInt(prop.getProperty("port", "805"));
         // 附加选项
         serviceName = prop.getProperty("name", "system");
         // 可选项
         masterHost = prop.getProperty("MasterHost", "127.0.0.1");//read master host url
-        masterPort = Integer.parseInt(prop.getProperty("MasterPort", "805"));
+        masterPort = Integer.parseInt(prop.getProperty("MasterPort", "80"));
         bindIP = prop.getProperty("bindIP", "0.0.0.0");//本地服务节点通信Ip
         debug = Boolean.parseBoolean(prop.getProperty("Debug", "true"));
         publicKey = prop.getProperty("publicKey", "grapeSoft@");
