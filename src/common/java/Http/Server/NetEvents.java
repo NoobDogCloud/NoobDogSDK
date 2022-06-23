@@ -242,7 +242,6 @@ class NetEvents extends ChannelInboundHandlerAdapter {
                 return;
             }
         }
-        System.out.println("in----------");
         if (msg instanceof HttpContent) {
             httpRequest(_ctx, (HttpContent) msg);
         }
