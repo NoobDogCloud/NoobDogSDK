@@ -90,6 +90,10 @@ public class Config {
         masterPass = prop.getProperty(masterPass_Key);
     }
 
+    public static String getMasterUrl() {
+        return masterHost + ":" + masterPort;
+    }
+
     public static String getNodeID() {
         return bindIP + "_" + port;
     }
