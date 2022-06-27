@@ -47,7 +47,7 @@ public class MicroServiceContext {
             for (String ip : ip_arr) {
                 long local_ip_value = IPHelper.ipToLong(ip) & 0xffff0000;
                 if (ip_value_arr.contains(local_ip_value)) {
-                    servInfo.put("subaddr", subAddrString);
+                    return servInfo.put("subaddr", subAddrString);
                 }
             }
         } catch (Exception e) {
