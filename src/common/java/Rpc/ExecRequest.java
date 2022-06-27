@@ -216,6 +216,10 @@ public class ExecRequest {//框架内请求类
     }
 
     private static String getServiceTopic(HttpContext hCtx) {
+        String topic = hCtx.topic();
+        if (!StringHelper.isInvalided(topic)) {
+            return topic;
+        }
         return "topic_service_" + hCtx.serviceName() + "_" + hCtx.className();
     }
 

@@ -641,6 +641,7 @@ public class HttpContext {
             keys.add(GrapeHttpHeader.appId);
             keys.add(GrapeHttpHeader.ChannelContext);
             keys.add(GrapeHttpHeader.publicKey);
+            keys.add(WebSocketHeader.wsTopic);
 
             //db
             keys.add(HttpContextDb.fields);

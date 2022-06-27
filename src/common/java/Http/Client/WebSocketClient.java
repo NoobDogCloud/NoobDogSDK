@@ -28,6 +28,7 @@ import java.util.function.Consumer;
 public class WebSocketClient {
     private final EventLoopGroup group = new NioEventLoopGroup();
     private final AtomicBoolean connect_status = new AtomicBoolean(false);
+    private final AtomicBoolean is_reconnect = new AtomicBoolean(false);
 
     private static final ConcurrentHashMap<String, WebSocketClient> wsClientCache = new ConcurrentHashMap<>();
     private int reTryMax = 1000;
@@ -75,7 +76,7 @@ public class WebSocketClient {
     }
 
     public void reConnect(EventLoopGroup loop, Runnable reCallback) {
-        connect_status.set(false);
+
         // 不能退出，断开重连
         if (!canQuit) {
             if (reCallback != null) {
@@ -108,13 +109,16 @@ public class WebSocketClient {
                 }
                 // 设置连接状态
                 connect_status.set(true);
+                // 处理重连接回调
+                if (is_reconnect.get() && onReconnected != null) {
+                    onReconnected.accept(ctx);
+                }
+                is_reconnect.set(false);
             });
             // 网络中断回调
             handler.setOnDisconnected(ctx -> this.reConnect(ctx.channel().eventLoop(), () -> {
-                // 处理重连接回调
-                if (onReconnected != null) {
-                    onReconnected.accept(ctx);
-                }
+                connect_status.set(false);
+                is_reconnect.set(true);
             }));
             // 连接服务器
             _connect(uri, handler, loop);

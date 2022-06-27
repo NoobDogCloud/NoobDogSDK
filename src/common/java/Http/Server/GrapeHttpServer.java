@@ -15,7 +15,6 @@ import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.json.gsc.JSONObject;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -109,12 +108,14 @@ public class GrapeHttpServer {
                 nLogger.errorInfo(e, e.getMessage());
             }
         });
+        /*
         try {
             future.get();
         } catch (ExecutionException | InterruptedException ex) {
             ex.getCause().printStackTrace();
             oResponse.out(rMsg.netMSG(false, "服务器异常[504]"));
         }
+        */
     }
 
     public static TextWebSocketFrame WebsocketResult(String topic, Object msg) {

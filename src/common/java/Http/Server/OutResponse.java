@@ -28,9 +28,10 @@ public class OutResponse {
             HttpContext.GrapeHttpHeader.token + " ," +
             HttpContext.GrapeHttpHeader.appId + " ," +
             HttpContext.GrapeHttpHeader.publicKey + " ," +
+            HttpContext.GrapeHttpHeader.WebSocketHeader.wsTopic + " ," +
             HttpContextDb.fields + " ," +
             HttpContextDb.sorts + " ," +
-            HttpContextDb.options + "," +
+            HttpContextDb.options + " ," +
             CONTENT_TYPE;
     private final ChannelHandlerContext ctx;
     private JSONObject header;
@@ -91,7 +92,7 @@ public class OutResponse {
             }
         }
         httpHeader
-                // .set(CONTENT_LENGTH, length)
+                .set(CONTENT_LENGTH, length)
                 .set(ACCESS_CONTROL_ALLOW_ORIGIN, "*")
                 .set(ACCESS_CONTROL_MAX_AGE, "86400")
                 .set(ACCESS_CONTROL_ALLOW_HEADERS, AccessControlAllowHeaders);
@@ -110,14 +111,13 @@ public class OutResponse {
             sendByteFuture.addListener(new ChannelProgressiveFutureListener() {
                 @Override
                 public void operationProgressed(ChannelProgressiveFuture future, long progress, long total) {
-                    /*
                     if (total < 0) { // total unknown
                         System.err.println(future.channel() + " Transfer progress: " + progress);
                     } else {
                         System.err.println(future.channel() + " Transfer progress: " + progress + " / " + total);
                     }
-                     */
                 }
+
                 @Override
                 public void operationComplete(ChannelProgressiveFuture future) {
                     try {
@@ -132,9 +132,9 @@ public class OutResponse {
                 }
             });
             lastContentFuture.addListener(ChannelFutureListener.CLOSE);
+            // sendByteFuture.addListener(ChannelFutureListener.CLOSE);
         } else {
-            ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT)
-                    .addListener(ChannelFutureListener.CLOSE);
+            ctx.writeAndFlush(LastHttpContent.EMPTY_LAST_CONTENT).addListener(ChannelFutureListener.CLOSE);
         }
     }
 
@@ -145,17 +145,16 @@ public class OutResponse {
         out(v, response);
     }
 
-    public void out(FileInputStream v) {
-        try (var ch = v.getChannel()) {
+    public void out(FileInputStream v) throws IOException {
+        var ch = v.getChannel();
+        try {
             HttpResponse response = new DefaultHttpResponse(HTTP_1_1, OK);
             int length = (int) ch.size();
             buildHeader(response, length);
-
             // 获得文件前 50 字节
             byte[] bytes = new byte[50];
             v.read(bytes, 0, Math.min(length, 50));
             ch.position(0);
-
             // application/octet-stream
             String mineType = Mime.getMime(bytes);
             response.headers().set(CONTENT_TYPE, mineType);
