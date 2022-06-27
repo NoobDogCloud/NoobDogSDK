@@ -5,11 +5,11 @@ import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.Apps.MicroService.Model.MicroModelArray;
 import common.java.Coordination.Coordination;
 import common.java.Http.Server.HttpContext;
+import common.java.NetHelper.IPHelper;
+import common.java.nLogger.nLogger;
 import org.json.gsc.JSONObject;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class MicroServiceContext {
     private static final Set<String> TransferKey = new HashSet<>();
@@ -29,9 +29,31 @@ public class MicroServiceContext {
 
     private MicroServiceContext(String appId, JSONObject servInfo) {
         // 获得对应微服务信息
-        this.servInfo = servInfo;
+        this.servInfo = updateRpcEndpoint(servInfo);
         this.servModelInfo = new MicroModelArray(appId, servInfo.getJson("datamodel"));
         this.servConfig = new ModelServiceConfig(servInfo.getJson("config"));
+    }
+
+    // 根据当前服务与目标服务网络状态,更新RPC调用节点
+    public static JSONObject updateRpcEndpoint(JSONObject servInfo) {
+        String subAddrString = servInfo.getString("clusteraddr");
+        String[] cluster_address = subAddrString.split(",");
+        List<Long> ip_value_arr = new ArrayList<>();
+        for (var address : cluster_address) {
+            ip_value_arr.add(IPHelper.ipToLong(address.split(":")[0]) & 0xffff0000);
+        }
+        try {
+            List<String> ip_arr = IPHelper.localIPv4s();
+            for (String ip : ip_arr) {
+                long local_ip_value = IPHelper.ipToLong(ip) & 0xffff0000;
+                if (ip_value_arr.contains(local_ip_value)) {
+                    servInfo.put("subaddr", subAddrString);
+                }
+            }
+        } catch (Exception e) {
+            nLogger.errorInfo(e);
+        }
+        return servInfo;
     }
 
     public static MicroServiceContext build(String appId, JSONObject serviceInfo) {
@@ -61,10 +83,11 @@ public class MicroServiceContext {
     }
 
     /**
-     * 获得最佳服务节点
+     * 获得最佳服务节点(服务内部使用内网RPC连接)
      */
     public String bestServer() {
         String[] servers = servInfo.getString("subaddr").split(",");
+        // String[] servers = servInfo.getString("clusteraddr").split(",");
         currentNo++;
         return servers[currentNo % servers.length];
     }

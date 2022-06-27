@@ -3,6 +3,7 @@ import junit.framework.TestCase;
 
 public class TestWebsocketClient extends TestCase {
     public void test_base(){
+
         WebSocketClient wsc = WebSocketClient.build("ws://127.0.0.1:805");
         wsc.connect();
         wsc.onReceive( v-> System.out.println(v) );

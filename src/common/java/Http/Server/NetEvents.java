@@ -150,7 +150,9 @@ class NetEvents extends ChannelInboundHandlerAdapter {
             String body = json.getString("param");
             if (!StringHelper.isInvalided(body)) {
                 String _url = filterURLencodeWord(json.getString("path"));
-                _url = NetEvents.fixPostBody(_url, body);
+                if (isGscPost(body)) {
+                    _url = NetEvents.fixPostBody(_url, body);
+                }
                 if (_url != null) {
                     // 重设uri地址
                     json.put("path", _url);
