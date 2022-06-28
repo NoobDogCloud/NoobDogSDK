@@ -71,6 +71,7 @@ public class DBManager {
                         db.form(tableName);
                         result.forEach(item -> count.addAndGet(db.data(item).insert().size()));
                     } catch (Exception e) {
+                        e.printStackTrace();
                         String errorInfo = """
                                 表:%s
                                 写入数据->失败:%s
