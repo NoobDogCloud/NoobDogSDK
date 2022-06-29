@@ -7,6 +7,7 @@ import common.java.Coordination.Coordination;
 import common.java.Http.Server.GscServer;
 import common.java.MasterProxy.MasterActor;
 import common.java.MessageServer.GscPulsarServer;
+import common.java.Rpc.ExecRequest;
 import common.java.Rpc.rpc;
 import common.java.Thread.ThreadHelper;
 import common.java.nLogger.nLogger;
@@ -29,6 +30,8 @@ public class GscBooster {
      *             -p 服务端口 -k 主控密钥
      */
     public static void start(String[] args, Runnable func) {
+        // 预载类缓存
+        ExecRequest.preloadServiceClass();
         // 初始化数据
         Config.updateConfig();
         var argArr = ArgsHelper.dictionary(args);

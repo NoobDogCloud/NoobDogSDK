@@ -148,11 +148,16 @@ public class _reflect implements AutoCloseable {
     }
 
 
-    private static final HashMap<String, JSONArray<JSONObject>> ServDeclCache = new HashMap<>();
+    // private static final HashMap<String, JSONArray<JSONObject>> ServDeclCache = new HashMap<>();
+    private static final JSONObject ServDeclCache = JSONObject.build();
+
+    private static Object ServDeclAll() {
+        return ServDeclCache;
+    }
 
     private static Object ServDecl(Class<?> cls) {
         String clsName = cls.getName();
-        JSONArray<JSONObject> func = ServDeclCache.get(clsName);
+        JSONArray<JSONObject> func = ServDeclCache.getJsonArray(clsName);
         if (func == null) {
             func = new JSONArray<>();
             Method[] methods;
@@ -342,6 +347,8 @@ public class _reflect implements AutoCloseable {
         try {
             if ("@description".equalsIgnoreCase(functionName)) {
                 rs = ServDecl(_Class);
+            } else if ("@descriptionAll".equalsIgnoreCase(functionName)) {
+                rs = ServDeclAll();
             }
         } catch (Exception e) {
             rs = "系统服务[" + functionName + "]异常";

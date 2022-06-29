@@ -7,6 +7,7 @@ import common.java.DataSource.CustomDataSourceSubscriber;
 import common.java.Encrypt.GscEncrypt;
 import common.java.Http.Server.ApiSubscribe.GscSubscribe;
 import common.java.Http.Server.HttpContext;
+import common.java.JGrapeSystem.GrapeJar;
 import common.java.Reflect.ReflectStruct;
 import common.java.Reflect._reflect;
 import common.java.ServiceTemplate.MicroServiceTemplate;
@@ -123,6 +124,7 @@ public class ExecRequest {//框架内请求类
     private static final ConcurrentHashMap<String, ReflectStruct> share_class = new ConcurrentHashMap<>();
     public static final String ExecBaseFolder = "main.java.Api.";
 
+
     /**
      * 遍历 api 目录下所有类
      */
@@ -135,6 +137,32 @@ public class ExecRequest {//框架内请求类
      * }
      * }
      */
+    // graalvm native编译时,不可以使用
+    public static void preloadServiceClass() {
+        String folderName = StringHelper.trimFrom(ExecBaseFolder, '.');
+        List<Class<?>> clsArr = GrapeJar.getClass(folderName, true);
+        for (Class<?> cls : clsArr) {
+            String simpleName = cls.getSimpleName();
+            if (simpleName.endsWith("After")) {
+                var name = simpleName.substring(0, simpleName.length() - 5);
+                if (!name.isEmpty()) {
+                    getServiceAfter(name);
+                }
+            } else if (simpleName.endsWith("Before")) {
+                var name = simpleName.substring(0, simpleName.length() - 6);
+                if (!name.isEmpty()) {
+                    getServiceBefore(name);
+                }
+            } else {
+                ReflectStruct _cls = getServiceApi(simpleName);
+                if (_cls != null) {
+                    try (var h = _reflect.build(_cls)) {
+                        // nothing
+                    }
+                }
+            }
+        }
+    }
 
     private static ReflectStruct loadMagicServiceApiClass(String name) {
         try {
