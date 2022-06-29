@@ -113,7 +113,10 @@ public class ExecRequest {//框架内请求类
             switch (ctx.className()) {
                 // 获得服务模型
                 case "@getModel" -> rs = ModelDesc(ctx);
+                // 获得订阅自定义源
                 case "@subscribeCustomDataSource" -> rs = CustomDataSource(ctx);
+                // 获得服务所有类和接口说明
+                case "@description" -> rs = _reflect.ServDeclAll();
             }
         } catch (Exception e) {
             rs = RpcMessage.Instant(false, "系统服务[" + ctx.className() + "]异常");
@@ -158,6 +161,7 @@ public class ExecRequest {//框架内请求类
                 if (_cls != null) {
                     try (var h = _reflect.build(_cls)) {
                         // nothing
+                        _reflect.getServDecl(_cls.getCls());
                     }
                 }
             }

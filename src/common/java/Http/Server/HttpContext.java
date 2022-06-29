@@ -211,9 +211,10 @@ public class HttpContext {
 
     private void updatePath() {
         pathString = '/' + StringHelper.build(absPath).trimFrom('/').toString();
-        serviceNameString = pathString.split("/")[1];
-        classNameString = StringHelper.captureName(pathString.split("/")[2]);
-        actionNameString = pathString.split("/")[3];
+        var arr = pathString.split("/");
+        serviceNameString = arr.length > 1 ? arr[1] : "";
+        classNameString = arr.length > 2 ? StringHelper.captureName(arr[2]) : "";
+        actionNameString = arr.length > 3 ? arr[3] : "";
     }
 
     public final HttpContext headerValues(JSONObject nheader) {

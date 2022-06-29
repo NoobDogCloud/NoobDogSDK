@@ -151,14 +151,20 @@ public class _reflect implements AutoCloseable {
     // private static final HashMap<String, JSONArray<JSONObject>> ServDeclCache = new HashMap<>();
     private static final JSONObject ServDeclCache = JSONObject.build();
 
-    private static Object ServDeclAll() {
-        return ServDeclCache;
+    public static JSONObject ServDeclAll() {
+        JSONObject result = JSONObject.build();
+        for (String key : ServDeclCache.keySet()) {
+            String[] arr = key.split("\\.");
+            String name = arr[arr.length - 1];
+            result.put(name, ServDeclCache.get(key));
+        }
+        return result;
     }
 
     private static Object ServDecl(Class<?> cls) {
         String clsName = cls.getName();
         JSONArray<JSONObject> func = ServDeclCache.getJsonArray(clsName);
-        if (func == null) {
+        if (JSONArray.isInvalided(func)) {
             func = new JSONArray<>();
             Method[] methods;
             do {
@@ -347,8 +353,6 @@ public class _reflect implements AutoCloseable {
         try {
             if ("@description".equalsIgnoreCase(functionName)) {
                 rs = ServDecl(_Class);
-            } else if ("@descriptionAll".equalsIgnoreCase(functionName)) {
-                rs = ServDeclAll();
             }
         } catch (Exception e) {
             rs = "系统服务[" + functionName + "]异常";

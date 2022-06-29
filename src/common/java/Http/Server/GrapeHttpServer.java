@@ -48,18 +48,21 @@ public class GrapeHttpServer {
         if (str.startsWith("@")) {
             str = str.substring(1);
         }
-        return !CheckHelper.IsID(str, 256);
+        return CheckHelper.IsID(str, 256);
     }
 
     private static boolean filterSafeQuery(HttpContext ctx) {
-        if (filterSafeString(ctx.actionName()) ||
-                filterSafeString(ctx.className()) ||
-                filterSafeString(ctx.serviceName())
-        ) {
-            ctx.out(rMsg.netMSG(false, "非法请求"));
+        if (!filterSafeString(ctx.serviceName())) {
             return false;
         }
-        return true;
+        String className = ctx.className();
+        if (!filterSafeString(className)) {
+            return false;
+        }
+        if (className.startsWith("@")) {
+            return true;
+        }
+        return filterSafeString(ctx.actionName());
     }
 
     /**
@@ -85,6 +88,7 @@ public class GrapeHttpServer {
             }
             // 恶意请求过滤
             if (!filterSafeQuery(ctx)) {
+                ctx.out(rMsg.netMSG(false, "非法请求"));
                 return;
             }
             // 正常请求
