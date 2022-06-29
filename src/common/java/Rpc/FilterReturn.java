@@ -2,6 +2,7 @@ package common.java.Rpc;
 
 public record FilterReturn(boolean state, String msg) {
 
+    @Deprecated
     public static FilterReturn buildTrue() {
         return new FilterReturn(true, "");
     }

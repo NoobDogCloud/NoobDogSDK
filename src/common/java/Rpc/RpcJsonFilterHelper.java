@@ -15,7 +15,7 @@ public class RpcJsonFilterHelper {
         this.info = info;
         this.isUpdate = update;
         this.filterMap = new HashMap<>();
-        this.result = FilterReturn.buildTrue();
+        this.result = FilterReturn.success();
     }
 
     public static RpcJsonFilterHelper build(JSONObject info, boolean update) {
@@ -49,10 +49,10 @@ public class RpcJsonFilterHelper {
             if (isUpdate) {
                 return data.size() > 0 && json.get(name).equals(data.get(0).get(name)) ?
                         FilterReturn.build(false, "[" + name + "]的数据已存在") :
-                        FilterReturn.buildTrue();
+                        FilterReturn.success();
             }
             if (data.size() == 0) {
-                return FilterReturn.buildTrue();
+                return FilterReturn.success();
             }
             return FilterReturn.build(false, "[" + name + "]的数据已被使用");
         }, true, "缺少参数[" + key + "]");
@@ -62,7 +62,7 @@ public class RpcJsonFilterHelper {
     public RpcJsonFilterHelper check() {
         for (String key : filterMap.keySet()) {
             result = filterMap.get(key).forEach((block) -> {
-                FilterReturn r = FilterReturn.buildTrue();
+                FilterReturn r = FilterReturn.success();
                 if (isUpdate) {
                     if (info.has(key)) {
                         r = block.getCallback().run(info, key);

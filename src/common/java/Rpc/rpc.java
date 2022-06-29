@@ -5,8 +5,8 @@ import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
 
 public class rpc {
-    private final String servName;
-    private final String transferMode;
+    private String servName;
+    private String transferMode;
     private String endpoint;
     private String servPath;
     private HttpContext ctx;
@@ -14,10 +14,24 @@ public class rpc {
     private boolean needPublicKey;
 
     private rpc(String servName) {
-        this.servName = servName;
         this.needApiAuth = false;
         this.needPublicKey = false;
+        setService(servName);
+    }
 
+    public static rpc context(HttpContext ctx) {
+        return rpc.service(ctx.serviceName())
+                .setPath(ctx.className(), ctx.actionName())
+                .setContext(ctx);
+    }
+
+    // 静态起步方法
+    public static rpc service(String servName) {
+        return new rpc(servName);
+    }
+
+    public rpc setService(String servName) {
+        this.servName = servName;
         MicroServiceContext msc = MicroServiceContext.getInstance(this.servName);
         if (msc != null) {
             this.endpoint = msc.bestServer();
@@ -26,11 +40,7 @@ public class rpc {
             this.transferMode = "http";
             this.endpoint = "";
         }
-    }
-
-    // 静态起步方法
-    public static rpc service(String servName) {
-        return new rpc(servName);
+        return this;
     }
 
     public rpc setEndpoint(String endpoint) {

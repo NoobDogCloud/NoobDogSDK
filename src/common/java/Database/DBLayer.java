@@ -52,6 +52,19 @@ public class DBLayer implements IDBManager<DBLayer> {
         return new DBLayer(configName);
     }
 
+    // 判断查询结果集是否合法
+    public static boolean isInvalidQueryResult(Object v) {
+        if (v == null) {
+            return false;
+        }
+        if (v instanceof JSONObject j) {
+            return JSONObject.isInvalided(j);
+        } else if (v instanceof JSONArray<?> ja) {
+            return JSONArray.isInvalided(ja);
+        }
+        return true;
+    }
+
     public DBLayer setPiperEnable(boolean flag) {
         out_piper_flag = flag;
         return this;

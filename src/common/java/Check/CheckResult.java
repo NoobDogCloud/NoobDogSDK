@@ -6,7 +6,7 @@ public record CheckResult(boolean status, String message) {
         return new CheckResult(status, message);
     }
 
-    public static CheckResult buildTrue() {
+    public static CheckResult success() {
         return new CheckResult(true, "");
     }
 

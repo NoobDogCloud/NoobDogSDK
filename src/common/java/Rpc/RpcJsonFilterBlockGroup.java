@@ -20,7 +20,7 @@ public class RpcJsonFilterBlockGroup {
     }
 
     public FilterReturn forEach(RpcJsonFilterCheckerCallback fn) {
-        FilterReturn r = FilterReturn.buildTrue();
+        FilterReturn r = FilterReturn.success();
         for (RpcJsonFilterBlock block : blocks) {
             r = fn.run(block);
             if (!r.isSuccess()) {

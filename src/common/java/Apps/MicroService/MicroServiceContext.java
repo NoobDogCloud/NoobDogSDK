@@ -7,6 +7,7 @@ import common.java.Coordination.Coordination;
 import common.java.Http.Server.HttpContext;
 import common.java.NetHelper.IPHelper;
 import common.java.nLogger.nLogger;
+import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
 import java.util.*;
@@ -27,11 +28,14 @@ public class MicroServiceContext {
     private final ModelServiceConfig servConfig;
     private final MicroModelArray servModelInfo;
 
+    private final JSONArray<String> proxyService;
+
     private MicroServiceContext(String appId, JSONObject servInfo) {
         // 获得对应微服务信息
         this.servInfo = updateRpcEndpoint(servInfo);
         this.servModelInfo = new MicroModelArray(appId, servInfo.getJson("datamodel"));
         this.servConfig = new ModelServiceConfig(servInfo.getJson("config"));
+        this.proxyService = servInfo.getJsonArray("proxy_target");
     }
 
     // 根据当前服务与目标服务网络状态,更新RPC调用节点
@@ -128,6 +132,10 @@ public class MicroServiceContext {
      */
     public HashMap<String, MicroModel> model() {
         return this.servModelInfo.microModel();
+    }
+
+    public JSONArray<String> getProxyService() {
+        return proxyService;
     }
 
     /**

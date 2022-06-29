@@ -48,7 +48,7 @@ public class ReturnLink {
 
     public Object global_run(String actionName, Object[] parameter, Object returnValue) {
         if (global_fn == null) {
-            return FilterReturn.buildTrue();
+            return FilterReturn.success();
         }
         return returnValue;
     }

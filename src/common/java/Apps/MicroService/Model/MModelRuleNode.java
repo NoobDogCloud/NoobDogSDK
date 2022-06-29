@@ -47,6 +47,10 @@ public class MModelRuleNode {
         return this.nodeInfo.getBoolean("required");
     }
 
+    public boolean unique() {
+        return this.nodeInfo.getBoolean("unique");
+    }
+
     public int classify() {
         return this.nodeInfo.getInt("classify");
     }

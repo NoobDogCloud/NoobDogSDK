@@ -223,6 +223,23 @@ public class ExecRequest {//框架内请求类
         return "topic_service_" + hCtx.serviceName() + "_" + hCtx.className();
     }
 
+    public static Object redirectRequest(HttpContext hCtx) {
+        Object rs = null;
+        // 判断是否包含代理服务,是则转发服务
+        JSONArray<String> proxyArr = MicroServiceContext.current().getProxyService();
+        if (proxyArr.size() == 0) {
+            return RpcMessage.Instant(false, "请求错误 ->目标[" + hCtx.className() + "]不存在！");
+        }
+        for (String serviceName : proxyArr) {
+            try {
+                rs = rpc.context(hCtx).setService(serviceName).call(hCtx.invokeParamter());
+            } catch (Exception e) {
+                nLogger.warnInfo("服务->" + hCtx.serviceName() + " 调用代理服务:" + serviceName + "...失败!");
+            }
+        }
+        return rs;
+    }
+
     /**
      * 执行当前上下文环境下的调用
      */
@@ -234,26 +251,32 @@ public class ExecRequest {//框架内请求类
             try {
                 // 目标类不存在
                 ReflectStruct _cls = getServiceApi(className);
-                if (_cls == null) {
-                    return RpcMessage.Instant(false, "请求错误 ->目标[" + className + "]不存在！");
-                }
-                // 执行转换前置类
-                Object[] _objs = convert2GscCode(hCtx.invokeParamter());
-                FilterReturn filterReturn = beforeExecute(className, actionName, _objs);
-                if (filterReturn.state()) {
-                    // 通过ioc方式获取类（复用已存在实例容器提高性能）
-                    try (var obj = _reflect.build(_cls)) {
-                        rs = obj._call(actionName, _objs);
-                    } catch (Exception e) {
-                        nLogger.logInfo(e, "实例化 " + _cls + " ...失败");
-                    }
-                    rs = RpcResult(afterExecute(className, actionName, _objs, rs));
-                    // 如果当前请求是更新操作,尝试向所有订阅者广播更新通知
-                    if (ServiceApiClass.isUpdateAction(actionName)) {
-                        GscSubscribe.update(getServiceTopic(hCtx), hCtx.appId());
+                if (_cls != null) {
+                    // 执行转换前置类
+                    Object[] _objs = convert2GscCode(hCtx.invokeParamter());
+                    FilterReturn filterReturn = beforeExecute(className, actionName, _objs);
+                    if (filterReturn.state()) {
+                        // 通过ioc方式获取类（复用已存在实例容器提高性能）
+                        try (var obj = _reflect.build(_cls)) {
+                            rs = obj._call(actionName, _objs);
+                        } catch (Exception e) {
+                            nLogger.logInfo(e, "实例化 " + _cls + " ...失败");
+                        }
+                        // 函数执行返回 null,尝试从代理服务获得数据
+                        if (rs == null) {
+                            rs = redirectRequest(hCtx);
+                        }
+                        // 尾过滤
+                        rs = RpcResult(afterExecute(className, actionName, _objs, rs));
+                        // 如果当前请求是更新操作,尝试向所有订阅者广播更新通知
+                        if (ServiceApiClass.isUpdateAction(actionName)) {
+                            GscSubscribe.update(getServiceTopic(hCtx), hCtx.appId());
+                        }
+                    } else {
+                        rs = RpcMessage.Instant(filterReturn);
                     }
                 } else {
-                    rs = RpcMessage.Instant(filterReturn);
+                    rs = redirectRequest(hCtx);
                 }
             } catch (Exception e) {
                 nLogger.logInfo(e, "类:" + className + " : 不存在");
@@ -301,7 +324,7 @@ public class ExecRequest {//框架内请求类
         // String classFullName = ExecBaseFolder + "._Before." + className;
         RpcFilterFnCache filterFn = getServiceBefore(className); // BeforeFilterObjectCache.getOrDefault(className, null);
         if (filterFn == null) {  // 没有过滤函数
-            return FilterReturn.buildTrue();
+            return FilterReturn.success();
         }
         try {
             return filterFn.filter(actionName, objs);

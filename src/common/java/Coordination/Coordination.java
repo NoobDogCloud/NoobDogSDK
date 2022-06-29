@@ -17,6 +17,8 @@ public class Coordination {
     private final AtomicReference<JSONArray<JSONObject>> services = new AtomicReference<>();
     private final AtomicReference<JSONArray<JSONObject>> configs = new AtomicReference<>();
 
+    private final AtomicReference<JSONObject> proxy_services = new AtomicReference<>();
+
     private final HashMap<String, AppContext> app_context = new HashMap<>();
     private final HashMap<String, String> domain_context = new HashMap<>();
 
@@ -41,6 +43,7 @@ public class Coordination {
         apps.set(data.getJsonArray("apps"));
         services.set(data.getJsonArray("services"));
         configs.set(data.getJsonArray("configs"));
+        proxy_services.set(data.getJson("proxy_services"));
         // 生成上下文
         JSONArray<JSONObject> appArr = apps.get();
         JSONArray<JSONObject> svcArr = services.get();
@@ -101,6 +104,14 @@ public class Coordination {
 
     public JSONArray<JSONObject> getConfigArray() {
         return configs.get();
+    }
+
+    public JSONObject getProxyServiceArray() {
+        return proxy_services.get();
+    }
+
+    public JSONArray<String> getServiceProxy(String serviceName) {
+        return proxy_services.get().getJsonArray(serviceName);
     }
 
     public JSONArray<JSONObject> getData(String className) {

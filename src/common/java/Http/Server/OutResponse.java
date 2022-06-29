@@ -3,6 +3,7 @@ package common.java.Http.Server;
 import common.java.Http.Mime;
 import common.java.Http.Server.Db.HttpContextDb;
 import common.java.Rpc.RpcLocation;
+import common.java.Rpc.RpcResponse;
 import common.java.Rpc.rMsg;
 import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
@@ -249,6 +250,8 @@ public class OutResponse {
     public void out(Object v) {
         if (v instanceof String) {
             out((String) v);
+        } else if (v instanceof RpcResponse r) {
+            out(r.toString());
         } else if (v instanceof JSONObject) {
             out((JSONObject) v);
         } else if (v instanceof JSONArray) {

@@ -49,7 +49,7 @@ public class FilterLink {
 
     public FilterReturn global_run(String actionName, Object[] input) {
         if (global_fn == null) {
-            return FilterReturn.buildTrue();
+            return FilterReturn.success();
         }
         return global_fn.run(actionName, input);
     }
@@ -57,7 +57,7 @@ public class FilterLink {
     public FilterReturn runFor(String actionName, Object[] input) {
         List<FilterCallback> ar = filterArray.get(actionName);
         if (ar == null) {
-            return FilterReturn.buildTrue();
+            return FilterReturn.success();
         }
         for (FilterCallback fn : ar) {
             FilterReturn fr = fn.run(actionName, input);
@@ -65,6 +65,6 @@ public class FilterLink {
                 return fr;
             }
         }
-        return FilterReturn.buildTrue();
+        return FilterReturn.success();
     }
 }

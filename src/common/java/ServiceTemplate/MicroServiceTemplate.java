@@ -79,9 +79,17 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
         }
         var ruleArr = db.getMicroModel().rules();
         for (var node : ruleArr.values()) {
+            var key = node.name();
+            // 检查唯一值
+            if (node.unique()) {
+                var v = input.get(node.name());
+                if (!DBLayer.isInvalidQueryResult(find(node.name(), StringHelper.toString(v)))) {
+                    return CheckResult.build(false, key);
+                }
+            }
+            // 检查约束
             var block = node.constraint();
             if (block != null) {
-                var key = node.name();
                 // 获得 字段 对应值
                 if (input.containsKey(key)) {
                     var v = input.get(node.name());
@@ -97,7 +105,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
                 }
             }
         }
-        return CheckResult.buildTrue();
+        return CheckResult.success();
     }
 
     /**
