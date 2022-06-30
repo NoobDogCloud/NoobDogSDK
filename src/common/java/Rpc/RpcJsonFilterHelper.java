@@ -51,7 +51,7 @@ public class RpcJsonFilterHelper {
             var data = callback.run(json);
             // 是编辑模式
             if (isUpdate) {
-                return data.size() > 0 && json.get(name).equals(data.get(0).get(name)) ?
+                return !JSONObject.isInvalided(data) && json.get(name).equals(data.get(name)) ?
                         FilterReturn.build(false, "[" + name + "]的数据已存在") :
                         FilterReturn.success();
             }
