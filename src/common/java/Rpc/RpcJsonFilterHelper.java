@@ -72,9 +72,9 @@ public class RpcJsonFilterHelper {
                         r = block.getCallback().run(info, key);
                     }
                 } else {
-                    // 不存在的key 同时 是必须的
-                    if (!info.has(key) && block.isRequired()) {
-                        return FilterReturn.build(false, block.getMessage());
+                    // 不存在的key 同时 不是必须的
+                    if (!info.has(key) && !block.isRequired()) {
+                        return FilterReturn.success();
                     }
                     r = block.getCallback().run(info, key);
                 }
