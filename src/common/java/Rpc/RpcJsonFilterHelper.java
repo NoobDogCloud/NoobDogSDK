@@ -41,19 +41,25 @@ public class RpcJsonFilterHelper {
         return this;
     }
 
-    public RpcJsonFilterHelper filterUnique(String key, FilterUniqueDataCallback callback) {
-        return filterUnique(key, callback, true);
+    public RpcJsonFilterHelper filterUnique(String key, String pk, FilterUniqueDataCallback callback) {
+        return filterUnique(key, pk, callback, true);
     }
 
-    public RpcJsonFilterHelper filterUnique(String key, FilterUniqueDataCallback callback, boolean required) {
+    public RpcJsonFilterHelper filterUnique(String key, String pk, FilterUniqueDataCallback callback, boolean required) {
         var fn = RpcJsonFilterBlock.build((json, name) -> {
             // 数据不存在，可以使用
             var data = callback.run(json);
             // 是编辑模式
             if (isUpdate) {
-                return !JSONObject.isInvalided(data) && json.get(name).equals(data.get(name)) ?
-                        FilterReturn.build(false, "[" + name + "]的数据已存在") :
-                        FilterReturn.success();
+                // 有人用了,看看是不是我自己
+                if (data.size() > 0) {
+                    for (JSONObject v : data) {
+                        if (!v.get(pk).equals(json.get(pk))) {
+                            FilterReturn.build(false, "[" + name + "]的数据已存在");
+                        }
+                    }
+                }
+                FilterReturn.success();
             }
             if (data.size() == 0) {
                 return FilterReturn.success();
