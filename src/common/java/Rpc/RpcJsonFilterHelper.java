@@ -47,10 +47,6 @@ public class RpcJsonFilterHelper {
 
     public RpcJsonFilterHelper filterUnique(String key, FilterUniqueDataCallback callback, boolean required) {
         var fn = RpcJsonFilterBlock.build((json, name) -> {
-            // 不包含对应数据不是必须,直接返回成功
-            if (!json.containsKey(key) && !required) {
-                return FilterReturn.success();
-            }
             // 数据不存在，可以使用
             var data = callback.run(json);
             // 是编辑模式
@@ -63,7 +59,7 @@ public class RpcJsonFilterHelper {
                 return FilterReturn.success();
             }
             return FilterReturn.build(false, "[" + name + "]的数据已被使用");
-        }, true, "缺少参数[" + key + "]");
+        }, required, "缺少参数[" + key + "]");
         return _filter(key, fn);
     }
 
