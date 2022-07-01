@@ -584,6 +584,19 @@ public class DBLayer implements IDBManager<DBLayer> {
         return _db.getFullForm();
     }
 
+    public DBLayer filterEmptyGeneratedKeys() {
+        var pk = _db.getGeneratedKeys();
+        if (!StringHelper.isInvalided(pk)) {
+            List<JSONObject> arr = _db.data();
+            for (JSONObject v : arr) {
+                if (v.containsKey(pk) && StringHelper.isInvalided(v.getString(pk))) {
+                    v.remove(pk);
+                }
+            }
+        }
+        return this;
+    }
+
     public void asyncInsert() {
         // updateFix();
         _db.asyncInsert();
@@ -591,6 +604,7 @@ public class DBLayer implements IDBManager<DBLayer> {
 
     public Object insertOnce() {
         // updateFix();
+
         return _db.insertOnce();
     }
 

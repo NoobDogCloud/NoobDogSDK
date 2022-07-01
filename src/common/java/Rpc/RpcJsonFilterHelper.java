@@ -59,7 +59,7 @@ public class RpcJsonFilterHelper {
                         }
                     }
                 }
-                FilterReturn.success();
+                return FilterReturn.success();
             }
             if (data.size() == 0) {
                 return FilterReturn.success();
