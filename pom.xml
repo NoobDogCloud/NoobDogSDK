@@ -74,20 +74,20 @@
             <version>3.1.1</version>
         </dependency>
         <dependency>
-            <groupId>gfw</groupId>
-            <artifactId>gfwCommon</artifactId>
-            <version>3.0.0</version>
+            <groupId>io.github.noobdogcloud</groupId>
+            <artifactId>tools</artifactId>
+            <version>0.0.1</version>
         </dependency>
         <dependency>
-            <groupId>gfw</groupId>
-            <artifactId>gfwHttpClient</artifactId>
-            <version>3.0.0</version>
+            <groupId>io.github.noobdogcloud</groupId>
+            <artifactId>HttpClient</artifactId>
+            <version>0.0.1</version>
         </dependency>
 
         <dependency>
-            <groupId>gfw</groupId>
-            <artifactId>gfwJson</artifactId>
-            <version>3.0.0</version>
+            <groupId>io.github.noobdogcloud</groupId>
+            <artifactId>JsonHelper</artifactId>
+            <version>0.0.1</version>
         </dependency>
         <!-- https://mvnrepository.com/artifact/org.apache.pulsar/pulsar-client -->
         <dependency>
@@ -213,14 +213,4 @@
             </build>
         </profile>
     </profiles>
-    <distributionManagement>
-        <repository>
-            <id>rdc-releases</id>
-            <url>https://packages.aliyun.com/maven/repository/2008022-release-LfFRDq</url>
-        </repository>
-        <snapshotRepository>
-            <id>rdc-snapshots</id>
-            <url>https://packages.aliyun.com/maven/repository/2008022-snapshot-oYlpxF</url>
-        </snapshotRepository>
-    </distributionManagement>
 </project>
