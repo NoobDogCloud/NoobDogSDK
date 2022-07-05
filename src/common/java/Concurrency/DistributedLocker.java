@@ -69,7 +69,6 @@ public class DistributedLocker implements AutoCloseable {
     /**
      * 是否存在该锁
      *
-     * @return
      */
     public boolean isLocked() {
         return getRedis().get(lockerName) != null;
@@ -78,7 +77,6 @@ public class DistributedLocker implements AutoCloseable {
     /**
      * 返回true表示现在锁定中，否则未锁
      *
-     * @return
      */
     public void unlock() {
         getRedis().delete(lockerName);

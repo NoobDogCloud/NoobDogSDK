@@ -127,19 +127,6 @@ public class ExecRequest {//框架内请求类
     private static final ConcurrentHashMap<String, ReflectStruct> share_class = new ConcurrentHashMap<>();
     public static final String ExecBaseFolder = "main.java.Api.";
 
-
-    /**
-     * 遍历 api 目录下所有类
-     */
-    /**
-     * public static void loadServiceApi() {
-     * List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Api", true);
-     * // 修改每个载入的 class,增加调用方法
-     * for (Class<?> cls : clsArr) {
-     * share_class.put(cls.getSimpleName(), ReflectStruct.build(cls));
-     * }
-     * }
-     */
     // graalvm native编译时,不可以使用
     public static void preloadServiceClass() {
         String folderName = StringHelper.trimFrom(ExecBaseFolder, '.');

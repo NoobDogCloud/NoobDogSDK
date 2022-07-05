@@ -316,7 +316,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     }
 
     /**
-     * @apiNote 获得tree-json结构的全表数据,获得行政机构json树
+     * 获得tree-json结构的全表数据,获得行政机构json树
      */
     public Object tree(JSONArray cond) {
         Object rs;
@@ -332,7 +332,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     }
 
     /**
-     * @apiNote 微服务标准模板类独有API, 提供当前模型规则描述JSON给前端
+     * 微服务标准模板类独有API, 提供当前模型规则描述JSON给前端
      */
     public String getSafeDataModel() {
         HashMap<String, MModelRuleNode> mms = MicroServiceContext.current().model(this.modelName).rules();

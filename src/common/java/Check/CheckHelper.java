@@ -15,9 +15,6 @@ import java.util.regex.Pattern;
 public class CheckHelper {
     /**
      * 是否为空
-     *
-     * @param
-     * @return
      */
     public static boolean IsNull(String str) {
         return str == null || str.isEmpty();
@@ -26,9 +23,6 @@ public class CheckHelper {
 
     /**
      * 不是为0的数字
-     *
-     * @param str
-     * @return
      */
     public static boolean IsZero(String str) {
         if (IntTest(str)) {
@@ -65,8 +59,6 @@ public class CheckHelper {
     /**
      * 是否是整数
      *
-     * @param str
-     * @return
      */
     public static boolean IsInt(String str) {
         return IntTest(str) || LongTest(str);
@@ -111,8 +103,6 @@ public class CheckHelper {
     /**
      * 是否是数字
      *
-     * @param str
-     * @return
      */
     public static boolean IsNum(String str) {
         return FloatTest(str) || DoubleTest(str);
@@ -120,9 +110,6 @@ public class CheckHelper {
 
     /**
      * 验证邮箱
-     *
-     * @param email
-     * @return
      */
     public static boolean IsEmail(String email) {
         String check = "^([a-z0-9A-Z]+[-|_|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
@@ -132,8 +119,6 @@ public class CheckHelper {
     /**
      * 验证手机号码
      *
-     * @param
-     * @return
      */
     public static boolean IsMobileNumber(String mobileNumber) {
         String check = "^(((13[0-9])|(15([0-3]|[5-9]))|(17([0-9]))|(18[0-9]))\\d{8})|(0\\d{2}-\\d{8})|(0\\d{3}-\\d{7})$";
@@ -143,8 +128,6 @@ public class CheckHelper {
     /**
      * 验证固定电话号码
      *
-     * @param
-     * @return
      */
     public static boolean IsTelPhoneNumber(String telphoneNumber) {
         String check1 = "^(([0\\+]\\d{2,3}-)?(0\\d{2,3})-)(\\d{7,8})(-(\\d{3,}))?$";
@@ -155,8 +138,6 @@ public class CheckHelper {
     /**
      * 验证工商执照
      *
-     * @param str
-     * @return
      */
     public static boolean IsBusinessRegisterNo(String str) {
         String check = "^[0-9][a-fA-F0-9]{14,18}$";
@@ -166,8 +147,6 @@ public class CheckHelper {
     /**
      * 验证是否是中文
      *
-     * @param str
-     * @return
      */
     public static boolean IsChinese(String str) {
         String check = "^[\\x{4e00}-\\x{9fa5}]+$";
@@ -176,10 +155,6 @@ public class CheckHelper {
 
     /**
      * 验证ID
-     *
-     * @param str
-     * @param len
-     * @return
      */
     public static boolean IsID(String str, int len) {
         String check = "^[a-zA-Z][a-z0-9A-Z_-]{2," + len + "}+$";
@@ -202,9 +177,6 @@ public class CheckHelper {
 
     /**
      * 验证真实姓名
-     *
-     * @param str
-     * @return
      */
     public static boolean IsRealName(String str) {
         int l = str.length();
@@ -213,9 +185,6 @@ public class CheckHelper {
 
     /**
      * 验证身份证号合法性
-     *
-     * @param str
-     * @return
      */
     public static boolean IsPersonCardID(String str) {
         return PersonCardID.isValidatedAllIdcard(str);
@@ -223,9 +192,6 @@ public class CheckHelper {
 
     /**
      * 验证数字是否是有效时间
-     *
-     * @param unixtime
-     * @return
      */
     public static boolean IsUnixDate(long unixtime) {
         return unixtime == 0 || TimeHelper.build().timestampToDate(unixtime) != null;
@@ -233,9 +199,6 @@ public class CheckHelper {
 
     /**
      * 验证是否是有效时间,字符串模式
-     *
-     * @param str
-     * @return
      */
     public static boolean IsDate(String str) {
         boolean flag = false;
@@ -274,9 +237,6 @@ public class CheckHelper {
 
     /**
      * 是否是星期
-     *
-     * @param str
-     * @return
      */
     public static boolean IsWeek(String str) {
         String tmp;
@@ -309,9 +269,6 @@ public class CheckHelper {
 
     /**
      * 是否是月
-     *
-     * @param str
-     * @return
      */
     public static boolean IsMonth(String str) {
         String tmp;
@@ -350,9 +307,6 @@ public class CheckHelper {
 
     /**
      * 判断是否是IP
-     *
-     * @param str
-     * @return
      */
     public static boolean IsIP(String str) {
         String num = "(25[0-5]|2[0-4]\\d|[0-1]\\d{2}|[1-9]?\\d)";
@@ -362,9 +316,6 @@ public class CheckHelper {
 
     /**
      * 判断是否是URL网址
-     *
-     * @param str
-     * @return
      */
     public static boolean IsUrl(String str) {
         boolean rs;
@@ -380,9 +331,6 @@ public class CheckHelper {
     /**
      * 密码验证
      * 包含数字和字母的6-20位字符
-     *
-     * @param str
-     * @return
      */
     public static boolean IsPassword(String str) {
         String regex = "^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,128}$";
@@ -391,9 +339,6 @@ public class CheckHelper {
 
     /**
      * 中国邮政编码验证
-     *
-     * @param str
-     * @return
      */
     public static boolean IsPostalCode(String str) {
         String regex = "^\\d{6}$";
@@ -402,9 +347,6 @@ public class CheckHelper {
 
     /**
      * 小数点后2位数字(金额)
-     *
-     * @param str
-     * @return
      */
     public static boolean IsDecimal(String str) {
         String regex = "^(([1-9]+)|([0-9]+\\.[0-9]{1,2}))$";
@@ -413,9 +355,6 @@ public class CheckHelper {
 
     /**
      * 支持闰年的时间和日期
-     *
-     * @param str
-     * @return
      */
     public static boolean IsDateAndYear(String str) {
         //String regex = "^\\d{4}-(?:0\\d|1[0-2])-(?:[0-2]\\d|3[01])( (?:[01]\\d|2[0-3])\\:[0-5]\\d\\:[0-5]\\d)?$";
@@ -425,9 +364,6 @@ public class CheckHelper {
 
     /**
      * 时间验证
-     *
-     * @param str
-     * @return
      */
     public static boolean IsTime(String str) {
         String regex = "^(?:[01]\\d|2[0-3])(?::[0-5]\\d){1,2}$";
@@ -436,9 +372,6 @@ public class CheckHelper {
 
     /**
      * 银行卡号验证
-     *
-     * @param str
-     * @return
      */
     public static boolean IsBankCard(String str) {
         return BankCard.checkBankCard(str);

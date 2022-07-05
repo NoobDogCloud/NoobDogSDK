@@ -24,7 +24,7 @@ public class oauthApi {
 
     /**
      * @param api_name 接口方法名称
-     * @apiNote 获得接口一次性授权码(集群内部使用)，1分钟有效
+     * 获得接口一次性授权码(集群内部使用)，1分钟有效
      */
     public String getApiToken(String api_name) {
         Cache c = Cache.getInstance();
@@ -41,7 +41,7 @@ public class oauthApi {
      * @param serviceName 服务名称
      * @param className   类名称
      * @param actionName  方法名称
-     * @apiNote 获得接口一次性授权码(公开使用)，10分钟有效
+     * 获得接口一次性授权码(公开使用)，10分钟有效
      */
     public String getApiTokenService(String serviceName, String className, String actionName) {
         Cache c = Cache.getInstance();

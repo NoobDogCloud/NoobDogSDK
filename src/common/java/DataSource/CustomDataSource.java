@@ -57,7 +57,7 @@ public class CustomDataSource {
     private final String topic;
 
     /**
-     * @apiNote 创建自定义数据源
+     * 创建自定义数据源
      */
     private CustomDataSource() {
         topic = createTopic();
@@ -83,7 +83,7 @@ public class CustomDataSource {
 
 
     /**
-     * @apiNote 销毁自定义数据源, 执行后不会立刻删除，而是等数据源对应的订阅者下线后才会删除
+     * 销毁自定义数据源, 执行后不会立刻删除，而是等数据源对应的订阅者下线后才会删除
      */
     public void delete() {
         // 添加自己到删除队列，如果队列对应的订阅房间不存在，则删除自己

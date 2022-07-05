@@ -8,21 +8,21 @@ import org.json.gsc.JSONObject;
 public interface MicroServiceTemplateInterface {
     /**
      * @param info gsc-json
-     * @apiNote 新增数据
+     * 新增数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     Object insert(JSONObject info);
 
     /**
      * @param ids 主键组（不同主键值用“,”隔开）
-     * @apiNote 删除数据
+     * 删除数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     int delete(String ids);
 
     /**
      * @param conditions gsc-GraphQL
-     * @apiNote 删除数据, 通过指定条件
+     * 删除数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     int deleteEx(JSONArray conditions);
@@ -30,7 +30,7 @@ public interface MicroServiceTemplateInterface {
     /**
      * @param ids  主键组（不同主键值用“,”隔开）
      * @param info gsc-json
-     * @apiNote 更新数据
+     * 更新数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     int update(String ids, JSONObject info);
@@ -38,7 +38,7 @@ public interface MicroServiceTemplateInterface {
     /**
      * @param info       gsc-json
      * @param conditions gsc-GraphQL
-     * @apiNote 更新数据, 通过指定条件
+     * 更新数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     int updateEx(JSONObject info, JSONArray conditions);
@@ -46,7 +46,7 @@ public interface MicroServiceTemplateInterface {
     /**
      * @param idx 当前页码
      * @param max 每页最大显示数量
-     * @apiNote 分页方式展示数据
+     * 分页方式展示数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     RpcPageInfo page(int idx, int max);
@@ -55,13 +55,13 @@ public interface MicroServiceTemplateInterface {
      * @param idx        当前页码
      * @param max        每页最大显示数量
      * @param conditions gsc-GraphQL
-     * @apiNote 页方式展示数据, 通过指定条件
+     * 页方式展示数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     RpcPageInfo pageEx(int idx, int max, JSONArray conditions);
 
     /**
-     * @apiNote 获得全部数据
+     * 获得全部数据
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     @InterfaceType(InterfaceType.type.OauthApi)
@@ -69,14 +69,14 @@ public interface MicroServiceTemplateInterface {
 
     /**
      * @param cond gsc-GraphQL
-     * @apiNote 获得全部数据, 通过指定条件
+     * 获得全部数据, 通过指定条件
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     @InterfaceType(InterfaceType.type.OauthApi)
     JSONArray selectEx(JSONArray cond);
 
     /***
-     * @apiNote 查找指定数据
+     * 查找指定数据
      * @param key 查找的字段名
      * @param val 查找的字段值
      */
@@ -84,20 +84,20 @@ public interface MicroServiceTemplateInterface {
     Object find(String key, String val);
 
     /***
-     * @apiNote 查找指定数据, 通过指定条件
+     * 查找指定数据, 通过指定条件
      * @param conditions gsc-GraphQL
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     JSONObject findEx(JSONArray conditions);
 
     /**
-     * @apiNote 根据条件获得以符合条件的数据为ROOT的构造JSON-TREE
+     * 根据条件获得以符合条件的数据为ROOT的构造JSON-TREE
      */
     @InterfaceType(InterfaceType.type.SessionApi)
     Object tree(JSONArray conditions);
 
     /**
-     * @apiNote 为特定的方法申请一次性授权
+     * 为特定的方法申请一次性授权
      * */
     // Object getApiAccessOnce(String className, String action);
 }

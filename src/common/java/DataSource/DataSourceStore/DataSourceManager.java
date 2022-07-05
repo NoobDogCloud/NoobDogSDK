@@ -20,7 +20,7 @@ public class DataSourceManager {
     /**
      * @param topic 数据源名称
      * @return 数据源对象
-     * @apiNote 为topic添加数据源
+     * 为topic添加数据源
      */
     public static IDataSourceStore add(String topic, String appId) {
         var ds = dsc.newInstance();

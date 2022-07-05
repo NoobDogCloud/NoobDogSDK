@@ -10,10 +10,8 @@ import java.util.function.Function;
 
 public class MemCache<K, V> {
     /**
-     * @description: 内存缓存。缓存加载之后永不过期，刷新失败时将继续返回旧缓存。
+     * &#064;description:  内存缓存。缓存加载之后永不过期，刷新失败时将继续返回旧缓存。
      * 在调用getValue之前，需要设置 refreshDuration， refreshTimeunit， maxSize 三个参数
-     * @param <K>
-     * @param <V>
      */
     // 缓存自动刷新周期
     protected int refreshDuration = 10;
@@ -40,10 +38,7 @@ public class MemCache<K, V> {
 
     /**
      * @param key
-     * @throws Exception
-     * @description: 从cache中拿出数据操作
-     * @author: luozhuo
-     * @date: 2017年6月13日 下午5:07:11
+     * &#064;description:  从cache中拿出数据操作
      */
     public V getValue(K key) {
         try {
@@ -101,7 +96,7 @@ public class MemCache<K, V> {
     }
 
     /**
-     * @description: 获取cache实例
+     * &#064;description:  获取cache实例
      */
     private LoadingCache<K, V> getCache() {
         if (cache == null) {

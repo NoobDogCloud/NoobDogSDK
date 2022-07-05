@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 public class RpcWebsocket {
     /**
-     * @apiNote 包含参数的URL的使用
+     * 包含参数的URL的使用
      */
     public static RpcWebSocketQuery query(int run_no, String url, HttpContext ctx, boolean api_auth) {
         String[] strArr = url.split("/");

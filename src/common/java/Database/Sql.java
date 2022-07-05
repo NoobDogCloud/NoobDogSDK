@@ -322,7 +322,6 @@ public class Sql implements IDBManager<Sql> {
     /**
      * 获取数据连接
      *
-     * @return
      */
     //提交事务
     public void commit() {
@@ -758,9 +757,6 @@ public class Sql implements IDBManager<Sql> {
 
     /**
      * 判断表是否存在，不存在就创建
-     *
-     * @param
-     * @return
      */
     protected boolean safeTable() {
         /*
