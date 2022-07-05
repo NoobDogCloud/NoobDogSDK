@@ -21,6 +21,8 @@ public class AppContext {
 
     private final String appId;
     private final String domain;
+
+    private final String publishModel;
     private final JSONObject appInfo;
     private final ModelServiceConfig msc;
     private MicroServiceContext microServiceInfo;
@@ -35,6 +37,7 @@ public class AppContext {
         this.domain = this.appInfo.getString("domain");
         this.roles = AppRoles.build(this.appInfo.getJson("roles"));
         this.msc = new ModelServiceConfig(this.appInfo.getJson("config"));
+        this.publishModel = this.appInfo.getString("category");
     }
 
     public static AppContext build(JSONObject appInfo) {
@@ -139,6 +142,16 @@ public class AppContext {
      */
     public MicroServiceContext microServiceInfo() {
         return this.microServiceInfo;
+    }
+
+    /**
+     * 获得应用的发布模式
+     * node-service: 节点服务
+     * gateway-service: 网关服务
+     * secgateway-service: 安全网关服务
+     */
+    public String publishModel() {
+        return this.publishModel;
     }
 
     /**

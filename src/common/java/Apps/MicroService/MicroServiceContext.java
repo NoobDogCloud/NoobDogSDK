@@ -1,11 +1,13 @@
 package common.java.Apps.MicroService;
 
+import common.java.Apps.AppContext;
 import common.java.Apps.MicroService.Config.ModelServiceConfig;
 import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.Apps.MicroService.Model.MicroModelArray;
 import common.java.Coordination.Coordination;
 import common.java.Http.Server.HttpContext;
 import common.java.NetHelper.IPHelper;
+import common.java.String.StringHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
@@ -24,6 +26,8 @@ public class MicroServiceContext {
     }
 
     private static int currentNo = 0;
+
+    public final String ssl = "https";
     private final JSONObject servInfo;
     private final ModelServiceConfig servConfig;
     private final MicroModelArray servModelInfo;
@@ -40,6 +44,7 @@ public class MicroServiceContext {
 
     // 根据当前服务与目标服务网络状态,更新RPC调用节点
     public static JSONObject updateRpcEndpoint(JSONObject servInfo) {
+        servInfo.put("externaladdr", servInfo.get("subaddr"));
         String subAddrString = servInfo.getString("clusteraddr");
         String[] cluster_address = subAddrString.split(",");
         List<Long> ip_value_arr = new ArrayList<>();
@@ -143,6 +148,77 @@ public class MicroServiceContext {
      */
     public boolean isDebug() {
         return this.servInfo.getBoolean("debug");
+    }
+
+    /**
+     * * @param serviceName 服务名称
+     */
+    public static String buildUrl(String serviceName) {
+        var appCtx = AppContext.current();
+        // 获得应用请求域名
+        var appDomain = appCtx.domain();
+        var msCtx = appCtx.service(serviceName);
+        var ssl = msCtx.ssl;
+        // 获得发布模式
+        var appPublish = appCtx.publishModel();
+        switch (appPublish) {
+            case "node-service":
+                return ssl + "//" + msCtx.servInfo.getString("externaladdr") + "/" + serviceName;
+            case "gateway-service": {
+                var msc = appCtx.service("gateway");
+                if (msc == null) {
+                    throw new RuntimeException("gateway service not found");
+                }
+                return StringHelper.isInvalided(appDomain) ?
+                        ssl + "//" + msc.servInfo.getString("externaladdr") + "/" + serviceName :
+                        ssl + "//" + appDomain + "/api/" + serviceName;
+            }
+            case "secgateway-service": {
+                var msc = appCtx.service("secgateway");
+                if (msc == null) {
+                    throw new RuntimeException("secgateway service not found");
+                }
+                return StringHelper.isInvalided(appDomain) ?
+                        ssl + "//" + msc.servInfo.getString("externaladdr") + "/" + serviceName :
+                        ssl + "//" + appDomain + "/api/" + serviceName;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 获得当前服务的外部访问URL(不包含参数)
+     */
+    public String buildUrl() {
+        String serviceName = servInfo.getString("name");
+        var appCtx = AppContext.current();
+        // 获得应用请求域名
+        var appDomain = appCtx.domain();
+        // 获得发布模式
+        var appPublish = appCtx.publishModel();
+        switch (appPublish) {
+            case "node-service":
+                return ssl + "//" + servInfo.getString("externaladdr") + "/" + serviceName;
+            case "gateway-service": {
+                var msc = appCtx.service("gateway");
+                if (msc == null) {
+                    throw new RuntimeException("gateway service not found");
+                }
+                return StringHelper.isInvalided(appDomain) ?
+                        ssl + "//" + msc.servInfo.getString("externaladdr") + "/" + serviceName :
+                        ssl + "//" + appDomain + "/api/" + serviceName;
+            }
+            case "secgateway-service": {
+                var msc = appCtx.service("secgateway");
+                if (msc == null) {
+                    throw new RuntimeException("secgateway service not found");
+                }
+                return StringHelper.isInvalided(appDomain) ?
+                        ssl + "//" + msc.servInfo.getString("externaladdr") + "/" + serviceName :
+                        ssl + "//" + appDomain + "/api/" + serviceName;
+            }
+        }
+        return null;
     }
 
     public static class TransferKeyName {
