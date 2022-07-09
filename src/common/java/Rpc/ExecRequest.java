@@ -169,8 +169,6 @@ public class ExecRequest {//框架内请求类
 
     /**
      * 动态载入类
-     *
-     * @return
      */
     public static ReflectStruct getServiceApi(String name) {
         // 增加对未知类初始化支持(有业务模型的未知类,类名称与模型名称相同)
@@ -184,18 +182,6 @@ public class ExecRequest {//框架内请求类
         return share_class.get(name);
     }
 
-    /**
-     * 遍历 api_before 目录下所有类
-     */
-    /**
-     * public static void loadServiceBefore() {
-     * List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._Before", true);
-     * // 修改每个载入的 class,增加调用方法
-     * for (Class<?> cls : clsArr) {
-     * BeforeFilterObjectCache.put(cls.getSimpleName(), RpcFilterFnCache.build(cls));
-     * }
-     * }
-     */
     public static RpcFilterFnCache getServiceBefore(String name) {
         if (!BeforeFilterObjectCache.containsKey(name)) {
             Class<?> cls;
@@ -209,18 +195,6 @@ public class ExecRequest {//框架内请求类
         return BeforeFilterObjectCache.get(name);
     }
 
-    /**
-     * 遍历 api_before 目录下所有类
-     */
-    /**
-     * public static void loadServiceAfter() {
-     * List<Class<?>> clsArr = GrapeJar.getClass(ExecBaseFolder + "._After", true);
-     * // 修改每个载入的 class,增加调用方法
-     * for (Class<?> cls : clsArr) {
-     * AfterFilterObjectCache.put(cls.getSimpleName(), RpcFilterFnCache.build(cls));
-     * }
-     * }
-     */
     public static RpcFilterFnCache getServiceAfter(String name) {
         if (!AfterFilterObjectCache.containsKey(name)) {
             Class<?> cls;
