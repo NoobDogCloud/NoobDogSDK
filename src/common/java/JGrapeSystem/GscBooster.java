@@ -87,7 +87,7 @@ public class GscBooster {
                         .setEndpoint(Config.masterHost + ":" + Config.masterPort)
                         .setPath("Context", "sub");
                 var r = (BoosterArgs.get("-a") != null) ?
-                        _rpc.getWebSocketQueryHeader(Config.serviceName, BoosterArgs.get("a").toString()) :
+                        _rpc.getWebSocketQueryHeader(Config.serviceName, BoosterArgs.get("-a").toString()) :
                         _rpc.getWebSocketQueryHeader(Config.serviceName);
                 MasterActor.getClient().subscribe(
                         r,
