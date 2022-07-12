@@ -4,6 +4,7 @@ import common.java.Apps.AppContext;
 import common.java.Apps.MicroService.Config.ModelServiceConfig;
 import common.java.Apps.MicroService.Model.MicroModel;
 import common.java.Apps.MicroService.Model.MicroModelArray;
+import common.java.Config.Config;
 import common.java.Coordination.Coordination;
 import common.java.Http.Server.HttpContext;
 import common.java.NetHelper.IPHelper;
@@ -44,9 +45,12 @@ public class MicroServiceContext {
 
     // 根据当前服务与目标服务网络状态,更新RPC调用节点
     public static JSONObject updateRpcEndpoint(JSONObject servInfo) {
-        servInfo.put("externaladdr", servInfo.get("subaddr"));
-        String subAddrString = servInfo.getString("clusteraddr");
-        String[] cluster_address = subAddrString.split(",");
+        servInfo.put("externaladdr", servInfo.getString("subaddr"));
+        String clusteraddr = servInfo.getString("clusteraddr");
+        if (StringHelper.isInvalided(clusteraddr)) {
+            clusteraddr = "127.0.0.1:" + Config.port;
+        }
+        String[] cluster_address = clusteraddr.split(",");
         List<Long> ip_value_arr = new ArrayList<>();
         for (var address : cluster_address) {
             ip_value_arr.add(IPHelper.ipToLong(address.split(":")[0]) & 0xffff0000);
@@ -56,7 +60,7 @@ public class MicroServiceContext {
             for (String ip : ip_arr) {
                 long local_ip_value = IPHelper.ipToLong(ip) & 0xffff0000;
                 if (ip_value_arr.contains(local_ip_value)) {
-                    return servInfo.put("subaddr", subAddrString);
+                    return servInfo.put("subaddr", clusteraddr);
                 }
             }
         } catch (Exception e) {

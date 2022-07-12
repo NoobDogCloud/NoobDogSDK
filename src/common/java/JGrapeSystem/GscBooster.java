@@ -82,12 +82,15 @@ public class GscBooster {
             // 此时订阅全部用到的数据
             if (!Config.serviceName.toLowerCase(Locale.ROOT).equals("system")) {
                 AtomicBoolean waiting = new AtomicBoolean(true);
+                var _rpc = rpc.service("system")
+                        .setApiPublicKey()
+                        .setEndpoint(Config.masterHost + ":" + Config.masterPort)
+                        .setPath("Context", "sub");
+                var r = (BoosterArgs.get("a") != null) ?
+                        _rpc.getWebSocketQueryHeader(Config.serviceName, BoosterArgs.get("a").toString()) :
+                        _rpc.getWebSocketQueryHeader(Config.serviceName);
                 MasterActor.getClient().subscribe(
-                        rpc.service("system")
-                                .setApiPublicKey()
-                                .setEndpoint(Config.masterHost + ":" + Config.masterPort)
-                                .setPath("Context", "sub")
-                                .getWebSocketQueryHeader(Config.serviceName),
+                        r,
                         resp -> {
                             // 初始化订阅数据到全局配置对象
                             Coordination.build(resp.asJson());
