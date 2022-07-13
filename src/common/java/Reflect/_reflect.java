@@ -226,7 +226,8 @@ public class _reflect implements AutoCloseable {
             nLogger.logInfo(e, "初始化类:" + _Class.getName() + " 无效参数");
             _oObject = null;
         } catch (InvocationTargetException e) {
-            nLogger.logInfo(e, "初始化类:" + _Class.getName() + " 无效调用");
+            nLogger.logInfo(e, "初始化类:" + _Class.getName() + " 无效调用(可能的原因->类初始化异常)");
+            e.printStackTrace();
             _oObject = null;
         } catch (NoSuchMethodException e) {
             nLogger.logInfo(e, "初始化类:" + _Class.getName() + " 方法不存在");
