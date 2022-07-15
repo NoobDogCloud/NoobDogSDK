@@ -137,8 +137,13 @@ public class MasterServiceTemplate implements MicroServiceTemplateInterface {
 
     @InterfaceType(InterfaceType.type.SessionApi)
     @Override
-    public String find(String key, String val) {
-        return StringHelper.toString(fdb.eq(key, val).find());
+    public JSONObject find(String key, String val) {
+        return fdb.eq(key, val).find();
+    }
+
+    @InterfaceType(InterfaceType.type.SessionApi)
+    public JSONArray<JSONObject> findArray(String key, String val) {
+        return fdb.eq(key, val).select();
     }
 
     @InterfaceType(InterfaceType.type.SessionApi)

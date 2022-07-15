@@ -73,7 +73,7 @@ public class Mongodb implements IDBManager<Mongodb> {
     private int skipNo;
     private int limitNo;
     private MongoCollection<Document> collection;
-    private BasicDBObject fieldBSON;
+    private Bson fieldBSON;
     private Set<String> fieldVisible;       // 可见字段
     private Set<String> fieldDisable;       // 不可见字段
     private List<Bson> sortBSON;
@@ -176,11 +176,7 @@ public class Mongodb implements IDBManager<Mongodb> {
         }
         conditiobLogicAnd = true;
 
-        if (fieldBSON == null) {
-            fieldBSON = new BasicDBObject();
-        } else {
-            fieldBSON.clear();
-        }
+        fieldBSON = null;
 
         if (fieldVisible == null) {
             fieldVisible = new HashSet<>();
@@ -414,7 +410,7 @@ public class Mongodb implements IDBManager<Mongodb> {
     }
 
     public Mongodb field() {
-        fieldBSON.clear();
+        fieldBSON = null;
         fieldVisible.clear();
         fieldDisable.clear();
         return this;
@@ -440,24 +436,24 @@ public class Mongodb implements IDBManager<Mongodb> {
         return this;
     }
 
-    private void buildFieldBSON(Set<String> set) {
-        for (String v : set) {
-            fieldBSON.put(v, set);
-        }
+    private void buildFieldBSON(Set<String> set, boolean visible) {
+        var fields = set.toArray(new String[set.size()]);
+
+        fieldBSON = Projections.fields(visible ? Projections.include(fields) : Projections.exclude(fields));
     }
 
-    private BasicDBObject reBuildField() {
+    private Bson reBuildField() {
         // 选择字段多的为基准
         if (fieldVisible.size() > fieldDisable.size()) { // 可见字段 多于 不可见字段,去掉可见字段里不可见字段
             for (String v : fieldDisable) {
                 fieldVisible.remove(v);
             }
-            buildFieldBSON(fieldVisible);
+            buildFieldBSON(fieldVisible, true);
         } else { // 不可见字段 多于 可见字段,去掉不可见字段里可见字段
             for (String v : fieldVisible) {
                 fieldDisable.remove(v);
             }
-            buildFieldBSON(fieldDisable);
+            buildFieldBSON(fieldDisable, false);
         }
         return fieldBSON;
     }
@@ -754,7 +750,7 @@ public class Mongodb implements IDBManager<Mongodb> {
 
         if (filterData != null)
             ntemp.add(Aggregates.match(filterData));
-        if (fieldBSON.size() > 0)
+        if (fieldVisible.size() > 0 || fieldDisable.size() > 0)
             ntemp.add(Aggregates.project(reBuildField()));
         if (_count)
             groupParamts.add(Accumulators.sum("count", 1));

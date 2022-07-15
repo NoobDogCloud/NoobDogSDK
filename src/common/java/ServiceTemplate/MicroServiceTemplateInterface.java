@@ -76,12 +76,20 @@ public interface MicroServiceTemplateInterface {
     JSONArray selectEx(JSONArray cond);
 
     /***
-     * 查找指定数据
+     * 查找指定数据,返回一条
      * @param key 查找的字段名
      * @param val 查找的字段值
      */
     @InterfaceType(InterfaceType.type.SessionApi)
-    Object find(String key, String val);
+    JSONObject find(String key, String val);
+
+    /***
+     * 查找指定数据,返回所有符合条件的
+     * @param key 查找的字段名
+     * @param val 查找的字段值
+     */
+    @InterfaceType(InterfaceType.type.SessionApi)
+    JSONArray<JSONObject> findArray(String key, String val);
 
     /***
      * 查找指定数据, 通过指定条件

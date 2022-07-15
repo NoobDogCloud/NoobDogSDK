@@ -305,9 +305,13 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     }
 
     @Override
-    public Object find(String field, String val) {
-        int idNo = _ids(field, val);
-        return idNo == 1 ? db.find() : db.select();
+    public JSONObject find(String field, String val) {
+        return db.eq(field, val).find();
+    }
+
+    public JSONArray<JSONObject> findArray(String field, String val) {
+        _ids(field, val);
+        return db.select();
     }
 
     public JSONObject findEx(JSONArray cond) {
