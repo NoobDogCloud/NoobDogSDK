@@ -112,7 +112,7 @@ public class CheckHelper {
      * 验证邮箱
      */
     public static boolean IsEmail(String email) {
-        String check = "^([a-z0-9A-Z]+[-|_|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+        String check = "[\\w!#$%&'*+/=?^_`{|}~-]+(?:\\.[\\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\\w](?:[\\w-]*[\\w])?\\.)+[\\w](?:[\\w-]*[\\w])?";
         return match(check, email);
     }
 
@@ -121,7 +121,7 @@ public class CheckHelper {
      *
      */
     public static boolean IsMobileNumber(String mobileNumber) {
-        String check = "^(((13[0-9])|(15([0-3]|[5-9]))|(17([0-9]))|(18[0-9]))\\d{8})|(0\\d{2}-\\d{8})|(0\\d{3}-\\d{7})$";
+        String check = "^(((13[0-9])|(15([0-3]|[5-9]))|(17([0-9]))|(18[0-9])|(19[0-9]))\\d{8})|(0\\d{2}-\\d{8})|(0\\d{3}-\\d{7})$";
         return match(check, mobileNumber) && mobileNumber.length() == 11;
     }
 

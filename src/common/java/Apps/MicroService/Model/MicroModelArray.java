@@ -13,7 +13,7 @@ public class MicroModelArray {
         if (mModel != null) {
             for (String key : mModel.keySet()) {
                 String _key = key.toLowerCase();
-                this.mModels.put(_key, new MicroModel(appId, _key, mModel.getJson(_key)));
+                this.mModels.put(_key, new MicroModel(appId, _key, mModel.getJson(key)));
             }
         }
     }
