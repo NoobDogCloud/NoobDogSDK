@@ -111,12 +111,13 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         mModel = MicroServiceContext.current().model(modelName);
         String tableName = mModel.tableName();
         if (!StringHelper.isInvalided(tableName)) {
+            this.db.form(tableName).bind();
             String _pkField = mModel.pkField();
             // 手动设置优先
             if (!StringHelper.isInvalided(_pkField)) {
                 pkField = _pkField;
             } else {
-                pkField = this.db.form(tableName).bind().getGeneratedKeys();
+                pkField = this.db.getGeneratedKeys();
             }
             checker = FormHelper.build().importField(mModel.rules());
             permissions = new Permissions(mModel.tableName());
@@ -484,27 +485,33 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
     }
 
     public Object insertOnce() {
-        if (!permissions.writeFilter(db.data())) {
-            HttpContext.current().throwDebugOut("当前用户无权新增数据!");
-            return null;
+        if (!SuperMode) {
+            if (!permissions.writeFilter(db.data())) {
+                HttpContext.current().throwDebugOut("当前用户无权新增数据!");
+                return null;
+            }
         }
         _insertFilter();
         return db.insertOnce();
     }
 
     public List<Object> insert() {
-        if (!permissions.writeFilter(db.data())) {
-            HttpContext.current().throwDebugOut("当前用户无权新增数据!");
-            return null;
+        if (!SuperMode) {
+            if (!permissions.writeFilter(db.data())) {
+                HttpContext.current().throwDebugOut("当前用户无权新增数据!");
+                return null;
+            }
         }
         _insertFilter();
         return this.db.insert();
     }
 
     public void asyncInsert() {
-        if (!permissions.writeFilter(db.data())) {
-            HttpContext.current().throwDebugOut("当前用户无权新增数据!");
-            return;
+        if (!SuperMode) {
+            if (!permissions.writeFilter(db.data())) {
+                HttpContext.current().throwDebugOut("当前用户无权新增数据!");
+                return;
+            }
         }
         _insertFilter();
         this.db.asyncInsert();
@@ -534,9 +541,11 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
 
     private boolean _updateImpl(JSONObject v) {
         DBFilter q = DBFilter.buildDbFilter();
-        if (!permissions.updateFilter(q, v)) {
-            HttpContext.current().throwDebugOut("当前用户无权更新数据!");
-            return false;
+        if (!SuperMode) {
+            if (!permissions.updateFilter(q, v)) {
+                HttpContext.current().throwDebugOut("当前用户无权更新数据!");
+                return false;
+            }
         }
         _updateFilter(v);
         if (!q.nullCondition()) {
@@ -617,9 +626,11 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
     // 删操作集群
     private boolean _deleteFilter() {
         DBFilter q = DBFilter.buildDbFilter();
-        if (!permissions.deleteFilter(q)) {
-            HttpContext.current().throwDebugOut("当前用户无权删除数据!");
-            return true;
+        if (!SuperMode) {
+            if (!permissions.deleteFilter(q)) {
+                HttpContext.current().throwDebugOut("当前用户无权删除数据!");
+                return true;
+            }
         }
         if (!q.nullCondition()) {
             db.and().groupCondition(q.buildEx());
@@ -687,9 +698,11 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
     private boolean _readFilter() {
         // 处理额外条件
         DBFilter q = DBFilter.buildDbFilter();
-        if (!permissions.readFilter(q)) {
-            HttpContext.current().throwDebugOut("当前用户无权访问数据!");
-            return false;
+        if (!SuperMode) {
+            if (!permissions.readFilter(q)) {
+                HttpContext.current().throwDebugOut("当前用户无权访问数据!");
+                return false;
+            }
         }
         if (!q.nullCondition()) {
             db.and().groupCondition(q.buildEx());

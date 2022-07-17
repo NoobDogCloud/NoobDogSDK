@@ -517,7 +517,9 @@ public class Mongodb implements IDBManager<Mongodb> {
     public void asyncInsert() {
         dataBSON = clearDocument(dataBSON);
         if (dataBSON.size() > 1) {
-            collection.insertMany(dataBSON);
+            if (collection != null) {
+                collection.insertMany(dataBSON);
+            }
         } else {
             _insertOnce(false);
         }
@@ -527,11 +529,13 @@ public class Mongodb implements IDBManager<Mongodb> {
         ObjectId oid;
         String rString = "";
         try {
-            collection.insertOne(dataBSON.get(0));
-            if (rsState) {
-                oid = (ObjectId) (dataBSON.get(0).get("_id"));
-                if (oid != null) {
-                    rString = oid.toString();
+            if (collection != null) {
+                collection.insertOne(dataBSON.get(0));
+                if (rsState) {
+                    oid = (ObjectId) (dataBSON.get(0).get("_id"));
+                    if (oid != null) {
+                        rString = oid.toString();
+                    }
                 }
             }
         } catch (Exception e) {
@@ -548,7 +552,7 @@ public class Mongodb implements IDBManager<Mongodb> {
         Bson filterData = translate2bsonAndRun();
         updateData = document2updateBSON(false);
         try {
-            if (filterData != null && updateData != null) {
+            if (filterData != null && updateData != null && collection != null) {
                 return bson2json(collection.findOneAndUpdate(filterData, updateData));
             }
         } catch (Exception e) {
@@ -564,7 +568,7 @@ public class Mongodb implements IDBManager<Mongodb> {
         Bson filterData = translate2bsonAndRun();
         updateData = document2updateBSON(false);
         try {
-            if (filterData != null && updateData != null) {
+            if (filterData != null && updateData != null && collection != null) {
                 return collection.updateOne(filterData, updateData).getModifiedCount() > 0;
             }
         } catch (Exception e) {
@@ -583,7 +587,7 @@ public class Mongodb implements IDBManager<Mongodb> {
             if (filterData == null) {
                 filterData = new BasicDBObject();
             }
-            if (dataBSON.size() > 0) {
+            if (dataBSON.size() > 0 && collection != null) {
                 updateDatas = document2updateBSON(true);
                 result = collection.updateMany(filterData, Objects.requireNonNull(updateDatas));
             }
@@ -600,7 +604,7 @@ public class Mongodb implements IDBManager<Mongodb> {
     public JSONObject getAndDelete() {
         try {
             Bson filterData = translate2bsonAndRun();
-            if (filterData != null) {
+            if (filterData != null && collection != null) {
                 return bson2json(collection.findOneAndDelete(filterData));
             }
         } catch (Exception e) {
@@ -614,7 +618,7 @@ public class Mongodb implements IDBManager<Mongodb> {
     public boolean delete() {
         try {
             Bson filterData = translate2bsonAndRun();
-            if (filterData != null) {
+            if (filterData != null && collection != null) {
                 return collection.deleteOne(filterData).getDeletedCount() > 0;
             }
         } catch (Exception e) {
@@ -632,7 +636,9 @@ public class Mongodb implements IDBManager<Mongodb> {
             if (filterData == null) {
                 filterData = new BasicDBObject();
             }
-            result = collection.deleteMany(filterData);
+            if (collection != null) {
+                result = collection.deleteMany(filterData);
+            }
         } catch (Exception e) {
             // errout();
             nLogger.logInfo(e);
@@ -776,9 +782,11 @@ public class Mongodb implements IDBManager<Mongodb> {
         if (limitNo > 0)
             ntemp.add(Aggregates.limit(limitNo));
         try {
-            AggregateIterable<Document> fd = collection.aggregate(ntemp);
-            for (Document item : fd) {
-                rs.add(bson2json(item));
+            if (collection != null) {
+                AggregateIterable<Document> fd = collection.aggregate(ntemp);
+                for (Document item : fd) {
+                    rs.add(bson2json(item));
+                }
             }
         } catch (Exception e) {
             //errout();
@@ -800,7 +808,9 @@ public class Mongodb implements IDBManager<Mongodb> {
         //System.out.println(condString());
         try {
             Bson filterData = translate2bsonAndRun();
-            rl = filterData == null ? collection.estimatedDocumentCount() : collection.countDocuments(filterData);
+            rl = collection != null ?
+                    (filterData == null ? collection.estimatedDocumentCount() : collection.countDocuments(filterData)) :
+                    0;
             if (!islist) {
                 reinit();
             }
@@ -820,9 +830,11 @@ public class Mongodb implements IDBManager<Mongodb> {
         Bson filterData = translate2bsonAndRun();
         DistinctIterable<String> fd;
         try {
-            fd = filterData != null ? collection.distinct(fieldName, filterData, String.class) : collection.distinct(fieldName, String.class);
-            for (String item : fd) {
-                rTs.add(item);
+            if (collection != null) {
+                fd = filterData != null ? collection.distinct(fieldName, filterData, String.class) : collection.distinct(fieldName, String.class);
+                for (String item : fd) {
+                    rTs.add(item);
+                }
             }
         } catch (Exception e) {
             nLogger.logInfo(e);
