@@ -1,6 +1,7 @@
 package common.java.Rpc;
 
 import common.java.Number.NumberHelper;
+import common.java.String.StringHelper;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
@@ -41,7 +42,7 @@ public class rMsgJson {
 
     public JSONObject netMSG(int state, String message, Object data) {
         info.put("errorcode", state).put("record", data);
-        if (state > 0) {
+        if (!StringHelper.isInvalided(message)) {
             info.put("message", message);
         }
         return info;

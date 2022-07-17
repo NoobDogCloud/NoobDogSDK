@@ -9,15 +9,17 @@ import java.util.HashMap;
 public class MicroModel {
     private final String appId;
     private String tableName;
+    private String pkField;
     private MModelRuleArray mmrArray;
     private MModelPerm mmps;
 
     private MModelApiPerm apips;
 
-    public MicroModel(String appId, String tableName, JSONObject modelJson) {
+    public MicroModel(String appId, String tableName, String pkField, JSONObject modelJson) {
         this.appId = appId;
         if (modelJson != null) {
             this.tableName = tableName;
+            this.pkField = pkField;
             this.mmps = new MModelPerm(appId, modelJson.getJson("perm"));
             this.mmrArray = new MModelRuleArray(modelJson.getJsonArray("rule"));
             this.apips = new MModelApiPerm(modelJson.getJson("api"));
@@ -29,6 +31,13 @@ public class MicroModel {
      */
     public String tableName() {
         return this.tableName;
+    }
+
+    /**
+     * 获得模型主键字段名称
+     */
+    public String pkField() {
+        return this.pkField;
     }
 
     /**

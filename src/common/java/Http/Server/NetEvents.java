@@ -141,7 +141,8 @@ class NetEvents extends ChannelInboundHandlerAdapter {
     }
 
     private void webSocket(ChannelHandlerContext _ctx, TextWebSocketFrame msg) {
-        ByteBuf buf = msg.content().copy();  //真正的数据是放在buf里面的
+        ByteBuf b = msg.content();
+        ByteBuf buf = b.copy();  //真正的数据是放在buf里面的
         String wsData = buf.toString(StandardCharsets.UTF_8);  //将数据按照utf-8的方式转化为字符串
         JSONObject json = JSONObject.toJSON(wsData);
         if (JSONObject.isInvalided(json) || !json.containsKey("path") || !json.containsKey("header")) {
@@ -162,6 +163,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
             // 开始服务
             GrapeHttpServer.startService(json, _ctx, null);
         }
+        b.release();
     }
 
     private void httpRequest(ChannelHandlerContext _ctx, HttpContent msg) {

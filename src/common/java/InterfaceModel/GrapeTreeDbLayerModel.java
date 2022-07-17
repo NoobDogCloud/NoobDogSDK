@@ -112,6 +112,9 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         String tableName = mModel.tableName();
         if (!StringHelper.isInvalided(tableName)) {
             pkField = this.db.form(tableName).bind().getGeneratedKeys();
+            if (StringHelper.isInvalided(pkField)) {
+                pkField = mModel.pkField();
+            }
             checker = FormHelper.build().importField(mModel.rules());
             permissions = new Permissions(mModel.tableName());
         }
@@ -149,6 +152,11 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         aggregationJSONArray_Out = func;
     }
 
+    // 设置主键
+    public GrapeTreeDbLayerModel setGeneratedKeys(String pkField) {
+        this.pkField = pkField;
+        return this;
+    }
 
     // map-reduce执行
     private JSONArray<JSONObject> runOutPipe(JSONArray<JSONObject> input) {

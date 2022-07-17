@@ -13,7 +13,9 @@ public class MicroModelArray {
         if (mModel != null) {
             for (String key : mModel.keySet()) {
                 String _key = key.toLowerCase();
-                this.mModels.put(_key, new MicroModel(appId, _key, mModel.getJson(key)));
+                String _tableName = mModel.getString("tableName");
+                String _pkField = mModel.getString("primaryKey");
+                this.mModels.put(_key, new MicroModel(appId, _tableName, _pkField, mModel.getJson(key)));
             }
         }
     }
@@ -46,10 +48,9 @@ public class MicroModelArray {
     /**
      * 遍历全部数据
      */
-    public void forEach(BiConsumer<String, MicroModel> lambdal) {
+    public void forEach(BiConsumer<String, MicroModel> lambda) {
         for (String key : this.mModels.keySet()) {
-            lambdal.accept(key, this.mModels.get(key));
+            lambda.accept(key, this.mModels.get(key));
         }
     }
-
 }

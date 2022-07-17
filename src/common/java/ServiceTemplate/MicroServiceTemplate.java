@@ -240,8 +240,8 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
     }
 
     @Override
-    public int delete(String uids) {
-        return _delete(uids, null);
+    public int delete(String ids) {
+        return _delete(ids, null);
     }
 
     @Override
@@ -259,8 +259,8 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
         return r;
     }
 
-    public int update(String uids, JSONObject data) {
-        return _update(uids, data, null);
+    public int update(String ids, JSONObject data) {
+        return _update(ids, data, null);
     }
 
     @Override
