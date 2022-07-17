@@ -670,9 +670,9 @@ public class Mongodb implements IDBManager<Mongodb> {
 
     public JSONObject find() {
         try {
-            return bson2json(_find().first());
+            var r = _find();
+            return r != null ? bson2json(r.first()) : null;
         } catch (Exception e) {
-            // errout();
             nLogger.logInfo(e);
         }
         return null;
@@ -685,11 +685,13 @@ public class Mongodb implements IDBManager<Mongodb> {
         //解析内容，执行之
         try {
             FindIterable<Document> fd = _find();
-            for (Document document : fd) {
-                doc = document;
-                json = bson2json(doc);
-                if (json != null) {
-                    rs.add(json);
+            if (fd != null) {
+                for (Document document : fd) {
+                    doc = document;
+                    json = bson2json(doc);
+                    if (json != null) {
+                        rs.add(json);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -706,18 +708,22 @@ public class Mongodb implements IDBManager<Mongodb> {
         try {
 
             Bson filterData = translate2bsonAndRun();
-            fd = filterData == null ? collection.find() : collection.find(filterData);
+            fd = collection != null ?
+                    (filterData == null ? collection.find() : collection.find(filterData)) :
+                    null;
 
-            if (fieldVisible.size() > 0 || fieldDisable.size() > 0)
-                fd = fd.projection(reBuildField());
-            if (sortBSON.size() > 0) {
-                bson = Sorts.orderBy(sortBSON);
-                fd = fd.sort(bson);
+            if (fd != null) {
+                if (fieldVisible.size() > 0 || fieldDisable.size() > 0)
+                    fd = fd.projection(reBuildField());
+                if (sortBSON.size() > 0) {
+                    bson = Sorts.orderBy(sortBSON);
+                    fd = fd.sort(bson);
+                }
+                if (skipNo > 0)
+                    fd = fd.skip(skipNo);
+                if (limitNo > 0)
+                    fd = fd.limit(limitNo);
             }
-            if (skipNo > 0)
-                fd = fd.skip(skipNo);
-            if (limitNo > 0)
-                fd = fd.limit(limitNo);
         } catch (Exception e) {
             // errout();
             nLogger.logInfo(e);
