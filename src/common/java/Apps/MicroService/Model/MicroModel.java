@@ -15,11 +15,12 @@ public class MicroModel {
 
     private MModelApiPerm apips;
 
-    public MicroModel(String appId, String tableName, String pkField, JSONObject modelJson) {
+    // public MicroModel(String appId, String tableName, String pkField, JSONObject modelJson) {
+    public MicroModel(String appId, JSONObject modelJson) {
         this.appId = appId;
         if (modelJson != null) {
-            this.tableName = tableName;
-            this.pkField = pkField;
+            this.tableName = modelJson.getString("tableName");
+            this.pkField = modelJson.getString("primaryKey");
             this.mmps = new MModelPerm(appId, modelJson.getJson("perm"));
             this.mmrArray = new MModelRuleArray(modelJson.getJsonArray("rule"));
             this.apips = new MModelApiPerm(modelJson.getJson("api"));

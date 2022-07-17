@@ -111,9 +111,12 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         mModel = MicroServiceContext.current().model(modelName);
         String tableName = mModel.tableName();
         if (!StringHelper.isInvalided(tableName)) {
-            pkField = this.db.form(tableName).bind().getGeneratedKeys();
-            if (StringHelper.isInvalided(pkField)) {
-                pkField = mModel.pkField();
+            String _pkField = mModel.pkField();
+            // 手动设置优先
+            if (!StringHelper.isInvalided(_pkField)) {
+                pkField = _pkField;
+            } else {
+                pkField = this.db.form(tableName).bind().getGeneratedKeys();
             }
             checker = FormHelper.build().importField(mModel.rules());
             permissions = new Permissions(mModel.tableName());

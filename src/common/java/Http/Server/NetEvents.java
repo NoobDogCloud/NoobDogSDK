@@ -171,7 +171,8 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         String _url = filterURLencodeWord(_req.uri());
         boolean vaild = false;
         if (_req.method().equals(HttpMethod.POST)) {
-            String tempBody = convertByteBufToString(msg.content().copy());
+            var b = msg.content();
+            String tempBody = convertByteBufToString(b.copy());
             // 是gsc-post
             if (isGscPost(tempBody)) {
                 // 将请求格式是 gsc-rpc 的post转化成等同的get
@@ -187,6 +188,7 @@ class NetEvents extends ChannelInboundHandlerAdapter {
                 nLogger.debugInfo("post:" + _url);
             }
             vaild = true;
+            b.release();
         }
         if (_req.method().equals(HttpMethod.GET)) {
             QueryStringDecoder decoder = isNotGscGet(_url);

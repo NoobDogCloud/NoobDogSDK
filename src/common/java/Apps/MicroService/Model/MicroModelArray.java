@@ -13,9 +13,9 @@ public class MicroModelArray {
         if (mModel != null) {
             for (String key : mModel.keySet()) {
                 String _key = key.toLowerCase();
-                String _tableName = mModel.getString("tableName");
-                String _pkField = mModel.getString("primaryKey");
-                this.mModels.put(_key, new MicroModel(appId, _tableName, _pkField, mModel.getJson(key)));
+                // String _tableName = mModel.getString("tableName");
+                // String _pkField = mModel.getString("primaryKey");
+                this.mModels.put(_key, new MicroModel(appId, mModel.getJson(key)));
             }
         }
     }
