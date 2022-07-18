@@ -203,6 +203,12 @@ public class AppRoles {
                 elderGroup.add(roleName);
             }
         }
+        // 重新按照用户组权值排序
+        elderGroup.sort((o1, o2) -> {
+            int pv1 = getPV(o1);
+            int pv2 = getPV(o2);
+            return pv1 - pv2;
+        });
         return elderGroup;
     }
 

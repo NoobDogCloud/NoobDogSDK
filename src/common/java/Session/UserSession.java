@@ -197,7 +197,7 @@ public class UserSession {
     public UserSession refreshSession() {
         if (this.expireTime > 0) {
             int need_expire_time = sessionInfo.getNeedRefresh();
-            long t = TimeHelper.build().nowSecond() + expireTime;
+            long t = TimeHelper.build().nowSecond();
             if (t < need_expire_time) {
                 return this;
             }
@@ -219,9 +219,10 @@ public class UserSession {
                 if (Jwt.isJwt(sid)) {
                     jwtStatus = true;
                     JwtInfo jwtInfo = JwtInfo.buildBy(sid);
+                    layer = new JwtUserSession();
                     if (jwtInfo != null && jwtInfo.isValid()) {
                         uid = jwtInfo.getUserName();
-                        sessionInfo = UserSessionInfo.build(jwtInfo.decodeJwt()).toUser();
+                        sessionInfo = UserSessionInfo.build(sid, uid, jwtInfo.decodeJwt()).toUser();
                     }
                 } else {
                     layer = new CacheUserSession();

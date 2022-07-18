@@ -88,11 +88,13 @@ public class Mongodb implements IDBManager<Mongodb> {
     // private boolean _atom;
     private String ownid;
     private boolean isDirty;
-    private HashMap<String, Object> constantConds;
+    protected boolean effectDirty = false;
+    private HashMap<String, Object> constantCondition;
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
+
     public Mongodb(String configString) {
         _configString = configString;
-        constantConds = new HashMap<>();
+        constantCondition = new HashMap<>();
         initMongodb();
         reinit();
     }
@@ -166,6 +168,7 @@ public class Mongodb implements IDBManager<Mongodb> {
     private void reinit() {
         if (isDirty) {//脏执行下不重置
             isDirty = false;
+            effectDirty = true;
             return;
         }
         //tempCondtion = new ArrayList<>();
@@ -174,6 +177,7 @@ public class Mongodb implements IDBManager<Mongodb> {
         } else {
             conditionJSON.clear();
         }
+        effectDirty = false;
         conditiobLogicAnd = true;
 
         fieldBSON = null;
@@ -223,16 +227,15 @@ public class Mongodb implements IDBManager<Mongodb> {
 
 
         and();
-
-        for (String _key : constantConds.keySet()) {//补充条件
-            eq(_key, constantConds.get(_key));
-        }
     }
 
     public void addConstantCond(String fieldName, Object CondValue) {
         and();
-        constantConds.put(fieldName, CondValue);
-        eq(fieldName, CondValue);//载入的时候填入条件
+        constantCondition.put(fieldName, CondValue);
+    }
+
+    public void delConstantCond(String fieldName) {
+        constantCondition.remove(fieldName);
     }
 
     public Mongodb and() {
@@ -1015,8 +1018,14 @@ public class Mongodb implements IDBManager<Mongodb> {
 
     private BasicDBObject translate2bsonAndRun() {//翻译到BSON并执行
         BasicDBObject rBSON = new BasicDBObject();
-        int size = conditionJSON.size();
-        if (size > 0) {
+        // 补充恒定条件
+        if (constantCondition.size() > 0 && !effectDirty) {
+            and();
+            for (String field : constantCondition.keySet()) {
+                eq(field, constantCondition.get(field));
+            }
+        }
+        if (conditionJSON.size() > 0) {
             List<Object> tempConds = new ArrayList<>(conditionJSON);
             rBSON = translate2bsonAndRun(tempConds);
             // rBSON = killAnd(rBSON);  // 最外层 $and 转成 obj

@@ -87,8 +87,9 @@ public class UserSessionInfo {
 
     public UserSessionInfo refresh() {
         var t = expireTime + TimeHelper.build().nowSecond();
+        var n = TimeHelper.build().nowSecond() + expireTime / 2;
         userInfo.put("_GrapeFW_Expire", t)
-                .put("_GrapeFW_NeedRefresh", t / 2);
+                .put("_GrapeFW_NeedRefresh", n);
         return this;
     }
 

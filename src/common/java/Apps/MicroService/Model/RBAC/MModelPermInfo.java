@@ -52,6 +52,7 @@ public class MModelPermInfo {
                 .map(v -> Role.build(v, appRoles.getPV(v), appRoles.getElder(v)))
                 .sorted(Role::compareTo)
                 .map(v -> v.name)
+                .filter(v -> !StringHelper.isInvalided(v))
                 .toArray(String[]::new);
         this.info.put(MModelPermDef.perm_value_caption, StringHelper.join(roleArr));
         this.group_values = Arrays.asList(roleArr);

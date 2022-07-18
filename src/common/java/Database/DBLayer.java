@@ -304,6 +304,10 @@ public class DBLayer implements IDBManager<DBLayer> {
         _db.addConstantCond(fieldName, CondValue);
     }
 
+    public void delConstantCond(String fieldName) {
+        _db.delConstantCond(fieldName);
+    }
+
     public DBLayer and() {
         _db.and();
         return this;

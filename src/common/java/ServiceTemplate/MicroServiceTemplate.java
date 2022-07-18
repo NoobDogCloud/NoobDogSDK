@@ -72,10 +72,29 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
         }
     }
 
+    // 新增约束检查
+    private boolean _insertUniqueFilter(String key, Object v) {
+        var info = find(key, StringHelper.toString(v));
+        return DBLayer.isInvalidQueryResult(info);
+    }
+
+    private boolean _updateUniqueFilter(String key, Object v, JSONObject orgInfo) {
+        var info = find(key, StringHelper.toString(v));
+        if (DBLayer.isInvalidQueryResult(info)) {
+            return true;
+        }
+        // 数据找到了,但是内容与新值一样,唯一不生效
+        return orgInfo.get(key).equals(v);
+    }
+
     // 检查有约束的字段
-    private CheckResult constraintFilter(JSONObject input) {
+    private CheckResult constraintFilter(JSONObject input, boolean isUpdate) {
         if (input == null || JSONObject.isInvalided(input)) {
             return CheckResult.build(false, "all");
+        }
+        JSONObject orgInfo = null;
+        if (isUpdate) {
+            orgInfo = db.dirty().find();
         }
         var ruleArr = db.getMicroModel().rules();
         for (var node : ruleArr.values()) {
@@ -83,8 +102,14 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
             // 检查唯一值
             if (node.unique()) {
                 var v = input.get(node.name());
-                if (!DBLayer.isInvalidQueryResult(find(node.name(), StringHelper.toString(v)))) {
-                    return CheckResult.build(false, key);
+                if (isUpdate) {
+                    if (!_updateUniqueFilter(key, v, orgInfo)) {
+                        return CheckResult.build(false, key);
+                    }
+                } else {
+                    if (!_insertUniqueFilter(key, v)) {
+                        return CheckResult.build(false, key);
+                    }
                 }
             }
             // 检查约束
@@ -233,7 +258,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
             return null;
         }
         // 输入数据对应字段值约束
-        if (!constraintFilter(newData).isStatus()) {
+        if (!constraintFilter(newData, false).isStatus()) {
             return null;
         }
         return db.data(newData).insertOnce();
@@ -278,7 +303,7 @@ public class MicroServiceTemplate implements MicroServiceTemplateInterface {
             return -1;
         }
         // 输入数据对应字段值约束
-        if (!constraintFilter(info).isStatus()) {
+        if (!constraintFilter(info, true).isStatus()) {
             return -1;
         }
         return (int) db.data(info).updateAll();

@@ -23,6 +23,8 @@ public interface IDBLayer<T> {
 
     void addConstantCond(String fieldName, Object CondValue);
 
+    void delConstantCond(String fieldName);
+
     T and();
 
     T or();

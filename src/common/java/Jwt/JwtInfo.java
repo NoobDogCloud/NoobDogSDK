@@ -5,6 +5,8 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import common.java.Encrypt.Md5;
+import common.java.Http.Server.HttpContext;
+import common.java.String.StringHelper;
 import common.java.Time.TimeHelper;
 import org.json.gsc.JSONObject;
 
@@ -33,11 +35,11 @@ public class JwtInfo {
 
     public static JwtInfo buildBy(String fullToken) {
         String[] metaArr = fullToken.split("_");
-        if (metaArr.length != 4) {
+        if (metaArr.length < 4) {
             return null;
         }
         var r = new JwtInfo(metaArr[2]);
-        r.token = metaArr[3];
+        r.token = StringHelper.join(metaArr, "_", 3, -1);
         r.version = metaArr[1];
         r.sign = metaArr[0];
         return r;
@@ -91,6 +93,10 @@ public class JwtInfo {
             DecodedJWT decodedJWT = jwtVerifier.verify(token);
             return JSONObject.build(decodedJWT.getClaim("user").asMap());
         } catch (Exception e) {
+            var ctx = HttpContext.current();
+            if (ctx != null) {
+                ctx.throwOut("非法会话");
+            }
             return null;
         }
     }

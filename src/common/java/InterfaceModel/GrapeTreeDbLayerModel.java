@@ -12,6 +12,7 @@ import common.java.InterfaceModel.Type.Aggregation;
 import common.java.ServiceTemplate.SuperItemField;
 import common.java.Session.UserSession;
 import common.java.String.StringHelper;
+import common.java.Time.TimeHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
@@ -29,6 +30,13 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
     private List<Consumer<GrapeTreeDbLayerModel>> pipeRead;
     private boolean hardMode = false;
     private boolean SuperMode = false;
+    // 脏模式标记
+    private boolean dirty = false;
+    // 读过滤已存在
+    private boolean readFilterExist = false;
+    // 写过滤已存在
+    private boolean writeFilterExist = false;
+
     private DBLayer db;
     private String pkField = null;
     private FormHelper checker = null;
@@ -69,6 +77,10 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
 
     public void addConstantCond(String fieldName, Object CondValue) {
         this.db.addConstantCond(fieldName, CondValue);
+    }
+
+    public void delConstantCond(String fieldName) {
+        this.db.delConstantCond(fieldName);
     }
 
     public String getConditionString() {
@@ -195,6 +207,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         pipeRead = new ArrayList<>();
         aggregationJSONArray_Out = null;
         db = DBLayer.build();
+        softMode();
     }
 
     /**
@@ -202,11 +215,13 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
      */
     public GrapeTreeDbLayerModel hardMode() {
         hardMode = true;
+        this.db.delConstantCond(SuperItemField.deleteField);
         return this;
     }
 
     public GrapeTreeDbLayerModel softMode() {
         hardMode = false;
+        this.db.addConstantCond(SuperItemField.deleteField, 0);
         return this;
     }
 
@@ -235,9 +250,16 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
 
     public GrapeTreeDbLayerModel dirty() {
         this.db.dirty();
+        dirty = true;
         return this;
     }
 
+    public void clear() {
+        this.db.clear();
+        dirty = false;
+        readFilterExist = false;
+        writeFilterExist = false;
+    }
 
     public int pageMax(int max) {
         return this.db.pageMax(max);
@@ -452,12 +474,6 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         return rjson;
     }
 
-    private void niceCond() {
-        if (!hardMode) {
-            and().eq(SuperItemField.deleteField, 0);
-        }
-    }
-
     public void invalidCache() {
         this.db.invalidCache();
     }
@@ -536,20 +552,24 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
             return;
         }
         // 补充更新时间字段
-        db.data(info.put(SuperItemField.updateAtField, ":timestamp"));
+        db.data(info.put(SuperItemField.updateAtField, TimeHelper.build().nowDatetime()));
     }
 
     private boolean _updateImpl(JSONObject v) {
-        DBFilter q = DBFilter.buildDbFilter();
-        if (!SuperMode) {
-            if (!permissions.updateFilter(q, v)) {
-                HttpContext.current().throwDebugOut("当前用户无权更新数据!");
-                return false;
+        if (dirty && writeFilterExist) {
+        } else {
+            DBFilter q = DBFilter.buildDbFilter();
+            if (!SuperMode) {
+                if (!permissions.updateFilter(q, v)) {
+                    HttpContext.current().throwDebugOut("当前用户无权更新数据!");
+                    return false;
+                }
             }
-        }
-        _updateFilter(v);
-        if (!q.nullCondition()) {
-            this.db.and().groupCondition(q.buildEx());
+            _updateFilter(v);
+            if (!q.nullCondition()) {
+                this.db.and().groupCondition(q.buildEx());
+            }
+            writeFilterExist = true;
         }
         return true;
     }
@@ -625,15 +645,19 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
 
     // 删操作集群
     private boolean _deleteFilter() {
-        DBFilter q = DBFilter.buildDbFilter();
-        if (!SuperMode) {
-            if (!permissions.deleteFilter(q)) {
-                HttpContext.current().throwDebugOut("当前用户无权删除数据!");
-                return true;
+        if (dirty && writeFilterExist) {
+        } else {
+            DBFilter q = DBFilter.buildDbFilter();
+            if (!SuperMode) {
+                if (!permissions.deleteFilter(q)) {
+                    HttpContext.current().throwDebugOut("当前用户无权删除数据!");
+                    return true;
+                }
             }
-        }
-        if (!q.nullCondition()) {
-            db.and().groupCondition(q.buildEx());
+            if (!q.nullCondition()) {
+                db.and().groupCondition(q.buildEx());
+            }
+            writeFilterExist = true;
         }
         return false;
     }
@@ -648,7 +672,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         if (hardMode) {
             return this.db.delete();
         } else {
-            return data(JSONObject.build(SuperItemField.deleteField, 1).put(SuperItemField.removeAtField, ":timestamp")).update();
+            return data(JSONObject.build(SuperItemField.deleteField, 1).put(SuperItemField.removeAtField, TimeHelper.build().nowDatetime())).update();
         }
     }
 
@@ -659,7 +683,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         if (hardMode) {
             return this.db.getAndDelete();
         } else {
-            return data(JSONObject.build(SuperItemField.deleteField, 1).put(SuperItemField.removeAtField, ":timestamp")).getAndUpdate();
+            return data(JSONObject.build(SuperItemField.deleteField, 1).put(SuperItemField.removeAtField, TimeHelper.build().nowDatetime())).getAndUpdate();
         }
     }
 
@@ -673,8 +697,24 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         if (hardMode) {
             return this.db.deleteAll();
         } else {
-            return data(JSONObject.build(SuperItemField.deleteField, 1).put(SuperItemField.removeAtField, ":timestamp")).updateAll();
+            return data(JSONObject.build(SuperItemField.deleteField, 1).put(SuperItemField.removeAtField, TimeHelper.build().nowDatetime())).updateAll();
         }
+    }
+
+    // 恢复方法群
+
+    /**
+     * 恢复软删除的数据
+     */
+    public boolean restore() {
+        return !hardMode && data(JSONObject.build(SuperItemField.deleteField, 0).put(SuperItemField.removeAtField, "")).update();
+    }
+
+    /**
+     * 批量恢复软删除的数据
+     */
+    public long restoreAll() {
+        return hardMode ? -1 : data(JSONObject.build(SuperItemField.deleteField, 0).put(SuperItemField.removeAtField, "")).updateAll();
     }
 
     // 读取方法群
@@ -696,21 +736,25 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
     }
 
     private boolean _readFilter() {
-        // 处理额外条件
-        DBFilter q = DBFilter.buildDbFilter();
-        if (!SuperMode) {
-            if (!permissions.readFilter(q)) {
-                HttpContext.current().throwDebugOut("当前用户无权访问数据!");
-                return false;
+        if (dirty && readFilterExist) {
+        } else {
+            // 处理额外条件
+            DBFilter q = DBFilter.buildDbFilter();
+            if (!SuperMode) {
+                if (!permissions.readFilter(q)) {
+                    HttpContext.current().throwDebugOut("当前用户无权访问数据!");
+                    return false;
+                }
             }
-        }
-        if (!q.nullCondition()) {
-            db.and().groupCondition(q.buildEx());
-        }
-        // 处理mask字段
-        String[] mask_fields = checker.getMaskFields();
-        if (mask_fields.length > 0) {
-            db.mask(mask_fields);
+            if (!q.nullCondition()) {
+                db.and().groupCondition(q.buildEx());
+            }
+            // 处理mask字段
+            String[] mask_fields = checker.getMaskFields();
+            if (mask_fields.length > 0) {
+                db.mask(mask_fields);
+            }
+            readFilterExist = true;
         }
         // 响应读取前置过滤
         _readPiper();
@@ -924,11 +968,6 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
 
     public String getGeneratedKeys() {
         return pkField == null ? this.db.getGeneratedKeys() : pkField;
-    }
-
-
-    public void clear() {
-        this.db.clear();
     }
 
     public List<List<Object>> getCond() {

@@ -5,6 +5,7 @@ import common.java.Apps.MicroService.MicroServiceContext;
 import common.java.Config.Config;
 import common.java.Http.Server.HttpContext;
 import common.java.String.StringHelper;
+import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
@@ -39,23 +40,28 @@ public class Coordination {
     }
 
     private void init(JSONObject data) {
-        // 记录全局数据
-        apps.set(data.getJsonArray("apps"));
-        services.set(data.getJsonArray("services"));
-        configs.set(data.getJsonArray("configs"));
-        proxy_services.set(data.getJson("proxy_services"));
-        // 生成上下文
-        JSONArray<JSONObject> appArr = apps.get();
-        JSONArray<JSONObject> svcArr = services.get();
-        for (JSONObject v : appArr) {
-            String appId = v.getString("id");
-            AppContext aCtx = AppContext.build(v);
-            app_context.put(appId, aCtx);
-            aCtx.loadPreMicroContext(svcArr);
-            String domain = v.getString("domain");
-            if (!StringHelper.isInvalided(domain)) {
-                domain_context.put(domain, appId);
+        try {
+            // 记录全局数据
+            apps.set(data.getJsonArray("apps"));
+            services.set(data.getJsonArray("services"));
+            configs.set(data.getJsonArray("configs"));
+            proxy_services.set(data.getJson("proxy_services"));
+            // 生成上下文
+            JSONArray<JSONObject> appArr = apps.get();
+            JSONArray<JSONObject> svcArr = services.get();
+            for (JSONObject v : appArr) {
+                String appId = v.getString("id");
+                AppContext aCtx = AppContext.build(v);
+                app_context.put(appId, aCtx);
+                aCtx.loadPreMicroContext(svcArr);
+                String domain = v.getString("domain");
+                if (!StringHelper.isInvalided(domain)) {
+                    domain_context.put(domain, appId);
+                }
             }
+        } catch (Exception e) {
+            nLogger.errorInfo(e);
+            System.out.println("初始化平台数据失败!");
         }
     }
 

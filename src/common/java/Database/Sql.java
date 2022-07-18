@@ -51,6 +51,7 @@ public class Sql implements IDBManager<Sql> {
 
     protected final String _configString;
     protected final HashMap<String, Object> constantCondition;
+    protected boolean effectDirty = false;
     protected HikariDataSource dataSource;//  = new DruidDataSource();
     //声明线程共享变量
     protected boolean conditionLogicAnd;
@@ -78,8 +79,6 @@ public class Sql implements IDBManager<Sql> {
     protected boolean isDirty;
 
     private static final ExecutorService threadPool = Executors.newCachedThreadPool();
-    //配置说明，参考官方网址
-    //http://blog.163.com/hongwei_benbear/blog/static/1183952912013518405588/
     public Sql(String configString) {
         isDirty = false;
         formName = "";
@@ -356,15 +355,39 @@ public class Sql implements IDBManager<Sql> {
     protected void reinit() {
         if (isDirty) {//脏执行下不重置
             isDirty = false;
+            effectDirty = true;
             return;
         }
-        conditionJSON = new ArrayList<>();
-        conditionLogicAnd = true;
-        fieldVisible = new HashSet<>();
-        fieldDisable = new HashSet<>();
+        if (fieldVisible == null) {
+            conditionJSON = new ArrayList<>();
+        } else {
+            conditionJSON.clear();
+        }
 
-        sortBSON = new JSONObject();//默认_id排序
-        dataJSON = new ArrayList<>();
+        effectDirty = false;
+        conditionLogicAnd = true;
+        if (fieldVisible == null) {
+            fieldVisible = new HashSet<>();
+        } else {
+            fieldVisible.clear();
+        }
+        if (fieldDisable == null) {
+            fieldDisable = new HashSet<>();
+        } else {
+            fieldDisable.clear();
+        }
+
+        if (sortBSON == null) {
+            sortBSON = new JSONObject();//默认_id排序
+        } else {
+            sortBSON.clear();
+        }
+
+        if (dataJSON == null) {
+            dataJSON = new ArrayList<>();
+        } else {
+            dataJSON.clear();
+        }
 
         limitNo = 0;
         skipNo = 0;
@@ -381,12 +404,16 @@ public class Sql implements IDBManager<Sql> {
 
         and();
 
-        tableState = new HashMap<>();
-        baseTable = new HashMap<>();
-        for (String _key : constantCondition.keySet()) {//补充条件
-            eq(_key, constantCondition.get(_key));
+        if (tableState == null) {
+            tableState = new HashMap<>();
+        } else {
+            tableState.clear();
         }
-
+        if (baseTable == null) {
+            baseTable = new HashMap<>();
+        } else {
+            baseTable.clear();
+        }
     }
 
     /**
@@ -426,7 +453,10 @@ public class Sql implements IDBManager<Sql> {
     public void addConstantCond(String fieldName, Object CondValue) {
         and();
         constantCondition.put(fieldName, CondValue);
-        eq(fieldName, CondValue);//载入的时候填入条件
+    }
+
+    public void delConstantCond(String fieldName) {
+        constantCondition.remove(fieldName);
     }
 
     public Sql and() {
@@ -986,13 +1016,19 @@ public class Sql implements IDBManager<Sql> {
 
     protected String whereSQL() {//不支持自由条件，必须严格区分and和or2个组
         StringBuilder rString = new StringBuilder();
+        // 补充恒定条件
+        if (constantCondition.size() > 0 && !effectDirty) {
+            and();
+            for (String field : constantCondition.keySet()) {
+                eq(field, constantCondition.get(field));
+            }
+        }
         if (conditionJSON.size() > 0) {
             int cnt = 0;
             for (List<Object> item : conditionJSON) {
                 rString.append(whereSQL(item, cnt == 0));
                 cnt++;
             }
-
             rString.insert(0, " where ");
         }
         return rString.toString();
