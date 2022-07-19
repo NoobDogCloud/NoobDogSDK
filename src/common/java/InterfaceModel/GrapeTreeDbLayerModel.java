@@ -133,6 +133,9 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
             }
             checker = FormHelper.build().importField(mModel.rules());
             permissions = new Permissions(mModel.tableName());
+            if (mModel.softMode()) {
+                softMode();
+            }
         }
         return this;
     }
@@ -207,7 +210,6 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
         pipeRead = new ArrayList<>();
         aggregationJSONArray_Out = null;
         db = DBLayer.build();
-        softMode();
     }
 
     /**

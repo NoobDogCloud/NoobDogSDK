@@ -9,6 +9,7 @@ import java.util.HashMap;
 public class MicroModel {
     private final String appId;
     private String tableName;
+    private boolean softMode;
     private String pkField;
     private MModelRuleArray mmrArray;
     private MModelPerm mmps;
@@ -21,6 +22,7 @@ public class MicroModel {
         if (modelJson != null) {
             this.tableName = modelJson.getString("tableName");
             this.pkField = modelJson.getString("primaryKey");
+            this.softMode = modelJson.getBoolean("softMode");
             this.mmps = new MModelPerm(appId, modelJson.getJson("perm"));
             this.mmrArray = new MModelRuleArray(modelJson.getJsonArray("rule"));
             this.apips = new MModelApiPerm(modelJson.getJson("api"));
@@ -39,6 +41,13 @@ public class MicroModel {
      */
     public String pkField() {
         return this.pkField;
+    }
+
+    /**
+     * 获得模型删除模式
+     */
+    public boolean softMode() {
+        return this.softMode;
     }
 
     /**
