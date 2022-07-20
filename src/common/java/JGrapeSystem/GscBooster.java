@@ -8,6 +8,8 @@ import common.java.Http.Server.GscServer;
 import common.java.MasterProxy.MasterActor;
 import common.java.MessageServer.GscPulsarServer;
 import common.java.Rpc.rpc;
+import common.java.Session.UserSession;
+import common.java.String.StringHelper;
 import common.java.Thread.ThreadHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
@@ -48,6 +50,7 @@ public class GscBooster {
                 case "-p" -> Config.port = Integer.parseInt(argArr.get(key).toString());
                 case "-k" -> // 主控才有秘钥，所以直接锁死服务名称
                         Config.publicKey = argArr.get(key).toString();
+                case "-a" -> Config.appId = argArr.get(key).toString();
             }
         }
         BoosterArgs.putAll(argArr);
@@ -131,8 +134,20 @@ public class GscBooster {
             if (func != null) {
                 func.run();
             }
-            String transfer = currentService.getString("transfer");
+            // 设置会话维持类型
+            if (!StringHelper.isInvalided(Config.appId)) {
+                JSONObject currentApp = MasterActor.getInstance("apps").getData().mapsByKey("id").getJson(Config.appId);
+                if (!JSONObject.isInvalided(currentApp)) {
+                    String sessionType = currentApp.getString("session_type");
+                    switch (sessionType) {
+                        case "jwt" -> UserSession.setDefaultDriver(UserSession.JwtDriver);
+                        case "redis" -> UserSession.setDefaultDriver(UserSession.RedisDriver);
+                        default -> nLogger.errorInfo("错误的会话类型:" + sessionType);
+                    }
+                }
+            }
             // 启动http服务
+            String transfer = currentService.getString("transfer");
             if (MicroServiceContext.TransferKeyName.Pulsar.equals(transfer)) {
                 GscPulsarServer.start(serviceArr);
             } else {

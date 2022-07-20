@@ -21,7 +21,7 @@ public class AppContext {
 
     private final String appId;
     private final String domain;
-
+    private final String sessionType;
     private final String publishModel;
     private final JSONObject appInfo;
     private final ModelServiceConfig msc;
@@ -35,6 +35,7 @@ public class AppContext {
         this.appInfo = appInfo;
         this.appId = this.appInfo.getString("id");
         this.domain = this.appInfo.getString("domain");
+        this.sessionType = this.appInfo.getString("session_type");
         this.roles = AppRoles.build(this.appInfo.getJson("roles"));
         this.msc = new ModelServiceConfig(this.appInfo.getJson("config"));
         this.publishModel = this.appInfo.getString("category");
@@ -114,6 +115,13 @@ public class AppContext {
      */
     public String domain() {
         return this.domain;
+    }
+
+    /**
+     * 获得会话维持类型
+     */
+    public String getSessionType() {
+        return this.sessionType;
     }
 
     /**

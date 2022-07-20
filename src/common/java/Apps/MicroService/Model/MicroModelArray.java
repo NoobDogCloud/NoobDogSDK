@@ -12,10 +12,10 @@ public class MicroModelArray {
         this.mModels = new HashMap<>();
         if (mModel != null) {
             for (String key : mModel.keySet()) {
-                String _key = key.toLowerCase();
+                // String _key = key.toLowerCase();
                 // String _tableName = mModel.getString("tableName");
                 // String _pkField = mModel.getString("primaryKey");
-                this.mModels.put(_key, new MicroModel(appId, mModel.getJson(key)));
+                this.mModels.put(key, new MicroModel(appId, mModel.getJson(key)));
             }
         }
     }

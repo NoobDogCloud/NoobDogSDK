@@ -24,6 +24,7 @@ public class Config {
     public static int port;
     public static boolean debug;
     public static String publicKey;
+    public static String appId;
     public static String masterId;
     public static String masterPass;
 

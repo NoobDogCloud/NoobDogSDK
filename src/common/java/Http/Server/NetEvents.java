@@ -20,6 +20,7 @@ import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder.EndOfDataDec
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData.HttpDataType;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
+import io.netty.util.ReferenceCountUtil;
 import org.json.gsc.JSONObject;
 
 import java.io.File;
@@ -142,27 +143,33 @@ class NetEvents extends ChannelInboundHandlerAdapter {
 
     private void webSocket(ChannelHandlerContext _ctx, TextWebSocketFrame msg) {
         var b = msg.content();
-        String wsData = convertByteBufToString(b.copy());  //将数据按照utf-8的方式转化为字符串
-        JSONObject json = JSONObject.toJSON(wsData);
-        if (JSONObject.isInvalided(json) || !json.containsKey("path") || !json.containsKey("header")) {
-            OutResponse.defaultOut(_ctx, rMsg.netMSG(false, "请求错误!"));
-        } else {
-            String body = json.getString("param");
-            if (!StringHelper.isInvalided(body)) {
-                String _url = filterURLencodeWord(json.getString("path"));
-                if (isGscPost(body)) {
-                    _url = NetEvents.fixPostBody(_url, body);
+        try {
+            String wsData = convertByteBufToString(b.copy());  //将数据按照utf-8的方式转化为字符串
+            JSONObject json = JSONObject.toJSON(wsData);
+            if (JSONObject.isInvalided(json) || !json.containsKey("path") || !json.containsKey("header")) {
+                OutResponse.defaultOut(_ctx, rMsg.netMSG(false, "请求错误!"));
+            } else {
+                String body = json.getString("param");
+                if (!StringHelper.isInvalided(body)) {
+                    String _url = filterURLencodeWord(json.getString("path"));
+                    if (isGscPost(body)) {
+                        _url = NetEvents.fixPostBody(_url, body);
+                    }
+                    if (_url != null) {
+                        // 重设uri地址
+                        json.put("path", _url);
+                        nLogger.debugInfo("websocket-gsc-post:" + _url);
+                    }
                 }
-                if (_url != null) {
-                    // 重设uri地址
-                    json.put("path", _url);
-                    nLogger.debugInfo("websocket-gsc-post:" + _url);
-                }
+                // 开始服务
+                GrapeHttpServer.startService(json, _ctx, null);
             }
-            // 开始服务
-            GrapeHttpServer.startService(json, _ctx, null);
+        } catch (Exception e) {
+            nLogger.errorInfo(e, "WebSocket通讯异常");
+        } finally {
+            // b.release();
+            ReferenceCountUtil.release(b);
         }
-        b.release();
     }
 
     private void httpRequest(ChannelHandlerContext _ctx, HttpContent msg) {
@@ -171,23 +178,28 @@ class NetEvents extends ChannelInboundHandlerAdapter {
         boolean vaild = false;
         if (_req.method().equals(HttpMethod.POST)) {
             var b = msg.content();
-            String tempBody = convertByteBufToString(b.copy());
-            // 是gsc-post
-            if (isGscPost(tempBody)) {
-                // 将请求格式是 gsc-rpc 的post转化成等同的get
-                _url = NetEvents.fixPostBody(_url, tempBody);
-                nLogger.debugInfo("gsc-post:" + _url);
-            } else {
-                // 分析正常post请求参数
-                postParam = PostParameter(msg);
-                // 不是表单
-                if (postParam == null) {
-                    postParam = PostContent2JSON(tempBody);
+            try {
+                String tempBody = convertByteBufToString(b.copy());
+                // 是gsc-post
+                if (isGscPost(tempBody)) {
+                    // 将请求格式是 gsc-rpc 的post转化成等同的get
+                    _url = NetEvents.fixPostBody(_url, tempBody);
+                    nLogger.debugInfo("gsc-post:" + _url);
+                } else {
+                    // 分析正常post请求参数
+                    postParam = PostParameter(msg);
+                    // 不是表单
+                    if (postParam == null) {
+                        postParam = PostContent2JSON(tempBody);
+                    }
+                    nLogger.debugInfo("post:" + _url);
                 }
-                nLogger.debugInfo("post:" + _url);
+                vaild = true;
+            } catch (Exception e) {
+                nLogger.errorInfo(e, "通讯异常");
+            } finally {
+                b.release();
             }
-            vaild = true;
-            b.release();
         }
         if (_req.method().equals(HttpMethod.GET)) {
             QueryStringDecoder decoder = isNotGscGet(_url);

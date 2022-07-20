@@ -132,7 +132,7 @@ public class GrapeTreeDbLayerModel implements IServiceDBLayer<GrapeTreeDbLayerMo
                 pkField = this.db.getGeneratedKeys();
             }
             checker = FormHelper.build().importField(mModel.rules());
-            permissions = new Permissions(mModel.tableName());
+            permissions = new Permissions(mModel.perms());
             if (mModel.softMode()) {
                 softMode();
             }

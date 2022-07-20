@@ -20,8 +20,12 @@ import java.util.List;
 public class Permissions {
     private final MModelPerm perms;
 
-    public Permissions(String tableName) {
-        this.perms = MicroServiceContext.current().model(tableName).perms();
+    public Permissions(String modelName) {
+        this.perms = MicroServiceContext.current().model(modelName).perms();
+    }
+
+    public Permissions(MModelPerm perms) {
+        this.perms = perms;
     }
 
     /**
