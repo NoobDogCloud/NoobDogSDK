@@ -303,6 +303,8 @@ public class FormHelper {
         }
         int ruleID = checkLength(rule, str);
         switch (ruleID) {
+            case formdef.noCheck:
+                return true;
             case formdef.notNull:
                 return !CheckHelper.IsNull(str);
             case formdef.eqNull:
@@ -387,6 +389,7 @@ public class FormHelper {
          * /效验规则/最大字符长度
          */
         public final static int mixSpilt = 1000;
+        public final static int noCheck = 0;
         /**
          * 不为空
          */
