@@ -9,7 +9,7 @@ import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Coordination {
@@ -20,8 +20,8 @@ public class Coordination {
 
     private final AtomicReference<JSONObject> proxy_services = new AtomicReference<>();
 
-    private final HashMap<String, AppContext> app_context = new HashMap<>();
-    private final HashMap<String, String> domain_context = new HashMap<>();
+    private final ConcurrentHashMap<String, AppContext> app_context = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, String> domain_context = new ConcurrentHashMap<>();
 
     private Coordination() {
     }

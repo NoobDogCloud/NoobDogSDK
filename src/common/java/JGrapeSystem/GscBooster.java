@@ -10,7 +10,6 @@ import common.java.MessageServer.GscPulsarServer;
 import common.java.Rpc.rpc;
 import common.java.Session.UserSession;
 import common.java.String.StringHelper;
-import common.java.Thread.ThreadHelper;
 import common.java.nLogger.nLogger;
 import org.json.gsc.JSONArray;
 import org.json.gsc.JSONObject;
@@ -101,8 +100,7 @@ public class GscBooster {
                         }
                 );
                 // 等待收到订阅数据
-                while (waiting.get()) {
-                    ThreadHelper.sleep(100);
+                while (waiting.compareAndExchangeAcquire(false, true)) {
                 }
                 // 获得当前服务类型启动方式
                 serviceArr = MasterActor.getInstance("services").getData();
